@@ -1,15 +1,20 @@
-import React, {createContext, useCallback, useContext, useEffect, useMemo, useState} from "react";
+import React, {createContext, useCallback, useContext, useEffect, useMemo, useRef, useState} from "react";
 import type { Resume } from "../model/resume.types";
 import { loadResume, resetResume, saveResume } from "../model/resume.storage";
 import {toast} from "sonner";
+import { exportResumeImage } from "../model/resume.export";
 
 type ResumeEditorState = {
     resumeId: string;
     resume: Resume;
     setResume: (next: Resume) => void;
     save: (opts?: { silent?: boolean }) => Promise<void>;
+    loadSaved: () => void;
     reset: () => void;
+    exportImage: () => Promise<void>;
+    previewRef: React.RefObject<HTMLElement | null>;
     isDirty: boolean;
+    isExporting: boolean;
     isSaving: boolean;
     lastSavedAt: number | null;
 };
@@ -26,7 +31,9 @@ export function ResumeEditorProvider({
     const [resume, setResume] = useState<Resume>(() => loadResume(resumeId));
     const [isDirty, setIsDirty] = useState(false);
     const [isSaving, setIsSaving] = useState(false);
+    const [isExporting, setIsExporting] = useState(false);
     const [lastSavedAt, setLastSavedAt] = useState<number | null>(null);
+    const previewRef = useRef<HTMLElement | null>(null);
 
     useEffect(() => {
         setResume(loadResume(resumeId));
@@ -51,12 +58,39 @@ export function ResumeEditorProvider({
         }
     }, [resume, resumeId]);
 
+    const loadSaved = useCallback(() => {
+        setResume(loadResume(resumeId));
+        setIsDirty(false);
+        toast.success("저장된 문서를 불러왔습니다.");
+    }, [resumeId]);
+
     const reset = useCallback(() => {
         resetResume(resumeId);
         setResume(loadResume(resumeId));
         setIsDirty(false);
         setLastSavedAt(null);
     }, [resumeId]);
+
+    const exportImage = useCallback(async () => {
+        if (!previewRef.current) {
+            toast.error("내보낼 미리보기를 찾지 못했습니다.");
+            return;
+        }
+
+        setIsExporting(true);
+        try {
+            const name = resume.basics.name.trim() || "resume";
+            await exportResumeImage({
+                fileName: `${name}-resume.png`,
+                target: previewRef.current,
+            });
+            toast.success("이미지 저장 완료");
+        } catch (error) {
+            toast.error(error instanceof Error ? error.message : "이미지 저장에 실패했습니다.");
+        } finally {
+            setIsExporting(false);
+        }
+    }, [resume.basics.name]);
 
     // 자동 저장
     useEffect(() => {
@@ -72,11 +106,15 @@ export function ResumeEditorProvider({
         resume,
         setResume: setResumeSafe,
         save: persist,
+        loadSaved,
         reset,
+        exportImage,
+        previewRef,
         isDirty,
+        isExporting,
         isSaving,
         lastSavedAt,
-    }), [resume, resumeId, setResumeSafe, persist, reset, isDirty, isSaving, lastSavedAt]);
+    }), [resume, resumeId, setResumeSafe, persist, loadSaved, reset, exportImage, isDirty, isExporting, isSaving, lastSavedAt]);
 
     return (
         <ResumeEditorContext.Provider value={value}>

@@ -1,126 +1,214 @@
-import {Tooltip, TooltipContent, TooltipTrigger} from "@/components/ui/tooltip";
-import {Button} from "@/components/ui/button";
-import {ImageDownIcon, RefreshCcw, TriangleAlert} from "lucide-react";
-import {useEffect, useMemo, useState} from "react";
-import {formatRelativeTime} from "@/utils/time.ts";
-import {Spinner} from "@/components/ui/spinner";
-import {Separator} from "@/components/ui/separator.tsx";
-import {ConfirmDialog} from "@/components/ui/confirm-dialog.tsx";
+import {
+  Tooltip,
+  TooltipContent,
+  TooltipTrigger,
+} from '@/components/ui/tooltip';
+import { Button } from '@/components/ui/button';
+import {
+  RotateCcw,
+  ImageDownIcon,
+  RefreshCcw,
+  TriangleAlert,
+  LogOut,
+} from 'lucide-react';
+import { useEffect, useMemo, useState } from 'react';
+import { formatRelativeTime } from '@/utils/time.ts';
+import { Spinner } from '@/components/ui/spinner';
+import { Separator } from '@/components/ui/separator.tsx';
+import { ConfirmDialog } from '@/components/ui/confirm-dialog.tsx';
+import { cn } from '@/lib/utils';
 
 type Props = {
-    title: string;
-    onSave: () => void;
-    onReset: () => void;
-    onBack: () => void;
-    isDirty: boolean;
-    isSaving: boolean;
-    lastSavedAt: number | null;
+  title: string;
+  onSave: () => void;
+  onLoad: () => void;
+  onReset: () => void;
+  onExportImage: () => void;
+  onBack: () => void;
+  isDirty: boolean;
+  isSaving: boolean;
+  isExporting: boolean;
+  lastSavedAt: number | null;
 };
 
-export function EditorHeader({title, onSave, onReset, onBack, isDirty, isSaving, lastSavedAt}: Props) {
-    const [, forceTick] = useState(0);
+export function EditorHeader({
+  title,
+  onSave,
+  onLoad,
+  onReset,
+  onExportImage,
+  onBack,
+  isDirty,
+  isSaving,
+  isExporting,
+  lastSavedAt,
+}: Props) {
+  const [, forceTick] = useState(0);
+  const [isMobileActionBarFixed, setIsMobileActionBarFixed] = useState(false);
 
-    useEffect(() => {
-        if (!lastSavedAt) return;
-        const id = setInterval(() => forceTick((v) => v + 1), 60_000);
-        return () => clearInterval(id);
-    }, [lastSavedAt]);
+  useEffect(() => {
+    if (!lastSavedAt) return;
+    const id = setInterval(() => forceTick((v) => v + 1), 60_000);
+    return () => clearInterval(id);
+  }, [lastSavedAt]);
 
-    const statusNode = useMemo(() => {
-        if (isSaving) {
-            return (
-                <>
-                    <Spinner/> 자동 저장 중…
-                </>
-            );
-        }
-        if (lastSavedAt) return formatRelativeTime(lastSavedAt);
-        if (isDirty) {
-            return (
-                <>
-                    <TriangleAlert className="size-4"/> 저장 필요
-                </>
-            )
-        }
-        return null;
-    }, [isSaving, lastSavedAt, isDirty]);
+  useEffect(() => {
+    const mobileQuery = window.matchMedia('(max-width: 767px)');
 
-    return (
-        <header className="sticky top-0 z-20 border-b bg-background/95 shadow-sm backdrop-blur">
-            <div className="mx-auto flex flex-wrap items-center justify-between gap-3 px-4 py-3">
-                <div className="flex min-w-0 items-center gap-3">
-                    <h1 className="shrink-0">
-                        <a href="/" className="inline-flex min-h-10 items-center">
-                            <img src="/logo.svg" className="h-5 w-auto" alt="DocKit"/>
-                        </a>
-                    </h1>
-                    <div className="flex items-center gap-2 min-w-0">
-                        <p className="text-xs text-white bg-black rounded-full px-2 py-1">국문 이력서</p>
-                        <strong className="font-normal truncate">{title || "새 이력서"}</strong>
-                    </div>
-                </div>
+    const updateActionBarPosition = () => {
+      setIsMobileActionBarFixed(mobileQuery.matches && window.scrollY > 0);
+    };
 
-            <div className="flex flex-wrap items-center gap-2 sm:gap-3">
-                <span className="inline-flex min-h-9 items-center gap-1 text-sm text-muted-foreground">{statusNode}</span>
-                <Tooltip>
-                    <TooltipTrigger asChild>
-                        <Button variant="outline" size="icon" className="rounded-full" aria-label="이미지 저장" disabled>
-                            <ImageDownIcon className="size-5"/>
-                        </Button>
-                    </TooltipTrigger>
-                    <TooltipContent>
-                        <p className="text-sm">이미지 저장 준비 중</p>
-                    </TooltipContent>
-                </Tooltip>
-                <Tooltip>
-                    <ConfirmDialog
-                        title="전체 초기화할까요?"
-                        description="입력한 내용이 모두 초기화됩니다. 이 작업은 되돌릴 수 없어요."
-                        confirmText="초기화"
-                        onConfirm={onReset}
-                        trigger={
+    updateActionBarPosition();
+    window.addEventListener('scroll', updateActionBarPosition, {
+      passive: true,
+    });
+    mobileQuery.addEventListener('change', updateActionBarPosition);
 
-                            <TooltipTrigger asChild>
-                                <Button
-                                    variant="outline"
-                                    size="icon"
-                                    className="rounded-full"
-                                    aria-label="전체 초기화"
-                                    disabled={!isDirty}
-                                >
-                                    <RefreshCcw/>
-                                </Button>
-                            </TooltipTrigger>
+    return () => {
+      window.removeEventListener('scroll', updateActionBarPosition);
+      mobileQuery.removeEventListener('change', updateActionBarPosition);
+    };
+  }, []);
 
+  const statusNode = useMemo(() => {
+    if (isSaving) {
+      return (
+        <>
+          <Spinner /> 자동 저장 중…
+        </>
+      );
+    }
+    if (lastSavedAt) return formatRelativeTime(lastSavedAt);
+    if (isDirty) {
+      return (
+        <>
+          <TriangleAlert className="size-4" /> 저장 필요
+        </>
+      );
+    }
+    return null;
+  }, [isSaving, lastSavedAt, isDirty]);
 
-                        }
-                    />
-                    <TooltipContent>
-                        <p className="text-sm">전체 초기화</p>
-                    </TooltipContent>
-                </Tooltip>
+  return (
+    <header className="relative border-b md:bg-background/95 shadow-sm md:sticky md:top-0 md:z-20 md:backdrop-blur">
+      <div className="mx-auto flex flex-wrap flex-col md:flex-row md:items-center md:justify-between gmd:ap-3">
+        <div className="flex min-w-0 items-center gap-3 px-4 py-3 ">
+          <h1 className="shrink-0">
+            <a href="/" className="flex min-h-10 items-center">
+              <img src="/logo.svg" className="h-5 w-auto" alt="DocKit" />
+            </a>
+          </h1>
+          <div className="flex items-center gap-2 min-w-0 lg:absolute lg:left-1/2 lg:-translate-x-1/2 ">
+            <p className="text-xs text-white bg-black rounded-full px-2 py-1">
+              국문 이력서
+            </p>
+            <strong className="font-normal truncate">
+              {title || '새 이력서'}
+            </strong>
+          </div>
+        </div>
 
-                <Separator orientation="vertical" className="mx-2 h-4!"/>
+        <div
+          className={cn(
+            'mobileActionBar flex w-full items-center gap-2 px-4 py-3 bg-background/95 transition-[box-shadow,background-color,border-color] duration-200 md:static md:z-auto md:w-auto md:overflow-visible md:border-b-0 md:bg-transparent md:shadow-none md:backdrop-blur-none md:gap-3',
+            isMobileActionBarFixed
+              ? 'fixed inset-x-0 top-0 z-50 border-b shadow-sm backdrop-blur'
+              : 'relative border-transparent shadow-none',
+          )}
+        >
+          <span className="inline-flex min-h-9 items-center gap-1 text-sm text-muted-foreground max-md:absolute right-2 top-full mt-1">
+            {statusNode}
+          </span>
+          <Tooltip>
+            <TooltipTrigger asChild>
+              <Button
+                variant="outline"
+                size="icon"
+                className="rounded-full"
+                aria-label="이미지 저장"
+                onClick={onExportImage}
+                disabled={isExporting}
+              >
+                <ImageDownIcon className="size-5" />
+              </Button>
+            </TooltipTrigger>
+            <TooltipContent>
+              <p className="text-sm">
+                {isExporting ? '이미지 저장 중' : '이미지 저장'}
+              </p>
+            </TooltipContent>
+          </Tooltip>
+          <Tooltip>
+            <ConfirmDialog
+              title="전체 초기화할까요?"
+              description="입력한 내용이 모두 초기화됩니다. 이 작업은 되돌릴 수 없어요."
+              confirmText="초기화"
+              onConfirm={onReset}
+              trigger={
+                <TooltipTrigger asChild>
+                  <Button
+                    variant="outline"
+                    size="icon"
+                    className="rounded-full"
+                    aria-label="전체 초기화"
+                    disabled={!isDirty}
+                  >
+                    <RefreshCcw />
+                  </Button>
+                </TooltipTrigger>
+              }
+            />
+            <TooltipContent>
+              <p className="text-sm">전체 초기화</p>
+            </TooltipContent>
+          </Tooltip>
 
-                <div className="flex gap-1">
-                    <Button onClick={onSave} disabled={!isDirty || isSaving}>문서저장</Button>
+          <Separator orientation="vertical" className="mx-2 h-4!" />
 
-                    {isDirty ? (
-                        <ConfirmDialog
-                            title="저장되지 않은 변경사항이 있어요"
-                            description="지금 나가면 변경사항이 사라질 수 있어요. 그래도 나갈까요?"
-                            confirmText="나가기"
-                            onConfirm={onBack}
-                            trigger={
-                                <Button variant="outline" aria-label="이전 페이지">나가기</Button>
-                            }
-                        />
-                    ) : (
-                        <Button variant="outline" onClick={onBack} aria-label="이전 페이지">나가기</Button>
-                    )}
-                </div>
-            </div>
-            </div>
-        </header>
-    );
+          <div className="flex flex-1 justify-end gap-1">
+            <Button onClick={onSave} disabled={!isDirty || isSaving}>
+              문서저장
+            </Button>
+            <ConfirmDialog
+              title="저장된 문서를 불러올까요?"
+              description="현재 화면의 저장되지 않은 변경사항은 마지막 저장 내용으로 되돌아갑니다."
+              confirmText="불러오기"
+              onConfirm={onLoad}
+              trigger={
+                <Button variant="outline" aria-label="저장된 문서 불러오기">
+                  <RotateCcw className="size-4 max-md:hidden" />
+                  불러오기
+                </Button>
+              }
+            />
+
+            {isDirty ? (
+              <ConfirmDialog
+                title="저장되지 않은 변경사항이 있어요"
+                description="지금 나가면 변경사항이 사라질 수 있어요. 그래도 나갈까요?"
+                confirmText="나가기"
+                onConfirm={onBack}
+                trigger={
+                  <Button variant="outline" aria-label="이전 페이지">
+                    <LogOut className="size-4 md:hidden" />
+                    <span className="max-md:hidden">나가기</span>
+                  </Button>
+                }
+              />
+            ) : (
+              <Button
+                variant="outline"
+                onClick={onBack}
+                aria-label="이전 페이지"
+              >
+                <LogOut className="size-4 md:hidden" />
+                <span className="max-md:hidden">나가기</span>
+              </Button>
+            )}
+          </div>
+        </div>
+      </div>
+    </header>
+  );
 }

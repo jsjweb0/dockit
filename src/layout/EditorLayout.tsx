@@ -12,7 +12,7 @@ function uid() {
 function EditorInner() {
     const { id } = useParams();
     const navigate = useNavigate();
-    const { resume, save, reset, isDirty, isSaving, lastSavedAt } = useResumeEditor();
+    const { resume, save, loadSaved, reset, exportImage, isDirty, isSaving, isExporting, lastSavedAt } = useResumeEditor();
 
     const handleBack = () => {
         if (window.history.length <= 1) {
@@ -43,16 +43,19 @@ function EditorInner() {
             <EditorHeader
                 title={resume.basics?.name ?? "이력서"}
                 onSave={() => save({ silent: false })}
+                onLoad={loadSaved}
                 onReset={reset}
+                onExportImage={exportImage}
                 onBack={handleBack}
                 isDirty={isDirty}
                 isSaving={isSaving}
+                isExporting={isExporting}
                 lastSavedAt={lastSavedAt}
             />
 
-            <div className="mx-auto max-w-7xl px-4 py-6">
+            <main className="mx-auto max-w-7xl px-4 py-6">
                 <Outlet />
-            </div>
+            </main>
 
             <Toaster />
         </>

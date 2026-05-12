@@ -19,7 +19,7 @@ export function ResumeForm({ value, onChange }: Props) {
             <h2 className="mt-8 mb-4 text-2xl font-semibold">문서작성</h2>
 
             <Tabs defaultValue="basics" className="w-full">
-                <TabsList className="grid w-full grid-cols-7">
+                <TabsList className="flex h-auto w-full justify-start overflow-x-auto p-1 sm:grid sm:grid-cols-7">
                     <TabsTrigger value="basics">기본</TabsTrigger>
                     <TabsTrigger value="edu">학력</TabsTrigger>
                     <TabsTrigger value="cer">자격증</TabsTrigger>

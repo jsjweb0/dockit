@@ -142,6 +142,8 @@
 .resumeDocument {
   width: min(100%, 720px);
   margin: 0 auto;
+  padding: 24px;
+  background: #fff;
   color: #111;
   font-size: 12px;
   line-height: 1.45;
@@ -235,6 +237,8 @@
 @media (max-width: 768px) {
   .resumeDocument {
     width: 720px;
+    max-width: none;
+    padding: 18px;
   }
 }
 

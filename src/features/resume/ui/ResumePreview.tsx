@@ -1,3 +1,4 @@
+import { forwardRef } from "react";
 import type { Resume } from "../model/resume.types";
 
 type Props = { value: Resume };
@@ -17,7 +18,7 @@ function formatPeriod(start?: string, end?: string, isCurrent?: boolean) {
     return `${start || "시작"} - ${isCurrent ? "재직중" : end || "종료"}`;
 }
 
-export function ResumePreview({ value }: Props) {
+export const ResumePreview = forwardRef<HTMLElement, Props>(function ResumePreview({ value }, ref) {
     const b = value.basics;
     const educationRows = fillRows(value.education, { id: "empty-education", period: "", institution: "", major: "" });
     const certificationRows = fillRows(value.certifications, { id: "empty-certification", acquiredAt: "", name: "", issuer: "" });
@@ -33,7 +34,7 @@ export function ResumePreview({ value }: Props) {
     const projectRows = fillRows(value.projects, { id: "empty-project", name: "", period: "", stack: "", description: "", link: "" });
 
     return (
-        <section className="resumeDocument" aria-label="국문 이력서 미리보기">
+        <section ref={ref} className="resumeDocument" aria-label="국문 이력서 미리보기">
             <div className="resumeDocument__header">
                 <h2 className="resumeDocument__title" aria-label="이력서">
                     <span>이</span>
@@ -201,4 +202,4 @@ export function ResumePreview({ value }: Props) {
             </div>
         </section>
     );
-}
+});
