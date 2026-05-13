@@ -12,14 +12,10 @@ function uid() {
 function EditorInner() {
     const { id } = useParams();
     const navigate = useNavigate();
-    const { resume, save, loadSaved, reset, exportImage, isDirty, isSaving, isExporting, lastSavedAt } = useResumeEditor();
+    const { resume, save, reset, exportImage, isDirty, isSaving, isExporting, lastSavedAt } = useResumeEditor();
 
-    const handleBack = () => {
-        if (window.history.length <= 1) {
-            navigate("/", { replace: true });
-            return;
-        }
-        navigate(-1);
+    const handleExitHome = () => {
+        navigate("/");
     };
 
     // /resume 로 들어오면 새 id 생성 후 /resume/:id 로 교체
@@ -43,10 +39,9 @@ function EditorInner() {
             <EditorHeader
                 title={resume.basics?.name ?? "이력서"}
                 onSave={() => save({ silent: false })}
-                onLoad={loadSaved}
                 onReset={reset}
                 onExportImage={exportImage}
-                onBack={handleBack}
+                onExitHome={handleExitHome}
                 isDirty={isDirty}
                 isSaving={isSaving}
                 isExporting={isExporting}

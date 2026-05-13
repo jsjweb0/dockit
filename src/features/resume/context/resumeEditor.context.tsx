@@ -9,7 +9,6 @@ type ResumeEditorState = {
     resume: Resume;
     setResume: (next: Resume) => void;
     save: (opts?: { silent?: boolean }) => Promise<void>;
-    loadSaved: () => void;
     reset: () => void;
     exportImage: () => Promise<void>;
     previewRef: React.RefObject<HTMLElement | null>;
@@ -58,12 +57,6 @@ export function ResumeEditorProvider({
         }
     }, [resume, resumeId]);
 
-    const loadSaved = useCallback(() => {
-        setResume(loadResume(resumeId));
-        setIsDirty(false);
-        toast.success("저장된 문서를 불러왔습니다.");
-    }, [resumeId]);
-
     const reset = useCallback(() => {
         resetResume(resumeId);
         setResume(loadResume(resumeId));
@@ -106,7 +99,6 @@ export function ResumeEditorProvider({
         resume,
         setResume: setResumeSafe,
         save: persist,
-        loadSaved,
         reset,
         exportImage,
         previewRef,
@@ -114,7 +106,7 @@ export function ResumeEditorProvider({
         isExporting,
         isSaving,
         lastSavedAt,
-    }), [resume, resumeId, setResumeSafe, persist, loadSaved, reset, exportImage, isDirty, isExporting, isSaving, lastSavedAt]);
+    }), [resume, resumeId, setResumeSafe, persist, reset, exportImage, isDirty, isExporting, isSaving, lastSavedAt]);
 
     return (
         <ResumeEditorContext.Provider value={value}>

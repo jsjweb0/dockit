@@ -4,13 +4,7 @@ import {
   TooltipTrigger,
 } from '@/components/ui/tooltip';
 import { Button } from '@/components/ui/button';
-import {
-  RotateCcw,
-  ImageDownIcon,
-  RefreshCcw,
-  TriangleAlert,
-  LogOut,
-} from 'lucide-react';
+import { ImageDownIcon, RefreshCcw, TriangleAlert } from 'lucide-react';
 import { useEffect, useMemo, useState } from 'react';
 import { formatRelativeTime } from '@/utils/time.ts';
 import { Spinner } from '@/components/ui/spinner';
@@ -21,10 +15,9 @@ import { cn } from '@/lib/utils';
 type Props = {
   title: string;
   onSave: () => void;
-  onLoad: () => void;
   onReset: () => void;
   onExportImage: () => void;
-  onBack: () => void;
+  onExitHome: () => void;
   isDirty: boolean;
   isSaving: boolean;
   isExporting: boolean;
@@ -34,10 +27,9 @@ type Props = {
 export function EditorHeader({
   title,
   onSave,
-  onLoad,
   onReset,
   onExportImage,
-  onBack,
+  onExitHome,
   isDirty,
   isSaving,
   isExporting,
@@ -91,7 +83,7 @@ export function EditorHeader({
   }, [isSaving, lastSavedAt, isDirty]);
 
   return (
-    <header className="relative border-b md:bg-background/95 shadow-sm md:sticky md:top-0 md:z-20 md:backdrop-blur">
+    <header className="relative border-b md:bg-background/95 md:shadow-sm md:sticky md:top-0 md:z-20 md:backdrop-blur">
       <div className="mx-auto flex flex-wrap flex-col md:flex-row md:items-center md:justify-between gmd:ap-3">
         <div className="flex min-w-0 items-center gap-3 px-4 py-3 ">
           <h1 className="shrink-0">
@@ -111,10 +103,13 @@ export function EditorHeader({
 
         <div
           className={cn(
-            'mobileActionBar flex w-full items-center gap-2 px-4 py-3 bg-background/95 transition-[box-shadow,background-color,border-color] duration-200 md:static md:z-auto md:w-auto md:overflow-visible md:border-b-0 md:bg-transparent md:shadow-none md:backdrop-blur-none md:gap-3',
+            'mobileActionBar flex w-full items-center gap-2 px-4 py-3 bg-background/95',
+            'transition-[box-shadow,background-color,border-color] duration-200',
+            'md:static md:z-auto md:w-auto md:overflow-visible md:border-b-0 md:bg-transparent md:shadow-none md:backdrop-blur-none md:gap-3',
+            'max-md:shadow-sm',
             isMobileActionBarFixed
-              ? 'fixed inset-x-0 top-0 z-50 border-b shadow-sm backdrop-blur'
-              : 'relative border-transparent shadow-none',
+              ? 'fixed inset-x-0 top-0 z-50 border-b backdrop-blur'
+              : 'relative border-transparent',
           )}
         >
           <span className="inline-flex min-h-9 items-center gap-1 text-sm text-muted-foreground max-md:absolute right-2 top-full mt-1">
@@ -170,40 +165,26 @@ export function EditorHeader({
             <Button onClick={onSave} disabled={!isDirty || isSaving}>
               문서저장
             </Button>
-            <ConfirmDialog
-              title="저장된 문서를 불러올까요?"
-              description="현재 화면의 저장되지 않은 변경사항은 마지막 저장 내용으로 되돌아갑니다."
-              confirmText="불러오기"
-              onConfirm={onLoad}
-              trigger={
-                <Button variant="outline" aria-label="저장된 문서 불러오기">
-                  <RotateCcw className="size-4 max-md:hidden" />
-                  불러오기
-                </Button>
-              }
-            />
 
             {isDirty ? (
               <ConfirmDialog
                 title="저장되지 않은 변경사항이 있어요"
-                description="지금 나가면 변경사항이 사라질 수 있어요. 그래도 나갈까요?"
+                description="저장하지 않은 변경사항은 메인으로 나가면 사라질 수 있어요. 그래도 나갈까요?"
                 confirmText="나가기"
-                onConfirm={onBack}
+                onConfirm={onExitHome}
                 trigger={
-                  <Button variant="outline" aria-label="이전 페이지">
-                    <LogOut className="size-4 md:hidden" />
-                    <span className="max-md:hidden">나가기</span>
+                  <Button variant="outline" aria-label="메인으로 나가기">
+                    나가기
                   </Button>
                 }
               />
             ) : (
               <Button
                 variant="outline"
-                onClick={onBack}
-                aria-label="이전 페이지"
+                onClick={onExitHome}
+                aria-label="메인으로 나가기"
               >
-                <LogOut className="size-4 md:hidden" />
-                <span className="max-md:hidden">나가기</span>
+                나가기
               </Button>
             )}
           </div>

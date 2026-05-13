@@ -1,7 +1,7 @@
-@import url("https://cdn.jsdelivr.net/gh/orioncactus/pretendard@v1.3.9/dist/web/static/pretendard-dynamic-subset.min.css");
+@import url('https://cdn.jsdelivr.net/gh/orioncactus/pretendard@v1.3.9/dist/web/static/pretendard-dynamic-subset.min.css');
 @import url('https://fonts.googleapis.com/css2?family=Inter:ital,opsz,wght@0,14..32,100..900;1,14..32,100..900&display=swap');
-@import "tailwindcss";
-@import "tw-animate-css";
+@import 'tailwindcss';
+@import 'tw-animate-css';
 
 @custom-variant dark (&:is(.dark *));
 
@@ -80,8 +80,10 @@
   --sidebar-accent-foreground: oklch(0.205 0 0);
   --sidebar-border: oklch(0.922 0 0);
   --sidebar-ring: oklch(0.708 0 0);
-  --font-sans: "Pretendard", system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
-  --bg-muted: #EFF1F4;
+  --font-sans:
+    'Pretendard', system-ui, -apple-system, BlinkMacSystemFont, 'Segoe UI',
+    sans-serif;
+  --bg-muted: #eff1f4;
   --text-primary: #00070b;
 }
 
@@ -123,21 +125,19 @@
   * {
     @apply border-border outline-ring/50;
   }
-  html { font-size: var(--font-size); }
-  body {
-    @apply text-primary font-sans;
+  html {
+    font-size: var(--font-size);
   }
-  button {
+  body {
+    @apply bg-background text-foreground font-sans;
+  }
+  button:not(:disabled) {
     @apply cursor-pointer;
   }
 }
 
 @layer utilities {
-  .text-18 {
-    font-size: 18px;
-  }
 }
-
 
 .resumeDocument {
   width: min(100%, 720px);
