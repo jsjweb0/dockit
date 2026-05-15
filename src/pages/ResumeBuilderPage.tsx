@@ -8,6 +8,7 @@ import {
   TooltipContent,
   TooltipTrigger,
 } from '@/components/ui/tooltip';
+import { cn } from '@/lib/utils';
 
 export function ResumeBuilderPage() {
   const { resume, setResume, previewRef } = useResumeEditor();
@@ -17,10 +18,13 @@ export function ResumeBuilderPage() {
       <ResumeForm value={resume} onChange={setResume} />
 
       <section
-        className="max-lg:hidden rounded-xl bg-[#f7f8fa] p-4 sm:p-6 lg:p-8"
+        className={cn(
+          'rounded-xl bg-[#f7f8fa] p-4 md:p-8',
+          'max-lg:hidden max-lg:fixed max-lg:inset-0 max-lg:z-50 max-lg:overflow-y-auto',
+        )}
         aria-labelledby="resume-preview-title"
       >
-        <div className="mb-4 flex items-center gap-1.5 border-b border-gray-200 pb-4 sm:mb-6">
+        <div className="mb-4 flex items-center gap-1.5 border-b border-gray-200 pb-4 md:mb-6">
           <h2 id="resume-preview-title" className="text-2xl font-semibold">
             미리보기
           </h2>
@@ -33,8 +37,8 @@ export function ResumeBuilderPage() {
             </TooltipContent>
           </Tooltip>
         </div>
-        <Card className="border-0 lg:sticky lg:top-24 lg:self-start">
-          <CardContent className="overflow-x-auto p-3 sm:p-6">
+        <Card className="py-0 border-0">
+          <CardContent className="overflow-x-auto p-6">
             <ResumePreview ref={previewRef} value={resume} />
           </CardContent>
         </Card>

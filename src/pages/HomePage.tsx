@@ -17,12 +17,12 @@ export function HomePage() {
 
   return (
     <main className="mx-auto w-full max-w-7xl px-4 py-8 sm:px-6 lg:px-8">
-      <section className="grid gap-5 border-b py-10 mb-12 md:py-18 md:mb-20">
+      <section className="grid gap-5 border-b py-8 pt-3 mb-10 md:py-18 md:mb-20">
         <Badge variant="secondary" className="w-fit">
           DocKit MVP
         </Badge>
         <div className="grid gap-3">
-          <h2 className="text-3xl font-bold leading-tight text-foreground sm:text-4xl">
+          <h2 className="text-3xl font-bold leading-tight text-foreground sm:text-4xl break-keep">
             입력 폼으로 작성하고, <br />
             제출용 문서 레이아웃으로 바로 확인합니다.
           </h2>
@@ -44,7 +44,7 @@ export function HomePage() {
 
       {recentDrafts.length > 0 && (
         <section
-          className="mb-18 grid gap-4"
+          className="mb-12 md:mb-18 grid gap-4"
           aria-labelledby="recent-drafts-heading"
         >
           <div className="flex flex-wrap items-end justify-between gap-3">
@@ -78,7 +78,7 @@ export function HomePage() {
                   <p className="line-clamp-2 text-sm leading-6 text-muted-foreground">
                     {draft.description}
                   </p>
-                  <p className="text-xs font-medium text-muted-foreground">
+                  <p className="text-xs font-medium text-muted-foreground text-right">
                     {formatRelativeTime(draft.updatedAt)}
                   </p>
                 </article>
@@ -88,16 +88,17 @@ export function HomePage() {
         </section>
       )}
 
-      <section className="grid gap-4 mb-14" aria-labelledby="template-heading">
+      <section
+        className="grid gap-4 mb-4 md:mb-14"
+        aria-labelledby="template-heading"
+      >
         <div className="flex flex-wrap items-end justify-between gap-3">
-          <div>
-            <h2 id="template-heading" className="text-2xl font-semibold">
-              문서 양식
-            </h2>
-            <p className="mt-1 text-muted-foreground">
-              먼저 이력서를 완성하고, 같은 구조로 양식을 확장할 예정입니다.
-            </p>
-          </div>
+          <h2 id="template-heading" className="text-2xl font-semibold">
+            문서 양식
+          </h2>
+          <p className="mt-1 text-muted-foreground">
+            먼저 이력서를 완성하고, 같은 구조로 양식을 확장할 예정입니다.
+          </p>
         </div>
 
         <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
