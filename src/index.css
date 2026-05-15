@@ -140,7 +140,7 @@
 }
 
 .resumeDocument {
-  width: min(100%, 720px);
+  width: max(100%, 560px);
   margin: 0 auto;
   padding: 24px;
   background: #fff;
@@ -151,7 +151,7 @@
 
 .resumeDocument__header {
   display: grid;
-  grid-template-columns: 1fr 280px;
+  grid-template-columns: 1fr 1fr;
   align-items: center;
   gap: 24px;
   margin-bottom: 12px;
@@ -234,16 +234,23 @@
   text-orientation: upright;
 }
 
-@media (max-width: 768px) {
+@media (max-width: 1024px) {
   .resumeDocument {
-    width: 720px;
-    max-width: none;
+    width: 640px;
     padding: 18px;
   }
 }
 
 @media print {
+  @page {
+    size: A4;
+    margin: 0;
+  }
+
   body {
+    width: 210mm;
+    height: 297mm;
+    margin: 0;
     background: #fff;
   }
 

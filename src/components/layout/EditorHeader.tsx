@@ -85,10 +85,14 @@ export function EditorHeader({
   return (
     <header className="relative border-b md:bg-background/95 md:shadow-sm md:sticky md:top-0 md:z-20 md:backdrop-blur">
       <div className="mx-auto flex flex-wrap flex-col md:flex-row md:items-center md:justify-between gmd:ap-3">
-        <div className="flex min-w-0 items-center gap-3 px-4 py-3 ">
+        <div className="flex min-w-0 items-center gap-3 px-4 md:px-3 max-md:pt-2">
           <h1 className="shrink-0">
             <a href="/" className="flex min-h-10 items-center">
-              <img src="/logo.svg" className="h-5 w-auto" alt="DocKit" />
+              <img
+                src="/logo.svg"
+                className="h-3.5 md:h-5 w-auto"
+                alt="DocKit"
+              />
             </a>
           </h1>
           <div className="flex items-center gap-2 min-w-0 lg:absolute lg:left-1/2 lg:-translate-x-1/2 ">
@@ -103,7 +107,7 @@ export function EditorHeader({
 
         <div
           className={cn(
-            'mobileActionBar flex w-full items-center gap-2 px-4 py-3 bg-background/95',
+            'mobileActionBar flex w-full items-center gap-2 px-4 py-2.5 bg-background/95',
             'transition-[box-shadow,background-color,border-color] duration-200',
             'md:static md:z-auto md:w-auto md:overflow-visible md:border-b-0 md:bg-transparent md:shadow-none md:backdrop-blur-none md:gap-3',
             'max-md:shadow-sm',
@@ -162,10 +166,6 @@ export function EditorHeader({
           <Separator orientation="vertical" className="mx-2 h-4!" />
 
           <div className="flex flex-1 justify-end gap-1">
-            <Button onClick={onSave} disabled={!isDirty || isSaving}>
-              문서저장
-            </Button>
-
             {isDirty ? (
               <ConfirmDialog
                 title="저장되지 않은 변경사항이 있어요"
@@ -187,6 +187,10 @@ export function EditorHeader({
                 나가기
               </Button>
             )}
+
+            <Button onClick={onSave} disabled={!isDirty || isSaving}>
+              문서저장
+            </Button>
           </div>
         </div>
       </div>
