@@ -1,16 +1,10 @@
-import {
-  Tooltip,
-  TooltipContent,
-  TooltipTrigger,
-} from '@/components/ui/tooltip';
-import { Button } from '@/components/ui/button';
-import { ImageDownIcon, RefreshCcw, TriangleAlert } from 'lucide-react';
 import { useEffect, useMemo, useState } from 'react';
+import { DesktopEditorActions } from '@/components/layout/DesktopEditorActions';
+import { MobileEditorActions } from './MobileEditorActions';
+import { TriangleAlert, ChevronLeft } from 'lucide-react';
 import { formatRelativeTime } from '@/utils/time.ts';
 import { Spinner } from '@/components/ui/spinner';
-import { Separator } from '@/components/ui/separator.tsx';
-import { ConfirmDialog } from '@/components/ui/confirm-dialog.tsx';
-import { cn } from '@/lib/utils';
+import { ConfirmDialog } from '@/components/ui/confirm-dialog';
 
 type Props = {
   title: string;
@@ -36,32 +30,12 @@ export function EditorHeader({
   lastSavedAt,
 }: Props) {
   const [, forceTick] = useState(0);
-  const [isMobileActionBarFixed, setIsMobileActionBarFixed] = useState(false);
 
   useEffect(() => {
     if (!lastSavedAt) return;
     const id = setInterval(() => forceTick((v) => v + 1), 60_000);
     return () => clearInterval(id);
   }, [lastSavedAt]);
-
-  useEffect(() => {
-    const mobileQuery = window.matchMedia('(max-width: 767px)');
-
-    const updateActionBarPosition = () => {
-      setIsMobileActionBarFixed(mobileQuery.matches && window.scrollY > 0);
-    };
-
-    updateActionBarPosition();
-    window.addEventListener('scroll', updateActionBarPosition, {
-      passive: true,
-    });
-    mobileQuery.addEventListener('change', updateActionBarPosition);
-
-    return () => {
-      window.removeEventListener('scroll', updateActionBarPosition);
-      mobileQuery.removeEventListener('change', updateActionBarPosition);
-    };
-  }, []);
 
   const statusNode = useMemo(() => {
     if (isSaving) {
@@ -83,20 +57,49 @@ export function EditorHeader({
   }, [isSaving, lastSavedAt, isDirty]);
 
   return (
-    <header className="relative md:border-b md:bg-background/95 md:shadow-sm md:sticky md:top-0 md:z-20 md:backdrop-blur">
-      <div className="mx-auto flex flex-wrap flex-col md:flex-row md:items-center md:justify-between gmd:ap-3">
-        <div className="flex min-w-0 items-center gap-3 px-4 md:px-3 max-md:pt-2">
-          <h1 className="shrink-0">
-            <a href="/" className="flex min-h-10 items-center">
+    <header className="sticky top-0 z-20 border-b bg-background/95 shadow-sm backdrop-blur px-2 py-2.5 md:px-6">
+      <div className="mx-auto flex md:flex-wrap items-center justify-between md:gap-3">
+        <div className="flex min-w-0 items-center gap-3">
+          {isDirty ? (
+            <ConfirmDialog
+              title="메인으로 나갈까요?"
+              description="메인으로 나가면 편집 중인 내용이 모두 사라집니다. 그래도 나갈까요?"
+              confirmText="나가기"
+              onConfirm={onExitHome}
+              trigger={
+                <button
+                  type="button"
+                  className="shrink-0 flex min-h-10 items-center"
+                >
+                  <img
+                    src="/logo.svg"
+                    className="h-4 w-auto max-md:hidden"
+                    alt="DocKit"
+                  />
+                  <ChevronLeft
+                    className="size-6 md:hidden"
+                    aria-hidden="true"
+                  />
+                </button>
+              }
+            />
+          ) : (
+            <button
+              type="button"
+              onClick={onExitHome}
+              className="flex min-h-10 items-center"
+              aria-label="메인으로 나가기"
+            >
               <img
                 src="/logo.svg"
-                className="h-3.5 md:h-5 w-auto"
+                className="h-4 w-auto max-md:hidden"
                 alt="DocKit"
               />
-            </a>
-          </h1>
-          <div className="flex items-center gap-2 min-w-0 lg:absolute lg:left-1/2 lg:-translate-x-1/2 ">
-            <p className="text-xs text-white bg-black rounded-full px-2 py-1">
+              <ChevronLeft className="size-6 md:hidden" aria-hidden="true" />
+            </button>
+          )}
+          <div className="flex items-center gap-2 min-w-0 sm:absolute sm:left-1/2 sm:-translate-x-1/2 ">
+            <p className="shrink-0 text-xs text-white bg-black rounded-full px-2 py-1">
               국문 이력서
             </p>
             <strong className="font-normal truncate">
@@ -105,92 +108,30 @@ export function EditorHeader({
           </div>
         </div>
 
-        <div
-          className={cn(
-            'mobileActionBar flex w-full items-center gap-2 px-4 py-2.5 bg-background/95 border-b',
-            'transition-[box-shadow,background-color,border-color] duration-200',
-            'md:static md:z-auto md:w-auto md:bg-transparent md:backdrop-blur-none md:gap-3 md:border-b-0',
-            isMobileActionBarFixed
-              ? 'fixed inset-x-0 top-0 z-50 backdrop-blur shadow-sm'
-              : 'relative border-t',
-          )}
-        >
-          <span className="inline-flex min-h-9 items-center gap-1 text-sm text-muted-foreground max-md:absolute right-2 top-full mt-1">
+        <div className="flex items-center gap-3">
+          <span className="inline-flex min-h-9 items-center gap-1 text-sm text-muted-foreground max-md:absolute right-2 top-full">
             {statusNode}
           </span>
-          <Tooltip>
-            <TooltipTrigger asChild>
-              <Button
-                variant="outline"
-                size="icon"
-                className="rounded-full"
-                aria-label="이미지 저장"
-                onClick={onExportImage}
-                disabled={isExporting}
-              >
-                <ImageDownIcon className="size-5" />
-              </Button>
-            </TooltipTrigger>
-            <TooltipContent>
-              <p className="text-sm">
-                {isExporting ? '이미지 저장 중' : '이미지 저장'}
-              </p>
-            </TooltipContent>
-          </Tooltip>
-          <Tooltip>
-            <ConfirmDialog
-              title="전체 초기화할까요?"
-              description="입력한 내용이 모두 초기화됩니다. 이 작업은 되돌릴 수 없어요."
-              confirmText="초기화"
-              onConfirm={onReset}
-              trigger={
-                <TooltipTrigger asChild>
-                  <Button
-                    variant="outline"
-                    size="icon"
-                    className="rounded-full"
-                    aria-label="전체 초기화"
-                    disabled={!isDirty}
-                  >
-                    <RefreshCcw />
-                  </Button>
-                </TooltipTrigger>
-              }
-            />
-            <TooltipContent>
-              <p className="text-sm">전체 초기화</p>
-            </TooltipContent>
-          </Tooltip>
 
-          <Separator orientation="vertical" className="mx-2 h-4!" />
+          <DesktopEditorActions
+            onSave={onSave}
+            onReset={onReset}
+            onExportImage={onExportImage}
+            onExitHome={onExitHome}
+            isDirty={isDirty}
+            isSaving={isSaving}
+            isExporting={isExporting}
+          />
 
-          <div className="flex flex-1 justify-end gap-1">
-            {isDirty ? (
-              <ConfirmDialog
-                title="저장되지 않은 변경사항이 있어요"
-                description="저장하지 않은 변경사항은 메인으로 나가면 사라질 수 있어요. 그래도 나갈까요?"
-                confirmText="나가기"
-                onConfirm={onExitHome}
-                trigger={
-                  <Button variant="outline" aria-label="메인으로 나가기">
-                    나가기
-                  </Button>
-                }
-              />
-            ) : (
-              <Button
-                variant="outline"
-                onClick={onExitHome}
-                aria-label="메인으로 나가기"
-              >
-                나가기
-              </Button>
-            )}
-
-            <Button onClick={onSave} disabled={!isDirty || isSaving}>
-              문서저장
-            </Button>
-          </div>
+          <MobileEditorActions
+            onSave={onSave}
+            onReset={onReset}
+            onExportImage={onExportImage}
+            onExitHome={onExitHome}
+            isDirty={isDirty}
+            isSaving={isSaving}
+            isExporting={isExporting}
+          />
         </div>
       </div>
     </header>
