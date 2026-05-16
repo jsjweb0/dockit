@@ -83,7 +83,7 @@ export function EditorHeader({
   }, [isSaving, lastSavedAt, isDirty]);
 
   return (
-    <header className="relative border-b md:bg-background/95 md:shadow-sm md:sticky md:top-0 md:z-20 md:backdrop-blur">
+    <header className="relative md:border-b md:bg-background/95 md:shadow-sm md:sticky md:top-0 md:z-20 md:backdrop-blur">
       <div className="mx-auto flex flex-wrap flex-col md:flex-row md:items-center md:justify-between gmd:ap-3">
         <div className="flex min-w-0 items-center gap-3 px-4 md:px-3 max-md:pt-2">
           <h1 className="shrink-0">
@@ -107,13 +107,12 @@ export function EditorHeader({
 
         <div
           className={cn(
-            'mobileActionBar flex w-full items-center gap-2 px-4 py-2.5 bg-background/95',
+            'mobileActionBar flex w-full items-center gap-2 px-4 py-2.5 bg-background/95 border-b',
             'transition-[box-shadow,background-color,border-color] duration-200',
-            'md:static md:z-auto md:w-auto md:overflow-visible md:border-b-0 md:bg-transparent md:shadow-none md:backdrop-blur-none md:gap-3',
-            'max-md:shadow-sm',
+            'md:static md:z-auto md:w-auto md:bg-transparent md:backdrop-blur-none md:gap-3 md:border-b-0',
             isMobileActionBarFixed
-              ? 'fixed inset-x-0 top-0 z-50 border-b backdrop-blur'
-              : 'relative border-transparent',
+              ? 'fixed inset-x-0 top-0 z-50 backdrop-blur shadow-sm'
+              : 'relative border-t',
           )}
         >
           <span className="inline-flex min-h-9 items-center gap-1 text-sm text-muted-foreground max-md:absolute right-2 top-full mt-1">

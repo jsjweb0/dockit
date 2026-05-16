@@ -30,9 +30,8 @@ function downloadBlob(blob: Blob, fileName: string) {
 }
 
 export async function exportResumeImage({ fileName, target }: ExportResumeImageOptions) {
-    const rect = target.getBoundingClientRect();
-    const width = Math.ceil(rect.width);
-    const height = Math.ceil(rect.height);
+    const width = Math.ceil(target.offsetWidth);
+    const height = Math.ceil(target.offsetHeight);
     const clone = target.cloneNode(true) as HTMLElement;
 
     clone.setAttribute("xmlns", "http://www.w3.org/1999/xhtml");

@@ -3,6 +3,7 @@ import { ResumePreview } from '@/features/resume/ui/ResumePreview';
 import { Card, CardContent } from '@/components/ui/card.tsx';
 import { useResumeEditor } from '@/features/resume/context/resumeEditor.context.tsx';
 import { Info } from 'lucide-react';
+import { useEffect, useRef, useState } from 'react';
 import {
   Tooltip,
   TooltipContent,
@@ -10,22 +11,54 @@ import {
 } from '@/components/ui/tooltip';
 import { cn } from '@/lib/utils';
 
+const A4_PREVIEW_WIDTH = 794;
+const A4_PREVIEW_HEIGHT = 1123;
+
 export function ResumeBuilderPage() {
   const { resume, setResume, previewRef } = useResumeEditor();
+  const previewViewportRef = useRef<HTMLDivElement | null>(null);
+  const [previewScale, setPreviewScale] = useState(1);
+
+  useEffect(() => {
+    const viewport = previewViewportRef.current;
+    if (!viewport) return;
+    const mobileQuery = window.matchMedia('(max-width: 1024px)');
+
+    const updatePreviewScale = () => {
+      const nextScale = mobileQuery.matches
+        ? Math.min(1, viewport.clientWidth / A4_PREVIEW_WIDTH)
+        : 1;
+      setPreviewScale(Number(nextScale.toFixed(3)));
+    };
+
+    updatePreviewScale();
+
+    const resizeObserver = new ResizeObserver(updatePreviewScale);
+    resizeObserver.observe(viewport);
+    mobileQuery.addEventListener('change', updatePreviewScale);
+
+    return () => {
+      resizeObserver.disconnect();
+      mobileQuery.removeEventListener('change', updatePreviewScale);
+    };
+  }, []);
 
   return (
-    <div className="grid gap-6 lg:grid-cols-[minmax(0,1fr)_minmax(0,1.25fr)]">
+    <div className="grid gap-6 lg:grid-cols-[minmax(0,1fr)_minmax(0,1.5fr)]">
       <ResumeForm value={resume} onChange={setResume} />
 
       <section
         className={cn(
-          'rounded-xl bg-[#f7f8fa] p-4 md:p-8',
-          'max-lg:hidden max-lg:fixed max-lg:inset-0 max-lg:z-50 max-lg:overflow-y-auto',
+          'rounded-xl bg-[#f7f8fa] p-3 md:p-8',
+          'max-lg:overflow-hidden',
         )}
         aria-labelledby="resume-preview-title"
       >
-        <div className="mb-4 flex items-center gap-1.5 border-b border-gray-200 pb-4 md:mb-6">
-          <h2 id="resume-preview-title" className="text-2xl font-semibold">
+        <div className="mb-4 flex items-center gap-1.5 border-b border-gray-200 pb-3 md:mb-6 md:pb-4">
+          <h2
+            id="resume-preview-title"
+            className="text-xl font-semibold md:text-2xl"
+          >
             미리보기
           </h2>
           <Tooltip>
@@ -37,9 +70,19 @@ export function ResumeBuilderPage() {
             </TooltipContent>
           </Tooltip>
         </div>
-        <Card className="py-0 border-0">
-          <CardContent className="overflow-x-auto p-6">
-            <ResumePreview ref={previewRef} value={resume} />
+        <Card className="border-0 py-0 shadow-none">
+          <CardContent className="overflow-x-auto p-4 md:p-6">
+            <div ref={previewViewportRef} className="resumePreviewViewport">
+              <div
+                className="resumePreviewScaler"
+                style={{
+                  height: A4_PREVIEW_HEIGHT * previewScale,
+                  transform: `scale(${previewScale})`,
+                }}
+              >
+                <ResumePreview ref={previewRef} value={resume} />
+              </div>
+            </div>
           </CardContent>
         </Card>
       </section>
