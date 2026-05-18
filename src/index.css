@@ -140,9 +140,6 @@
 }
 
 .resumePreviewViewport {
-  display: flex;
-  justify-content: center;
-  margin: 0 auto;
 }
 
 .resumePreviewScaler {
@@ -150,6 +147,7 @@
 }
 
 .resumeDocument {
+  width: 622px;
   margin: 0 auto;
   padding: 24px;
   background: #fff;

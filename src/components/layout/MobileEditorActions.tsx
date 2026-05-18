@@ -4,37 +4,30 @@ import {
   DropdownMenuGroup,
   DropdownMenuItem,
   DropdownMenuLabel,
-  DropdownMenuSeparator,
   DropdownMenuTrigger,
 } from '@/components/ui/dropdown-menu';
 import { Button } from '@/components/ui/button';
 import { ConfirmDialog } from '@/components/ui/confirm-dialog';
-import { MoreVertical, LogOut } from 'lucide-react';
+import { MoreVertical } from 'lucide-react';
+import type {
+  EditorActions,
+  EditorStatus,
+} from '@/components/layout/EditorHeader';
 
 type Props = {
-  onSave: () => void;
-  onReset: () => void;
-  onExportImage: () => void;
-  onExitHome: () => void;
-  isDirty: boolean;
-  isSaving: boolean;
-  isExporting: boolean;
+  actions: EditorActions;
+  status: EditorStatus;
 };
 
-export function MobileEditorActions({
-  onSave,
-  onReset,
-  onExportImage,
-  onExitHome,
-  isDirty,
-  isSaving,
-  isExporting,
-}: Props) {
+export function MobileEditorActions({ actions, status }: Props) {
+  const { onReset, onExportImage } = actions;
+  const { isDirty, isSaving, isExporting } = status;
+
   return (
     <div className="flex items-center gap-2 md:hidden">
-      <Button onClick={onSave} disabled={!isDirty || isSaving}>
+      {/* <Button onClick={onSave} disabled={!isDirty || isSaving}>
         {isSaving ? '저장 중' : '문서저장'}
-      </Button>
+      </Button> */}
 
       <DropdownMenu>
         <DropdownMenuTrigger asChild>
@@ -68,7 +61,7 @@ export function MobileEditorActions({
               }
             />
           </DropdownMenuGroup>
-          <DropdownMenuSeparator />
+          {/* <DropdownMenuSeparator />
           <DropdownMenuGroup>
             {isDirty ? (
               <ConfirmDialog
@@ -92,7 +85,7 @@ export function MobileEditorActions({
                 <LogOut className="size-4" /> 나가기
               </DropdownMenuItem>
             )}
-          </DropdownMenuGroup>
+          </DropdownMenuGroup> */}
         </DropdownMenuContent>
       </DropdownMenu>
     </div>

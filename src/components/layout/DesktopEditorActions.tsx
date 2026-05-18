@@ -7,26 +7,20 @@ import { Button } from '@/components/ui/button';
 import { Separator } from '@/components/ui/separator.tsx';
 import { ConfirmDialog } from '@/components/ui/confirm-dialog.tsx';
 import { ImageDownIcon, RefreshCcw } from 'lucide-react';
+import type {
+  EditorActions,
+  EditorStatus,
+} from '@/components/layout/EditorHeader';
 
 type Props = {
-  onSave: () => void;
-  onReset: () => void;
-  onExportImage: () => void;
-  onExitHome: () => void;
-  isDirty: boolean;
-  isSaving: boolean;
-  isExporting: boolean;
+  actions: EditorActions;
+  status: EditorStatus;
 };
 
-export function DesktopEditorActions({
-  onSave,
-  onReset,
-  onExportImage,
-  onExitHome,
-  isDirty,
-  isSaving,
-  isExporting,
-}: Props) {
+export function DesktopEditorActions({ actions, status }: Props) {
+  const { onReset, onExportImage } = actions;
+  const { isDirty, isExporting } = status;
+
   return (
     <div className="hidden items-center gap-3 md:flex">
       <Tooltip>
@@ -74,34 +68,6 @@ export function DesktopEditorActions({
       </Tooltip>
 
       <Separator orientation="vertical" className="mx-2 h-4! max-md:hidden" />
-
-      <div className="flex flex-1 justify-end gap-1">
-        {isDirty ? (
-          <ConfirmDialog
-            title="저장되지 않은 변경사항이 있어요"
-            description="저장하지 않은 변경사항은 메인으로 나가면 사라질 수 있어요. 그래도 나갈까요?"
-            confirmText="나가기"
-            onConfirm={onExitHome}
-            trigger={
-              <Button variant="outline" aria-label="메인으로 나가기">
-                나가기
-              </Button>
-            }
-          />
-        ) : (
-          <Button
-            variant="outline"
-            onClick={onExitHome}
-            aria-label="메인으로 나가기"
-          >
-            나가기
-          </Button>
-        )}
-
-        <Button onClick={onSave} disabled={!isDirty || isSaving}>
-          문서저장
-          </Button>
-      </div>
     </div>
   );
 }
