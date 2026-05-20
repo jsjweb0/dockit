@@ -9,7 +9,7 @@ export function DefaultFooter() {
             <img src="/logo.svg" className="h-3 md:h-4 w-auto" alt="DocKit" />
           </div>
           <p className="text-[11px] md:text-xs text-muted-foreground">
-            © {new Date().getFullYear()} Dockit. All rights reserved.
+            © {new Date().getFullYear()} DocKit. All rights reserved.
           </p>
         </div>
 
