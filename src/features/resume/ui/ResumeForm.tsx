@@ -15,8 +15,8 @@ type Props = {
 
 export function ResumeForm({ value, onChange }: Props) {
   return (
-    <section>
-      <h2 className="mt-2 md:mt-8 mb-4 text-2xl font-semibold">문서작성</h2>
+    <section className="resumeEditorPane lg:px-10 lg:pt-8 lg:pb-15">
+      <h2 className="mb-4 text-xl md:text-2xl font-semibold">문서작성</h2>
 
       <Tabs defaultValue="basics" className="w-full">
         <TabsList className="flex h-auto w-full justify-start overflow-x-auto p-1 sm:grid sm:grid-cols-7">

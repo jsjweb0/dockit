@@ -1,7 +1,7 @@
 import { useEffect, useRef, useState } from 'react';
 import { DesktopEditorActions } from '@/components/layout/DesktopEditorActions';
 import { MobileEditorActions } from './MobileEditorActions';
-import { ChevronLeft } from 'lucide-react';
+import { ChevronRight } from 'lucide-react';
 import { formatRelativeTime } from '@/utils/time.ts';
 import { ConfirmDialog } from '@/components/ui/confirm-dialog';
 import { toast } from 'sonner';
@@ -26,9 +26,17 @@ type Props = {
   title: string;
   actions: EditorActions;
   status: EditorStatus;
+  isPreviewOpen: boolean;
+  onTogglePreview: () => void;
 };
 
-export function EditorHeader({ title, actions, status }: Props) {
+export function EditorHeader({
+  title,
+  actions,
+  status,
+  isPreviewOpen,
+  onTogglePreview,
+}: Props) {
   const { onSave, onExitHome } = actions;
   const { isDirty, isSaving, lastSavedAt } = status;
   const [, forceTick] = useState(0);
@@ -88,9 +96,9 @@ export function EditorHeader({ title, actions, status }: Props) {
   }, []);
 
   return (
-    <header className="sticky top-0 z-20 border-b bg-background/95 shadow-sm md:backdrop-blur px-2 py-2.5 md:px-6">
-      <div className="mx-auto flex md:flex-wrap items-center justify-between md:gap-3">
-        <div className="flex min-w-0 items-center gap-3 max-md:grow">
+    <header className="sticky top-0 z-20 border-b bg-background/95 lg:backdrop-blur px-2 py-2.5 lg:px-6">
+      <div className="mx-auto flex lg:flex-wrap items-center justify-between md:gap-3">
+        <div className="flex min-w-0 items-center gap-3 max-lg:grow max-lg:pl-2 max-lg:pr-6">
           {isDirty ? (
             <ConfirmDialog
               title="메인으로 나갈까요?"
@@ -102,15 +110,7 @@ export function EditorHeader({ title, actions, status }: Props) {
                   type="button"
                   className="shrink-0 flex min-h-10 items-center"
                 >
-                  <img
-                    src="/logo.svg"
-                    className="h-4 w-auto max-md:hidden"
-                    alt="DocKit"
-                  />
-                  <ChevronLeft
-                    className="size-6 md:hidden"
-                    aria-hidden="true"
-                  />
+                  <img src="/logo.svg" className="h-4 w-auto" alt="DocKit" />
                 </button>
               }
             />
@@ -118,15 +118,10 @@ export function EditorHeader({ title, actions, status }: Props) {
             <button
               type="button"
               onClick={onExitHome}
-              className="flex min-h-10 items-center"
+              className="shrink-0 flex min-h-10 items-center"
               aria-label="메인으로 나가기"
             >
-              <img
-                src="/logo.svg"
-                className="h-4 w-auto max-md:hidden"
-                alt="DocKit"
-              />
-              <ChevronLeft className="size-6 md:hidden" aria-hidden="true" />
+              <img src="/logo.svg" className="h-4 w-auto" alt="DocKit" />
             </button>
           )}
           <div className="flex items-center gap-2 min-w-0 md:absolute md:left-1/2 md:-translate-x-1/2 max-md:grow max-md:justify-center">
@@ -152,9 +147,9 @@ export function EditorHeader({ title, actions, status }: Props) {
 
           <div
             className={cn(
-              'flex flex-1 justify-end gap-1 md:translate-none',
-              'max-md:z-50 max-md:fixed max-md:bottom-0 max-md:left-0 max-md:w-full max-md:justify-center',
-              'max-md:px-4 max-md:py-3 max-md:bg-background max-md:border-t max-md:shadow-[0_-4px_14px_rgba(0,0,0,0.08)]',
+              'flex flex-1 gap-2 z-50 fixed left-0 bottom-0 w-full justify-center',
+              'lg:gap-1 lg:justify-end lg:translate-none lg:static lg:p-0 lg:shadow-none lg:bg-transparent lg:border-t-0',
+              'px-4 py-3 bg-background border-t shadow-[0_-4px_14px_rgba(0,0,0,0.08)]',
               'transition-transform duration-300',
               isMobileActionVisible ? 'translate-y-0' : 'translate-y-full',
             )}
@@ -169,7 +164,7 @@ export function EditorHeader({ title, actions, status }: Props) {
                   <Button
                     variant="outline"
                     aria-label="메인으로 나가기"
-                    className="max-md:w-1/2"
+                    className="max-lg:w-1/2"
                   >
                     나가기
                   </Button>
@@ -180,7 +175,7 @@ export function EditorHeader({ title, actions, status }: Props) {
                 variant="outline"
                 onClick={onExitHome}
                 aria-label="메인으로 나가기"
-                className="max-md:w-1/2"
+                className="max-lg:grow"
               >
                 나가기
               </Button>
@@ -189,9 +184,26 @@ export function EditorHeader({ title, actions, status }: Props) {
             <Button
               onClick={onSave}
               disabled={!isDirty || isSaving}
-              className="max-md:w-1/2"
+              className="max-lg:grow"
             >
               문서저장
+            </Button>
+            <Button
+              variant="outline"
+              size="icon"
+              aria-label={isPreviewOpen ? '미리보기 닫기' : '미리보기 열기'}
+              className="shrink-0 w-10 lg:hidden"
+              onClick={onTogglePreview}
+              aria-expanded={isPreviewOpen}
+              aria-controls="preview-panel"
+            >
+              <ChevronRight
+                className={cn(
+                  'size-5 transition-transform',
+                  !isPreviewOpen && 'rotate-180',
+                )}
+                aria-hidden="true"
+              />
             </Button>
           </div>
         </div>

@@ -85,6 +85,8 @@
     sans-serif;
   --bg-muted: #eff1f4;
   --text-primary: #00070b;
+  --editor-header-height: 57px;
+  --editor-mobile-actions-height: 57px;
 }
 
 .dark {
@@ -139,15 +141,13 @@
 @layer utilities {
 }
 
-.resumePreviewViewport {
-}
-
 .resumePreviewScaler {
   transform-origin: top center;
 }
 
 .resumeDocument {
   width: 622px;
+  max-width: 794px;
   margin: 0 auto;
   padding: 24px;
   background: #fff;
@@ -277,4 +277,36 @@
     width: 190mm;
     min-height: 277mm;
   }
+}
+
+@keyframes previewOpen {
+  from {
+    opacity: 0;
+    transform: translateX(100%);
+  }
+
+  to {
+    opacity: 1;
+    transform: translateX(0);
+  }
+}
+
+@keyframes previewClose {
+  from {
+    opacity: 1;
+    transform: translateX(0);
+  }
+
+  to {
+    opacity: 0;
+    transform: translateX(100%);
+  }
+}
+
+.animate-preview-open {
+  animation: previewOpen 250ms ease-out both;
+}
+
+.animate-preview-close {
+  animation: previewClose 250ms ease-in both;
 }

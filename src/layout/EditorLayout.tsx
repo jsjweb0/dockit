@@ -1,5 +1,5 @@
 import { Outlet, useNavigate, useParams } from 'react-router-dom';
-import { useEffect } from 'react';
+import { useEffect, useState } from 'react';
 import { Toaster } from '@/components/ui/sonner';
 import { EditorHeader } from '@/components/layout/EditorHeader';
 import {
@@ -11,8 +11,19 @@ function uid() {
   return Math.random().toString(36).slice(2, 10);
 }
 
+type PreviewControls = {
+  isPreviewOpen: boolean;
+  isPreviewClosing: boolean;
+  onTogglePreview: () => void;
+  onPreviewAnimationEnd: () => void;
+};
+
+type EditorInnerProps = {
+  previewControls: PreviewControls;
+};
+
 // Provider 안에서만 useResumeEditor 사용
-function EditorInner() {
+function EditorInner({ previewControls }: EditorInnerProps) {
   const { id } = useParams();
   const navigate = useNavigate();
   const {
@@ -44,6 +55,8 @@ function EditorInner() {
     lastSavedAt,
   };
 
+  const { isPreviewOpen, onTogglePreview } = previewControls;
+
   // /resume 로 들어오면 새 id 생성 후 /resume/:id 로 교체
   useEffect(() => {
     if (!id) navigate(`/resume/${uid()}`, { replace: true });
@@ -66,10 +79,12 @@ function EditorInner() {
         title={resume.basics?.name ?? '이력서'}
         actions={actions}
         status={status}
+        isPreviewOpen={isPreviewOpen}
+        onTogglePreview={onTogglePreview}
       />
 
-      <main className="mx-auto max-w-7xl px-4 py-6">
-        <Outlet />
+      <main className="mx-auto max-w-7xl px-4 pt-5 pb-[calc(var(--editor-mobile-actions-height)+12px)] lg:p-0">
+        <Outlet context={previewControls} />
       </main>
 
       <Toaster />
@@ -81,10 +96,42 @@ export function EditorLayout() {
   const { id } = useParams();
   const resumeId = id ?? 'new';
 
+  const [isPreviewOpen, setIsPreviewOpen] = useState(true);
+  const [isPreviewClosing, setIsPreviewClosing] = useState(false);
+
+  const closePreview = () => {
+    setIsPreviewClosing(true);
+  };
+
+  const handleTogglePreview = () => {
+    if (isPreviewClosing) return;
+
+    if (isPreviewOpen) {
+      closePreview();
+      return;
+    }
+
+    setIsPreviewOpen(true);
+  };
+
+  const handlePreviewAnimationEnd = () => {
+    if (!isPreviewClosing) return;
+
+    setIsPreviewOpen(false);
+    setIsPreviewClosing(false);
+  };
+
+  const previewControls = {
+    isPreviewOpen,
+    isPreviewClosing,
+    onTogglePreview: handleTogglePreview,
+    onPreviewAnimationEnd: handlePreviewAnimationEnd,
+  };
+
   return (
     <div className="min-h-dvh text-foreground">
       <ResumeEditorProvider resumeId={resumeId}>
-        <EditorInner />
+        <EditorInner previewControls={previewControls} />
       </ResumeEditorProvider>
     </div>
   );

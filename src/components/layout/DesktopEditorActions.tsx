@@ -22,7 +22,7 @@ export function DesktopEditorActions({ actions, status }: Props) {
   const { isDirty, isExporting } = status;
 
   return (
-    <div className="hidden items-center gap-3 md:flex">
+    <div className="hidden items-center gap-3 lg:flex">
       <Tooltip>
         <TooltipTrigger asChild>
           <Button
@@ -67,7 +67,7 @@ export function DesktopEditorActions({ actions, status }: Props) {
         </TooltipContent>
       </Tooltip>
 
-      <Separator orientation="vertical" className="mx-2 h-4! max-md:hidden" />
+      <Separator orientation="vertical" className="mx-2 h-4! max-lg:hidden" />
     </div>
   );
 }

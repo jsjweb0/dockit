@@ -24,7 +24,7 @@ export function MobileEditorActions({ actions, status }: Props) {
   const { isDirty, isSaving, isExporting } = status;
 
   return (
-    <div className="flex items-center gap-2 md:hidden">
+    <div className="flex items-center gap-2 lg:hidden">
       {/* <Button onClick={onSave} disabled={!isDirty || isSaving}>
         {isSaving ? '저장 중' : '문서저장'}
       </Button> */}
