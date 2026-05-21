@@ -10,6 +10,7 @@ import {
 } from "@/components/ui/field";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
+import { Plus } from "lucide-react";
 
 type Props = { value: Resume; onChange: (next: Resume) => void };
 
@@ -48,8 +49,8 @@ export function LinkItemSection({ value, onChange }: Props) {
                 <FieldDescription>
                     GitHub, 배포 주소, 포트폴리오처럼 채용자가 바로 확인할 링크를 넣어 주세요.
                 </FieldDescription>
-                <Button type="button" variant="outline" onClick={add} aria-label="링크 추가">
-                    + 링크 추가
+                <Button type="button" variant="outline" className="gap-1" onClick={add}>
+                    <Plus aria-hidden="true" /> 링크 추가
                 </Button>
             </div>
             <FieldSeparator />

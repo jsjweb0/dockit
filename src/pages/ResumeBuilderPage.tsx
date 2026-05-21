@@ -13,19 +13,33 @@ import {
 import { cn } from '@/lib/utils';
 import { Button } from '@/components/ui/button';
 import { useOutletContext } from 'react-router-dom';
+import { MOBILE_PREVIEW_QUERY } from '@/constants/editor';
 
-type PreviewOutletContext = {
-  isPreviewOpen: boolean;
-  isPreviewClosing: boolean;
-  onTogglePreview: () => void;
-  onPreviewAnimationEnd: () => void;
+type ResumeBuilderOutletContext = {
+  previewControls: {
+    isPreviewOpen: boolean;
+    isPreviewClosing: boolean;
+    shouldAnimatePreviewOpen: boolean;
+    onTogglePreview: () => void;
+    onPreviewAnimationEnd: () => void;
+  };
+  onSave: () => void;
 };
 
 const A4_PREVIEW_WIDTH = 794;
 const A4_PREVIEW_HEIGHT = 1123;
-const MOBILE_PREVIEW_QUERY = '(max-width: 1024px)';
 
 export function ResumeBuilderPage() {
+  const { previewControls, onSave } =
+    useOutletContext<ResumeBuilderOutletContext>();
+  const {
+    isPreviewOpen,
+    isPreviewClosing,
+    shouldAnimatePreviewOpen,
+    onTogglePreview,
+    onPreviewAnimationEnd,
+  } = previewControls;
+
   const { resume, setResume, previewRef } = useResumeEditor();
   const previewViewportRef = useRef<HTMLDivElement | null>(null);
   const [previewScale, setPreviewScale] = useState(1);
@@ -55,17 +69,10 @@ export function ResumeBuilderPage() {
     };
   }, []);
 
-  const {
-    isPreviewOpen,
-    isPreviewClosing,
-    onTogglePreview,
-    onPreviewAnimationEnd,
-  } = useOutletContext<PreviewOutletContext>();
-
   useEffect(() => {
     const mobileQuery = window.matchMedia(MOBILE_PREVIEW_QUERY);
 
-    if (isPreviewOpen && mobileQuery.matches) {
+    if ((isPreviewOpen || isPreviewClosing) && mobileQuery.matches) {
       document.body.style.overflow = 'hidden';
     } else {
       document.body.style.overflow = '';
@@ -74,7 +81,7 @@ export function ResumeBuilderPage() {
     return () => {
       document.body.style.overflow = '';
     };
-  }, [isPreviewOpen]);
+  }, [isPreviewOpen, isPreviewClosing]);
 
   return (
     <div
@@ -85,7 +92,7 @@ export function ResumeBuilderPage() {
           : 'lg:grid-cols-[minmax(0,1fr)_auto]',
       )}
     >
-      <ResumeForm value={resume} onChange={setResume} />
+      <ResumeForm value={resume} onChange={setResume} onSubmit={onSave} />
 
       {!isPreviewOpen && (
         <Tooltip>
@@ -115,7 +122,7 @@ export function ResumeBuilderPage() {
           'overflow-auto fixed inset-0 pt-[calc(var(--editor-header-height)+18px)] pb-[calc(var(--editor-mobile-actions-height)+24px)]',
           'lg:static bg-[#f7f8fa] px-4 lg:border-l lg:border-l-gray-100 md:px-8 lg:pt-8 lg:pb-8',
           isPreviewOpen || isPreviewClosing ? 'block' : 'hidden',
-          isPreviewOpen && !isPreviewClosing && 'animate-preview-open',
+          shouldAnimatePreviewOpen && 'animate-preview-open',
           isPreviewClosing && 'animate-preview-close',
         )}
         aria-labelledby="resume-preview-title"
@@ -128,7 +135,11 @@ export function ResumeBuilderPage() {
             >
               미리보기
             </h2>
-            <TooltipProvider delayDuration={0}>
+            <p className="flex gap-2 items-center">
+              <Info className="fill-black stroke-white size-5 md:size-6" />
+              <span className="text-xs md:text-sm text-primary/60">입력하면 자동 반영됩니다.</span>
+            </p>
+            {/* <TooltipProvider delayDuration={0}>
               <Tooltip defaultOpen>
                 <TooltipTrigger asChild aria-label="미리보기 안내">
                   <Info className="fill-black stroke-white" />
@@ -137,7 +148,7 @@ export function ResumeBuilderPage() {
                   <p>입력하면 자동 반영됩니다.</p>
                 </TooltipContent>
               </Tooltip>
-            </TooltipProvider>
+            </TooltipProvider> */}
           </div>
 
           <Tooltip>
@@ -159,6 +170,7 @@ export function ResumeBuilderPage() {
             </TooltipContent>
           </Tooltip>
         </div>
+        
         <Card className="border-0 py-0 shadow-none">
           <CardContent className="overflow-x-auto p-4 md:p-6">
             <div ref={previewViewportRef} className="resumePreviewViewport">

@@ -10,7 +10,17 @@ import React, {
 import type { Resume } from '../model/resume.types';
 import { loadResume, resetResume, saveResume } from '../model/resume.storage';
 import { toast } from 'sonner';
-import { exportResumeImage } from '../model/resume.export';
+import {
+  exportResumeImage,
+  exportResumePdf as exportResumePdfFile,
+} from '../model/resume.export';
+import {
+  BASICS_VALIDATED_FIELDS,
+  validateBasics,
+  validateBasicsField,
+  type BasicsFieldErrors,
+  type BasicsValidatedField,
+} from '../model/resume.basics.validation';
 
 type ResumeEditorState = {
   resumeId: string;
@@ -19,7 +29,17 @@ type ResumeEditorState = {
   save: (opts?: { silent?: boolean }) => Promise<void>;
   reset: () => void;
   exportImage: () => Promise<void>;
+  exportResumePdf: () => Promise<void>;
   previewRef: React.RefObject<HTMLElement | null>;
+  basicsErrors: BasicsFieldErrors;
+  touchBasicsField: (
+    field: BasicsValidatedField,
+    basics?: Resume['basics'],
+  ) => void;
+  revalidateBasicsField: (
+    field: BasicsValidatedField,
+    basics?: Resume['basics'],
+  ) => void;
   isDirty: boolean;
   isExporting: boolean;
   isSaving: boolean;
@@ -27,6 +47,9 @@ type ResumeEditorState = {
 };
 
 const ResumeEditorContext = createContext<ResumeEditorState | null>(null);
+
+const emptyTouchedBasicsFields = () =>
+  new Set<BasicsValidatedField>();
 
 export function ResumeEditorProvider({
   resumeId,
@@ -40,17 +63,66 @@ export function ResumeEditorProvider({
   const [isSaving, setIsSaving] = useState(false);
   const [isExporting, setIsExporting] = useState(false);
   const [lastSavedAt, setLastSavedAt] = useState<number | null>(null);
+  const [basicsErrors, setBasicsErrors] = useState<BasicsFieldErrors>({});
+  const [touchedBasicsFields, setTouchedBasicsFields] =
+    useState(emptyTouchedBasicsFields);
   const previewRef = useRef<HTMLElement | null>(null);
+
+  const clearBasicsValidation = useCallback(() => {
+    setBasicsErrors({});
+    setTouchedBasicsFields(emptyTouchedBasicsFields());
+  }, []);
 
   useEffect(() => {
     setResume(loadResume(resumeId));
     setIsDirty(false);
-  }, [resumeId]);
+    clearBasicsValidation();
+  }, [resumeId, clearBasicsValidation]);
 
   const setResumeSafe = useCallback((next: Resume) => {
     setResume(next);
     setIsDirty(true);
   }, []);
+
+  const touchBasicsField = useCallback(
+    (field: BasicsValidatedField, basics = resume.basics) => {
+      setTouchedBasicsFields((prev) => new Set(prev).add(field));
+      const message = validateBasicsField(field, basics);
+      setBasicsErrors((prev) => {
+        if (!message) {
+          const nextErrors = { ...prev };
+          delete nextErrors[field];
+          return nextErrors;
+        }
+        return { ...prev, [field]: message };
+      });
+    },
+    [resume.basics],
+  );
+
+  const revalidateBasicsField = useCallback(
+    (field: BasicsValidatedField, basics = resume.basics) => {
+      if (!touchedBasicsFields.has(field)) return;
+
+      const message = validateBasicsField(field, basics);
+      setBasicsErrors((prev) => {
+        if (!message) {
+          const nextErrors = { ...prev };
+          delete nextErrors[field];
+          return nextErrors;
+        }
+        return { ...prev, [field]: message };
+      });
+    },
+    [resume.basics, touchedBasicsFields],
+  );
+
+  const validateAllBasics = useCallback(() => {
+    const result = validateBasics(resume.basics);
+    setBasicsErrors(result.errors);
+    setTouchedBasicsFields(new Set(BASICS_VALIDATED_FIELDS));
+    return result;
+  }, [resume.basics]);
 
   const persist = useCallback(
     async (opts?: { silent?: boolean }) => {
@@ -59,7 +131,6 @@ export function ResumeEditorProvider({
         saveResume(resumeId, resume);
         setIsDirty(false);
         setLastSavedAt(Date.now());
-        // 수동 저장일 때만 토스트
         if (!opts?.silent) toast.success('저장 완료');
       } catch {
         toast.error('저장에 실패했습니다.');
@@ -75,11 +146,12 @@ export function ResumeEditorProvider({
     setResume(loadResume(resumeId));
     setIsDirty(false);
     setLastSavedAt(null);
-  }, [resumeId]);
+    clearBasicsValidation();
+  }, [resumeId, clearBasicsValidation]);
 
   const exportImage = useCallback(async () => {
     if (!previewRef.current) {
-      toast.error('내보낼 미리보기를 찾지 못했습니다.');
+      toast.error('보낼 미리보기를 찾지 못했습니다.');
       return;
     }
 
@@ -87,7 +159,7 @@ export function ResumeEditorProvider({
     try {
       const name = resume.basics.name.trim() || 'resume';
       await exportResumeImage({
-        fileName: `${name}-resume.png`,
+        fileName: `${name}-${resume.basics.title}.png`,
         target: previewRef.current,
       });
       toast.success('이미지 저장 완료');
@@ -98,13 +170,45 @@ export function ResumeEditorProvider({
     } finally {
       setIsExporting(false);
     }
-  }, [resume.basics.name]);
+  }, [resume.basics.name, resume.basics.title]);
 
-  // 자동 저장
+  const exportResumePdf = useCallback(async () => {
+    const validation = validateAllBasics();
+    if (!validation.isValid) {
+      const firstMessage =
+        BASICS_VALIDATED_FIELDS.map((field) => validation.errors[field]).find(
+          Boolean,
+        ) ?? '기본 정보를 확인해 주세요.';
+      toast.error(firstMessage);
+      return;
+    }
+
+    if (!previewRef.current) {
+      toast.error('보낼 미리보기를 찾지 못했습니다.');
+      return;
+    }
+
+    setIsExporting(true);
+    try {
+      const name = resume.basics.name.trim() || 'resume';
+      await exportResumePdfFile({
+        fileName: `${name}-${resume.basics.title}.pdf`,
+        target: previewRef.current,
+      });
+      toast.success('PDF 저장 완료');
+    } catch (error) {
+      toast.error(
+        error instanceof Error ? error.message : 'PDF 저장에 실패했습니다.',
+      );
+    } finally {
+      setIsExporting(false);
+    }
+  }, [resume.basics, validateAllBasics]);
+
   useEffect(() => {
     if (!isDirty || isSaving) return;
 
-    const AUTO_SAVE_DELAY = 60_000; // 1분
+    const AUTO_SAVE_DELAY = 60_000;
     const timer = setTimeout(() => persist({ silent: true }), AUTO_SAVE_DELAY);
     return () => clearTimeout(timer);
   }, [persist, resume, isDirty, isSaving]);
@@ -117,7 +221,11 @@ export function ResumeEditorProvider({
       save: persist,
       reset,
       exportImage,
+      exportResumePdf,
       previewRef,
+      basicsErrors,
+      touchBasicsField,
+      revalidateBasicsField,
       isDirty,
       isExporting,
       isSaving,
@@ -130,6 +238,10 @@ export function ResumeEditorProvider({
       persist,
       reset,
       exportImage,
+      exportResumePdf,
+      basicsErrors,
+      touchBasicsField,
+      revalidateBasicsField,
       isDirty,
       isExporting,
       isSaving,

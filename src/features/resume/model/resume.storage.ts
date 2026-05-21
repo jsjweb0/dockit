@@ -58,8 +58,14 @@ export function loadResume(id: string): Resume {
 
   try {
     const parsed = JSON.parse(raw) as Resume;
-    // 최소 안전장치: basics 없으면 기본값으로
-    return parsed ?? defaultResume();
+    if (!parsed) return defaultResume();
+
+    const defaults = defaultResume();
+    return {
+      ...defaults,
+      ...parsed,
+      basics: { ...defaults.basics, ...parsed.basics },
+    };
   } catch {
     return defaultResume();
   }

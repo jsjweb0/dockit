@@ -10,7 +10,7 @@ import {
 } from "@/components/ui/field.tsx";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
-import { Plus, X as CloseIcon } from "lucide-react";
+import { Plus } from "lucide-react";
 
 type Props = { value: Resume; onChange: (next: Resume) => void };
 
@@ -49,8 +49,8 @@ export function EducationSection({ value, onChange }: Props) {
                 <FieldDescription>
                     최신 학력부터 입력하면 미리보기에서 읽기 좋게 정리됩니다.
                 </FieldDescription>
-                <Button type="button" variant="outline" size="icon" className="rounded-full" onClick={add} aria-label="학력 추가">
-                    <Plus />
+                <Button type="button" variant="outline" className="gap-1" onClick={add}>
+                    <Plus aria-hidden="true" /> 학력 추가
                 </Button>
             </div>
             <FieldSeparator />
@@ -59,16 +59,14 @@ export function EducationSection({ value, onChange }: Props) {
                 <FieldGroup key={e.id} className="rounded-lg border p-4">
                     <div className="flex items-center justify-between">
                         <div className="font-bold">학력 {idx + 1}</div>
-                        {list.length > 1 &&
-                            <Button
+                        <Button
                                 type="button"
-                                variant="outline"
+                                variant="ghost"
                                 onClick={() => remove(e.id)}
+                                disabled={list.length <= 1}
                             >
-                                <CloseIcon />
                                 삭제
                             </Button>
-                        }
                     </div>
                     <Field>
                         <FieldLabel htmlFor={`institution-${e.id}`} className="text-sm text-muted-foreground">학교</FieldLabel>

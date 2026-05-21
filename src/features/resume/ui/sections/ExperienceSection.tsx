@@ -12,6 +12,7 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
 import { Checkbox } from "@/components/ui/checkbox";
+import { Plus } from "lucide-react";
 
 type Props = { value: Resume; onChange: (next: Resume) => void };
 
@@ -58,8 +59,8 @@ export function ExperienceSection({ value, onChange }: Props) {
                 <FieldDescription>
                     아르바이트, 인턴, 실무 경험은 맡은 일과 결과가 보이게 작성해 주세요.
                 </FieldDescription>
-                <Button type="button" variant="outline" onClick={add} aria-label="경력 추가">
-                    + 경력 추가
+                <Button type="button" variant="outline" className="gap-1" onClick={add}>
+                    <Plus aria-hidden="true" /> 경력 추가
                 </Button>
             </div>
             <FieldSeparator />

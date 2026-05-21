@@ -1,7 +1,7 @@
 import { useEffect, useRef, useState } from 'react';
 import { DesktopEditorActions } from '@/components/layout/DesktopEditorActions';
 import { MobileEditorActions } from './MobileEditorActions';
-import { ChevronRight } from 'lucide-react';
+import { PanelRightOpen } from 'lucide-react';
 import { formatRelativeTime } from '@/utils/time.ts';
 import { ConfirmDialog } from '@/components/ui/confirm-dialog';
 import { toast } from 'sonner';
@@ -12,6 +12,7 @@ export type EditorActions = {
   onSave: () => void;
   onReset: () => void;
   onExportImage: () => void;
+  onExportPdf: () => void;
   onExitHome: () => void;
 };
 
@@ -37,7 +38,7 @@ export function EditorHeader({
   isPreviewOpen,
   onTogglePreview,
 }: Props) {
-  const { onSave, onExitHome } = actions;
+  const { onExitHome } = actions;
   const { isDirty, isSaving, lastSavedAt } = status;
   const [, forceTick] = useState(0);
   const wasDirtyRef = useRef(isDirty);
@@ -182,7 +183,8 @@ export function EditorHeader({
             )}
 
             <Button
-              onClick={onSave}
+              type="submit"
+              form="resume-form"
               disabled={!isDirty || isSaving}
               className="max-lg:grow"
             >
@@ -197,10 +199,10 @@ export function EditorHeader({
               aria-expanded={isPreviewOpen}
               aria-controls="preview-panel"
             >
-              <ChevronRight
+              <PanelRightOpen
                 className={cn(
                   'size-5 transition-transform',
-                  !isPreviewOpen && 'rotate-180',
+                  isPreviewOpen && 'rotate-180',
                 )}
                 aria-hidden="true"
               />
