@@ -17,10 +17,12 @@ export function DefaultHeader() {
         </h1>
         <InputGroup>
           <InputGroupInput
+            type="search"
             placeholder="문서 양식 검색"
             aria-label="문서 양식 검색"
+            title="검색어"
           />
-          <InputGroupAddon>
+          <InputGroupAddon align="inline-start">
             <Search />
           </InputGroupAddon>
           <InputGroupAddon align="inline-end">

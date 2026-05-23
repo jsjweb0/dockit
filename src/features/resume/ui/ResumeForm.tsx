@@ -40,7 +40,7 @@ export function ResumeForm({ value, onChange, onSubmit }: Props) {
             <BasicsSection value={value} onChange={onChange} />
           </TabsContent>
 
-          <TabsContent value="edu" className="mt-4">
+          <TabsContent value="edu" className="mt-4 min-h-0 min-w-0 w-full">
             <EducationSection value={value} onChange={onChange} />
           </TabsContent>
 
