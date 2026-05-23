@@ -8,6 +8,7 @@ export function defaultResume(): Resume {
     return {
         meta: { version: 1 },
         basics: {
+            applicationType: "",
             name: "",
             nameEn: "",
             birth: "",

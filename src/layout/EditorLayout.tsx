@@ -6,6 +6,7 @@ import {
   ResumeEditorProvider,
   useResumeEditor,
 } from '@/features/resume/context/resumeEditor.context';
+import { getInitialPreviewOpen } from '@/constants/editor';
 
 function uid() {
   return Math.random().toString(36).slice(2, 10);
@@ -14,6 +15,7 @@ function uid() {
 type PreviewControls = {
   isPreviewOpen: boolean;
   isPreviewClosing: boolean;
+  shouldAnimatePreviewOpen: boolean;
   onTogglePreview: () => void;
   onPreviewAnimationEnd: () => void;
 };
@@ -31,6 +33,7 @@ function EditorInner({ previewControls }: EditorInnerProps) {
     save,
     reset,
     exportImage,
+    exportResumePdf,
     isDirty,
     isSaving,
     isExporting,
@@ -45,6 +48,7 @@ function EditorInner({ previewControls }: EditorInnerProps) {
     onSave: () => save({ silent: false }),
     onReset: reset,
     onExportImage: exportImage,
+    onExportPdf: exportResumePdf,
     onExitHome: handleExitHome,
   };
 
@@ -84,7 +88,7 @@ function EditorInner({ previewControls }: EditorInnerProps) {
       />
 
       <main className="mx-auto max-w-7xl px-4 pt-5 pb-[calc(var(--editor-mobile-actions-height)+12px)] lg:p-0">
-        <Outlet context={previewControls} />
+        <Outlet context={{ previewControls, onSave: actions.onSave }} />
       </main>
 
       <Toaster />
@@ -96,8 +100,9 @@ export function EditorLayout() {
   const { id } = useParams();
   const resumeId = id ?? 'new';
 
-  const [isPreviewOpen, setIsPreviewOpen] = useState(true);
+  const [isPreviewOpen, setIsPreviewOpen] = useState(getInitialPreviewOpen);
   const [isPreviewClosing, setIsPreviewClosing] = useState(false);
+  const [hasPreviewBeenClosed, setHasPreviewBeenClosed] = useState(false);
 
   const closePreview = () => {
     setIsPreviewClosing(true);
@@ -119,17 +124,20 @@ export function EditorLayout() {
 
     setIsPreviewOpen(false);
     setIsPreviewClosing(false);
+    setHasPreviewBeenClosed(true);
   };
 
   const previewControls = {
     isPreviewOpen,
     isPreviewClosing,
+    shouldAnimatePreviewOpen:
+      isPreviewOpen && !isPreviewClosing && hasPreviewBeenClosed,
     onTogglePreview: handleTogglePreview,
     onPreviewAnimationEnd: handlePreviewAnimationEnd,
   };
 
   return (
-    <div className="min-h-dvh text-foreground">
+    <div className="min-h-dvh ">
       <ResumeEditorProvider resumeId={resumeId}>
         <EditorInner previewControls={previewControls} />
       </ResumeEditorProvider>

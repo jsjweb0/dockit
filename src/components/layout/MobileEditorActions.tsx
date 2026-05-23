@@ -8,7 +8,7 @@ import {
 } from '@/components/ui/dropdown-menu';
 import { Button } from '@/components/ui/button';
 import { ConfirmDialog } from '@/components/ui/confirm-dialog';
-import { MoreVertical } from 'lucide-react';
+import { MoreVertical, FileText as FileTextIcon, ImageDownIcon, RefreshCcw  } from 'lucide-react';
 import type {
   EditorActions,
   EditorStatus,
@@ -20,7 +20,7 @@ type Props = {
 };
 
 export function MobileEditorActions({ actions, status }: Props) {
-  const { onReset, onExportImage } = actions;
+  const { onReset, onExportImage, onExportPdf } = actions;
   const { isDirty, isSaving, isExporting } = status;
 
   return (
@@ -43,7 +43,12 @@ export function MobileEditorActions({ actions, status }: Props) {
         <DropdownMenuContent align="end">
           <DropdownMenuGroup>
             <DropdownMenuLabel>작업</DropdownMenuLabel>
+            <DropdownMenuItem onSelect={onExportPdf} disabled={isExporting}>
+              <FileTextIcon className="size-4" />
+              {isExporting ? 'PDF 저장 중' : 'PDF 저장'}
+            </DropdownMenuItem>
             <DropdownMenuItem onSelect={onExportImage} disabled={isExporting}>
+              <ImageDownIcon className="size-4" />
               {isExporting ? '이미지 저장 중' : '이미지 저장'}
             </DropdownMenuItem>
             <ConfirmDialog
@@ -56,36 +61,12 @@ export function MobileEditorActions({ actions, status }: Props) {
                   disabled={!isDirty || isSaving || isExporting}
                   onSelect={(event) => event.preventDefault()}
                 >
+                  <RefreshCcw className="size-4" />
                   전체 초기화
                 </DropdownMenuItem>
               }
             />
           </DropdownMenuGroup>
-          {/* <DropdownMenuSeparator />
-          <DropdownMenuGroup>
-            {isDirty ? (
-              <ConfirmDialog
-                title="저장되지 않은 변경사항이 있어요"
-                description="저장하지 않은 변경사항은 메인으로 나가면 사라질 수 있어요. 그래도 나갈까요?"
-                confirmText="나가기"
-                onConfirm={onExitHome}
-                trigger={
-                  <DropdownMenuItem
-                    onSelect={(event) => event.preventDefault()}
-                  >
-                    <LogOut className="size-4" /> 나가기
-                  </DropdownMenuItem>
-                }
-              />
-            ) : (
-              <DropdownMenuItem
-                onSelect={onExitHome}
-                aria-label="메인으로 나가기"
-              >
-                <LogOut className="size-4" /> 나가기
-              </DropdownMenuItem>
-            )}
-          </DropdownMenuGroup> */}
         </DropdownMenuContent>
       </DropdownMenu>
     </div>

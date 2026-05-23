@@ -3,6 +3,11 @@ type ExportResumeImageOptions = {
     target: HTMLElement;
 };
 
+export type ExportResumePdfOptions = {
+    fileName: string;
+    target: HTMLElement;
+};
+
 function collectDocumentStyles() {
     return Array.from(document.styleSheets)
         .map((sheet) => {
@@ -29,6 +34,7 @@ function downloadBlob(blob: Blob, fileName: string) {
     URL.revokeObjectURL(url);
 }
 
+// 이미지 내보내기
 export async function exportResumeImage({ fileName, target }: ExportResumeImageOptions) {
     const width = Math.ceil(target.offsetWidth);
     const height = Math.ceil(target.offsetHeight);
@@ -81,5 +87,34 @@ export async function exportResumeImage({ fileName, target }: ExportResumeImageO
     const blob = await new Promise<Blob | null>((resolve) => canvas.toBlob(resolve, "image/png"));
     if (!blob) throw new Error("PNG 파일 생성에 실패했습니다.");
 
+    downloadBlob(blob, fileName);
+}
+
+// pdf 내보내기
+export async function exportResumePdf({ fileName, target }: ExportResumePdfOptions) {
+    const width = Math.ceil(target.offsetWidth);
+    const height = Math.ceil(target.offsetHeight);
+    const clone = target.cloneNode(true) as HTMLElement;
+
+    clone.setAttribute("xmlns", "http://www.w3.org/1999/xhtml");
+    clone.style.width = `${width}px`;
+    clone.style.minHeight = `${height}px`;
+    clone.style.margin = "0";
+    clone.style.background = "#fff";
+
+    const html = new XMLSerializer().serializeToString(clone);
+    const styles = collectDocumentStyles();
+    const svg = `
+        <svg xmlns="http://www.w3.org/1999/xhtml" width="${width}" height="${height}" viewBox="0 0 ${width} ${height}">
+            <foreignObject width="100%" height="100%">
+                <div xmlns="http://www.w3.org/1999/xhtml">
+                    <style>${styles}</style>
+                    ${html}
+                </div>
+            </foreignObject>
+        </svg> 
+    `;
+
+    const blob = new Blob([svg], { type: "image/svg+xml;charset=utf-8" });
     downloadBlob(blob, fileName);
 }

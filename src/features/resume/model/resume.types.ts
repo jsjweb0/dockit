@@ -1,11 +1,28 @@
+export type ApplicationType = 'new' | 'experienced' | '';
+
+export const APPLICATION_TYPE_LABELS: Record<
+    Exclude<ApplicationType, ''>,
+    string
+> = {
+    new: '신입',
+    experienced: '경력',
+};
+
+export function formatApplicationType(type: ApplicationType): string {
+    if (type === 'new') return APPLICATION_TYPE_LABELS.new;
+    if (type === 'experienced') return APPLICATION_TYPE_LABELS.experienced;
+    return '신입 / 경력';
+}
+
 export type ResumeBasics = {
+    applicationType: ApplicationType;
     name: string;
     nameEn: string;
     birth?: string; // YYYY-MM-DD (옵션)
     phone: string;
     email: string;
     address: string;
-    title: string; // 예: "프론트엔드 개발자"
+    title: string; // 예: "프론트엔드 개발자", 지원부문
     summary: string; // 한줄/짧은 요약
 }
 

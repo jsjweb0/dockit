@@ -11,6 +11,7 @@ import {
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Textarea } from '@/components/ui/textarea';
+import { Plus } from "lucide-react";
 
 type Props = { value: Resume; onChange: (next: Resume) => void };
 
@@ -60,9 +61,9 @@ export function ProjectsSection({ value, onChange }: Props) {
           type="button"
           variant="outline"
           onClick={add}
-          aria-label="프로젝트 추가"
+          className='gap-1'
         >
-          + 프로젝트 추가
+          <Plus aria-hidden="true" /> 프로젝트 추가
         </Button>
       </div>
       <FieldSeparator />

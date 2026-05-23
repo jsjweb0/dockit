@@ -1,5 +1,6 @@
 import { forwardRef } from "react";
 import type { Resume } from "../model/resume.types";
+import { formatApplicationType } from "../model/resume.types";
 
 type Props = { value: Resume };
 
@@ -45,7 +46,7 @@ export const ResumePreview = forwardRef<HTMLElement, Props>(function ResumePrevi
                     <tbody>
                         <tr>
                             <th scope="row">지원구분</th>
-                            <td>신입 / 경력</td>
+                            <td>{formatApplicationType(b.applicationType)}</td>
                         </tr>
                         <tr>
                             <th scope="row">지원부문</th>

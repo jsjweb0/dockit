@@ -49,8 +49,8 @@ export function CertificationSection({ value, onChange }: Props) {
                 <FieldDescription>
                     지원 직무와 관련 있는 자격증 위주로 입력해 주세요.
                 </FieldDescription>
-                <Button type="button" variant="outline" size="icon" className="rounded-full" onClick={add} aria-label="자격증 추가">
-                    <Plus />
+                <Button type="button" variant="outline" className="gap-1" onClick={add}>
+                    <Plus /> 자격증 추가
                 </Button>
             </div>
             <FieldSeparator />
