@@ -107,25 +107,25 @@ export function BasicsSection({ value, onChange }: Props) {
           <FieldLabel htmlFor="userName" className="font-bold">
             이름(한글)
           </FieldLabel>
-            <Input
-              id="userName"
-              type="text"
-              value={b.name}
-              onChange={(e) => {
-                const nextBasics = { ...b, name: e.target.value };
-                onChange({ ...value, basics: nextBasics });
-                nameField.onChangeAfter(nextBasics);
-              }}
-              onBlur={() => nameField.onBlur(b)}
-              placeholder="예: 정수진"
-              autoComplete="name"
-              required
-              aria-invalid={!!nameField.error}
-              aria-describedby={nameField.error ? nameField.errorId : undefined}
-            />
-            {nameField.error && ( 
-              <FieldError id={nameField.errorId}>{nameField.error}</FieldError>
-            )}
+          <Input
+            id="userName"
+            type="text"
+            value={b.name}
+            onChange={(e) => {
+              const nextBasics = { ...b, name: e.target.value };
+              onChange({ ...value, basics: nextBasics });
+              nameField.onChangeAfter(nextBasics);
+            }}
+            onBlur={() => nameField.onBlur(b)}
+            placeholder="예: 정수진"
+            autoComplete="name"
+            required
+            aria-invalid={!!nameField.error}
+            aria-describedby={nameField.error ? nameField.errorId : undefined}
+          />
+          {nameField.error && (
+            <FieldError id={nameField.errorId}>{nameField.error}</FieldError>
+          )}
         </Field>
         <Field>
           <FieldLabel htmlFor="userNameEn" className="font-bold">
@@ -157,37 +157,35 @@ export function BasicsSection({ value, onChange }: Props) {
           <FieldLabel htmlFor="phone" className="font-bold">
             연락처
           </FieldLabel>
-            <Input
-              id="phone"
-              type="tel"
-              value={b.phone}
-              onChange={(e) => {
-                const digits = e.target.value.replace(/\D/g, '').slice(0, 11);
-                const formatted = digits
-                  .replace(/^(02)(\d{0,4})(\d{0,4})$/, (_, area, mid, last) =>
-                    [area, mid, last].filter(Boolean).join('-'),
-                  )
-                  .replace(/^(01\d)(\d{0,4})(\d{0,4})$/, (_, area, mid, last) =>
-                    [area, mid, last].filter(Boolean).join('-'),
-                  );
-                const nextPhone = formatted || digits;
-                const nextBasics = { ...b, phone: nextPhone };
-                onChange({ ...value, basics: nextBasics });
-                phoneField.onChangeAfter(nextBasics);
-              }}
-              onBlur={() => phoneField.onBlur(b)}
-              inputMode="numeric"
-              autoComplete="tel"
-              placeholder="숫자만 입력해 주세요."
-              required
-              aria-invalid={!!phoneField.error}
-              aria-describedby={
-                phoneField.error ? phoneField.errorId : undefined
-              }
-            />
-            {phoneField.error && (
-              <FieldError id={phoneField.errorId}>{phoneField.error}</FieldError>
-            )}
+          <Input
+            id="phone"
+            type="tel"
+            value={b.phone}
+            onChange={(e) => {
+              const digits = e.target.value.replace(/\D/g, '').slice(0, 11);
+              const formatted = digits
+                .replace(/^(02)(\d{0,4})(\d{0,4})$/, (_, area, mid, last) =>
+                  [area, mid, last].filter(Boolean).join('-'),
+                )
+                .replace(/^(01\d)(\d{0,4})(\d{0,4})$/, (_, area, mid, last) =>
+                  [area, mid, last].filter(Boolean).join('-'),
+                );
+              const nextPhone = formatted || digits;
+              const nextBasics = { ...b, phone: nextPhone };
+              onChange({ ...value, basics: nextBasics });
+              phoneField.onChangeAfter(nextBasics);
+            }}
+            onBlur={() => phoneField.onBlur(b)}
+            inputMode="numeric"
+            autoComplete="tel"
+            placeholder="숫자만 입력해 주세요."
+            required
+            aria-invalid={!!phoneField.error}
+            aria-describedby={phoneField.error ? phoneField.errorId : undefined}
+          />
+          {phoneField.error && (
+            <FieldError id={phoneField.errorId}>{phoneField.error}</FieldError>
+          )}
         </Field>
         <Field>
           <FieldLabel htmlFor="address" className="font-bold">
@@ -206,28 +204,26 @@ export function BasicsSection({ value, onChange }: Props) {
           <FieldLabel htmlFor="email" className="font-bold">
             이메일
           </FieldLabel>
-            <Input
-              id="email"
-              type="email"
-              value={b.email}
-              onChange={(e) => {
-                const nextBasics = { ...b, email: e.target.value };
-                onChange({ ...value, basics: nextBasics });
-                emailField.onChangeAfter(nextBasics);
-              }}
-              onBlur={() => emailField.onBlur(b)}
-              placeholder="예: user@example.com"
-              autoComplete="email"
-              inputMode="email"
-              required
-              aria-invalid={!!emailField.error}
-              aria-describedby={
-                emailField.error ? emailField.errorId : undefined
-              }
-            />
-            {emailField.error && (
-              <FieldError id={emailField.errorId}>{emailField.error}</FieldError>
-            )}
+          <Input
+            id="email"
+            type="email"
+            value={b.email}
+            onChange={(e) => {
+              const nextBasics = { ...b, email: e.target.value };
+              onChange({ ...value, basics: nextBasics });
+              emailField.onChangeAfter(nextBasics);
+            }}
+            onBlur={() => emailField.onBlur(b)}
+            placeholder="예: user@example.com"
+            autoComplete="email"
+            inputMode="email"
+            required
+            aria-invalid={!!emailField.error}
+            aria-describedby={emailField.error ? emailField.errorId : undefined}
+          />
+          {emailField.error && (
+            <FieldError id={emailField.errorId}>{emailField.error}</FieldError>
+          )}
         </Field>
         <Field>
           <FieldLabel htmlFor="summary" className="font-bold">
@@ -240,6 +236,19 @@ export function BasicsSection({ value, onChange }: Props) {
             rows={4}
             placeholder="예) 퍼블리싱 기반의 접근성/성능을 고려한 React UI를 만들고, 제품 관점으로 개선합니다."
             className="resize-none"
+            autoComplete="off"
+          />
+        </Field>
+        <Field>
+          <FieldLabel htmlFor="submittedAt" className="font-bold">
+            작성일
+          </FieldLabel>
+          <Input
+            id="submittedAt"
+            type="date"
+            value={b.submittedAt}
+            onChange={(e) => set('submittedAt', e.target.value)}
+            placeholder="YYYY-MM-DD"
             autoComplete="off"
           />
         </Field>

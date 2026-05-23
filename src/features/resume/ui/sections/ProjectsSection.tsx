@@ -11,7 +11,7 @@ import {
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Textarea } from '@/components/ui/textarea';
-import { Plus } from "lucide-react";
+import { Plus } from 'lucide-react';
 
 type Props = { value: Resume; onChange: (next: Resume) => void };
 
@@ -33,7 +33,6 @@ export function ProjectsSection({ value, onChange }: Props) {
     onChange({
       ...value,
       projects: [
-        ...list,
         {
           id: uid(),
           name: '',
@@ -42,6 +41,7 @@ export function ProjectsSection({ value, onChange }: Props) {
           description: '',
           link: '',
         },
+        ...list,
       ],
     });
   };
@@ -57,12 +57,7 @@ export function ProjectsSection({ value, onChange }: Props) {
         <FieldDescription>
           포트폴리오 프로젝트는 목적, 역할, 개선 포인트가 드러나게 적어 주세요.
         </FieldDescription>
-        <Button
-          type="button"
-          variant="outline"
-          onClick={add}
-          className='gap-1'
-        >
+        <Button type="button" variant="outline" onClick={add} className="gap-1">
           <Plus aria-hidden="true" /> 프로젝트 추가
         </Button>
       </div>
@@ -71,7 +66,7 @@ export function ProjectsSection({ value, onChange }: Props) {
       {list.map((p, idx) => (
         <FieldGroup key={p.id} className="rounded-lg border p-4">
           <div className="mb-3 flex items-center justify-between">
-            <div className="font-medium">프로젝트 {idx + 1}</div>
+            <div className="font-medium">프로젝트 {list.length - idx}</div>
             <Button
               type="button"
               variant="ghost"

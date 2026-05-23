@@ -8,7 +8,6 @@ import {
   Tooltip,
   TooltipContent,
   TooltipTrigger,
-  TooltipProvider,
 } from '@/components/ui/tooltip';
 import { cn } from '@/lib/utils';
 import { Button } from '@/components/ui/button';
@@ -136,19 +135,9 @@ export function ResumeBuilderPage() {
               미리보기
             </h2>
             <p className="flex gap-2 items-center">
-              <Info className="fill-black stroke-white size-5 md:size-6" />
+              <Info className="fill-black stroke-white size-5 md:size-6" aria-hidden="true" />
               <span className="text-xs md:text-sm text-primary/60">입력하면 자동 반영됩니다.</span>
             </p>
-            {/* <TooltipProvider delayDuration={0}>
-              <Tooltip defaultOpen>
-                <TooltipTrigger asChild aria-label="미리보기 안내">
-                  <Info className="fill-black stroke-white" />
-                </TooltipTrigger>
-                <TooltipContent side="right">
-                  <p>입력하면 자동 반영됩니다.</p>
-                </TooltipContent>
-              </Tooltip>
-            </TooltipProvider> */}
           </div>
 
           <Tooltip>
@@ -170,7 +159,7 @@ export function ResumeBuilderPage() {
             </TooltipContent>
           </Tooltip>
         </div>
-        
+
         <Card className="border-0 py-0 shadow-none">
           <CardContent className="overflow-x-auto p-4 md:p-6">
             <div ref={previewViewportRef} className="resumePreviewViewport">
