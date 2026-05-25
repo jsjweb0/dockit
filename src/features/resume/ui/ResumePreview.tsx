@@ -17,6 +17,10 @@ function fillRows<T>(rows: T[], emptyRow: T) {
   ];
 }
 
+function toPreviewOrder<T>(rows: T[]) {
+  return [...rows].reverse();
+}
+
 function formatPeriod(start?: string, end?: string, isCurrent?: boolean) {
   if (!start && !end && !isCurrent) return '-';
   return `${start || '시작'} - ${isCurrent ? '재직중' : end || '종료'}`;
@@ -44,19 +48,19 @@ function KoreanDate({ value }: { value?: string }) {
 export const ResumePreview = forwardRef<HTMLElement, Props>(
   function ResumePreview({ value }, ref) {
     const b = value.basics;
-    const educationRows = fillRows(value.education, {
+    const educationRows = fillRows(toPreviewOrder(value.education), {
       id: 'empty-education',
       period: '',
       institution: '',
       major: '',
     });
-    const certificationRows = fillRows(value.certifications, {
+    const certificationRows = fillRows(toPreviewOrder(value.certifications), {
       id: 'empty-certification',
       acquiredAt: '',
       name: '',
       issuer: '',
     });
-    const experienceRows = fillRows(value.experience, {
+    const experienceRows = fillRows(toPreviewOrder(value.experience), {
       id: 'empty-experience',
       company: '',
       role: '',
@@ -65,7 +69,7 @@ export const ResumePreview = forwardRef<HTMLElement, Props>(
       end: '',
       description: '',
     });
-    const projectRows = fillRows(value.projects, {
+    const projectRows = fillRows(toPreviewOrder(value.projects), {
       id: 'empty-project',
       name: '',
       period: '',
@@ -310,7 +314,7 @@ export const ResumePreview = forwardRef<HTMLElement, Props>(
                 링크
               </th>
               <td colSpan={10}>
-                {value.links
+                {toPreviewOrder(value.links)
                   .filter((link) => link.url)
                   .map((link) => `${link.label || 'Link'}: ${link.url}`)
                   .join(' / ') || 'GitHub / Portfolio'}

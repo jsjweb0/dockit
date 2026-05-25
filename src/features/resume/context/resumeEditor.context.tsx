@@ -21,6 +21,16 @@ import {
   type BasicsFieldErrors,
   type BasicsValidatedField,
 } from '../model/resume.basics.validation';
+import {
+  emptyResumeSectionErrors,
+  SECTION_VALIDATED_FIELDS,
+  validateOptionalSections,
+  validateSectionItem,
+  type ResumeListSection,
+  type ResumeSectionErrors,
+} from '../model/resume.optionalSections.validation';
+
+type SectionFieldKey = `${ResumeListSection}:${string}:${string}`;
 
 type ResumeEditorState = {
   resumeId: string;
@@ -32,6 +42,7 @@ type ResumeEditorState = {
   exportResumePdf: () => Promise<void>;
   previewRef: React.RefObject<HTMLElement | null>;
   basicsErrors: BasicsFieldErrors;
+  sectionErrors: ResumeSectionErrors;
   touchBasicsField: (
     field: BasicsValidatedField,
     basics?: Resume['basics'],
@@ -39,6 +50,18 @@ type ResumeEditorState = {
   revalidateBasicsField: (
     field: BasicsValidatedField,
     basics?: Resume['basics'],
+  ) => void;
+  touchSectionField: (
+    section: ResumeListSection,
+    id: string,
+    field: string,
+    nextResume?: Resume,
+  ) => void;
+  revalidateSectionField: (
+    section: ResumeListSection,
+    id: string,
+    field: string,
+    nextResume?: Resume,
   ) => void;
   isDirty: boolean;
   isExporting: boolean;
@@ -48,8 +71,14 @@ type ResumeEditorState = {
 
 const ResumeEditorContext = createContext<ResumeEditorState | null>(null);
 
-const emptyTouchedBasicsFields = () =>
-  new Set<BasicsValidatedField>();
+const emptyTouchedBasicsFields = () => new Set<BasicsValidatedField>();
+const emptyTouchedSectionFields = () => new Set<SectionFieldKey>();
+
+const getSectionFieldKey = (
+  section: ResumeListSection,
+  id: string,
+  field: string,
+): SectionFieldKey => `${section}:${id}:${field}`;
 
 export function ResumeEditorProvider({
   resumeId,
@@ -64,8 +93,16 @@ export function ResumeEditorProvider({
   const [isExporting, setIsExporting] = useState(false);
   const [lastSavedAt, setLastSavedAt] = useState<number | null>(null);
   const [basicsErrors, setBasicsErrors] = useState<BasicsFieldErrors>({});
-  const [touchedBasicsFields, setTouchedBasicsFields] =
-    useState(emptyTouchedBasicsFields);
+  const [sectionErrors, setSectionErrors] = useState<ResumeSectionErrors>(
+    emptyResumeSectionErrors,
+  );
+  const [touchedBasicsFields, setTouchedBasicsFields] = useState(
+    emptyTouchedBasicsFields,
+  );
+  const [touchedSectionFields, setTouchedSectionFields] = useState(
+    emptyTouchedSectionFields,
+  );
+
   const previewRef = useRef<HTMLElement | null>(null);
 
   const clearBasicsValidation = useCallback(() => {
@@ -73,11 +110,17 @@ export function ResumeEditorProvider({
     setTouchedBasicsFields(emptyTouchedBasicsFields());
   }, []);
 
+  const clearSectionValidation = useCallback(() => {
+    setSectionErrors(emptyResumeSectionErrors());
+    setTouchedSectionFields(emptyTouchedSectionFields());
+  }, []);
+
   useEffect(() => {
     setResume(loadResume(resumeId));
     setIsDirty(false);
     clearBasicsValidation();
-  }, [resumeId, clearBasicsValidation]);
+    clearSectionValidation();
+  }, [resumeId, clearBasicsValidation, clearSectionValidation]);
 
   const setResumeSafe = useCallback((next: Resume) => {
     setResume(next);
@@ -124,6 +167,112 @@ export function ResumeEditorProvider({
     return result;
   }, [resume.basics]);
 
+  const setSectionFieldError = useCallback(
+    (
+      section: ResumeListSection,
+      id: string,
+      field: string,
+      message?: string,
+    ) => {
+      setSectionErrors((prev) => {
+        const sectionItemErrors = { ...prev[section] };
+        const itemErrors = { ...(sectionItemErrors[id] ?? {}) };
+
+        if (message) {
+          itemErrors[field] = message;
+        } else {
+          delete itemErrors[field];
+        }
+
+        if (Object.keys(itemErrors).length > 0) {
+          sectionItemErrors[id] = itemErrors;
+        } else {
+          delete sectionItemErrors[id];
+        }
+
+        return { ...prev, [section]: sectionItemErrors };
+      });
+    },
+    [],
+  );
+
+  const touchSectionField = useCallback(
+    (
+      section: ResumeListSection,
+      id: string,
+      field: string,
+      nextResume = resume,
+    ) => {
+      setTouchedSectionFields((prev) =>
+        new Set(prev).add(getSectionFieldKey(section, id, field)),
+      );
+
+      const message = validateSectionItem(section, nextResume, id)[field];
+      setSectionFieldError(section, id, field, message);
+    },
+    [resume, setSectionFieldError],
+  );
+
+  const revalidateSectionField = useCallback(
+    (
+      section: ResumeListSection,
+      id: string,
+      field: string,
+      nextResume = resume,
+    ) => {
+      if (!touchedSectionFields.has(getSectionFieldKey(section, id, field))) {
+        return;
+      }
+
+      const message = validateSectionItem(section, nextResume, id)[field];
+      setSectionFieldError(section, id, field, message);
+    },
+    [resume, setSectionFieldError, touchedSectionFields],
+  );
+
+  const validateAllOptionalSections = useCallback(() => {
+    const result = validateOptionalSections(resume);
+    setSectionErrors(result.errors);
+    setTouchedSectionFields(
+      new Set(
+        (
+          Object.entries(SECTION_VALIDATED_FIELDS) as [
+            ResumeListSection,
+            string[],
+          ][]
+        ).flatMap(([section, fields]) =>
+          resume[section].flatMap((item) =>
+            fields.map((field) => getSectionFieldKey(section, item.id, field)),
+          ),
+        ),
+      ),
+    );
+    return result;
+  }, [resume]);
+
+  const validateResumeBeforeExport = useCallback(() => {
+    const basicsValidation = validateAllBasics();
+    const sectionValidation = validateAllOptionalSections();
+
+    if (basicsValidation.isValid && sectionValidation.isValid) {
+      return true;
+    }
+
+    const firstMessage =
+      BASICS_VALIDATED_FIELDS.map(
+        (field) => basicsValidation.errors[field],
+      ).find(Boolean) ??
+      Object.values(sectionValidation.errors)
+        .flatMap((itemErrors) =>
+          Object.values(itemErrors).flatMap((errors) => Object.values(errors)),
+        )
+        .find(Boolean) ??
+      '입력 정보를 확인해 주세요.';
+
+    toast.error(firstMessage);
+    return false;
+  }, [validateAllBasics, validateAllOptionalSections]);
+
   const persist = useCallback(
     async (opts?: { silent?: boolean }) => {
       setIsSaving(true);
@@ -147,9 +296,12 @@ export function ResumeEditorProvider({
     setIsDirty(false);
     setLastSavedAt(null);
     clearBasicsValidation();
-  }, [resumeId, clearBasicsValidation]);
+    clearSectionValidation();
+  }, [resumeId, clearBasicsValidation, clearSectionValidation]);
 
   const exportImage = useCallback(async () => {
+    if (!validateResumeBeforeExport()) return;
+
     if (!previewRef.current) {
       toast.error('보낼 미리보기를 찾지 못했습니다.');
       return;
@@ -170,18 +322,14 @@ export function ResumeEditorProvider({
     } finally {
       setIsExporting(false);
     }
-  }, [resume.basics.name, resume.basics.title]);
+  }, [
+    resume.basics.name,
+    resume.basics.title,
+    validateResumeBeforeExport,
+  ]);
 
   const exportResumePdf = useCallback(async () => {
-    const validation = validateAllBasics();
-    if (!validation.isValid) {
-      const firstMessage =
-        BASICS_VALIDATED_FIELDS.map((field) => validation.errors[field]).find(
-          Boolean,
-        ) ?? '기본 정보를 확인해 주세요.';
-      toast.error(firstMessage);
-      return;
-    }
+    if (!validateResumeBeforeExport()) return;
 
     if (!previewRef.current) {
       toast.error('보낼 미리보기를 찾지 못했습니다.');
@@ -203,7 +351,7 @@ export function ResumeEditorProvider({
     } finally {
       setIsExporting(false);
     }
-  }, [resume.basics, validateAllBasics]);
+  }, [resume.basics, validateResumeBeforeExport]);
 
   useEffect(() => {
     if (!isDirty || isSaving) return;
@@ -224,8 +372,11 @@ export function ResumeEditorProvider({
       exportResumePdf,
       previewRef,
       basicsErrors,
+      sectionErrors,
       touchBasicsField,
       revalidateBasicsField,
+      touchSectionField,
+      revalidateSectionField,
       isDirty,
       isExporting,
       isSaving,
@@ -240,8 +391,11 @@ export function ResumeEditorProvider({
       exportImage,
       exportResumePdf,
       basicsErrors,
+      sectionErrors,
       touchBasicsField,
       revalidateBasicsField,
+      touchSectionField,
+      revalidateSectionField,
       isDirty,
       isExporting,
       isSaving,

@@ -2,6 +2,7 @@ import type { Resume, Education } from '../../model/resume.types';
 import {
   Field,
   FieldDescription,
+  FieldError,
   FieldGroup,
   FieldLabel,
   FieldLegend,
@@ -11,6 +12,7 @@ import {
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Plus } from 'lucide-react';
+import { useResumeEditor } from '../../context/resumeEditor.context';
 
 type Props = { value: Resume; onChange: (next: Resume) => void };
 
@@ -19,12 +21,31 @@ function uid() {
 }
 
 export function EducationSection({ value, onChange }: Props) {
+  const { sectionErrors, touchSectionField, revalidateSectionField } =
+    useResumeEditor();
   const list = value.education;
 
   const update = (id: string, patch: Partial<Education>) => {
+    const nextEducation = list.map((x) => (x.id === id ? { ...x, ...patch } : x));
+    const nextResume = { ...value, education: nextEducation };
+
+    onChange(nextResume);
+
+    return nextResume;
+  };
+
+  const revalidate = (id: string, field: string, nextResume: Resume) => {
+    revalidateSectionField('education', id, field, nextResume);
+  };
+
+  const touch = (id: string, field: string) => {
+    touchSectionField('education', id, field, value);
+  };
+
+  const remove = (id: string) => {
     onChange({
       ...value,
-      education: list.map((x) => (x.id === id ? { ...x, ...patch } : x)),
+      education: list.filter((x) => x.id !== id),
     });
   };
 
@@ -36,10 +57,6 @@ export function EducationSection({ value, onChange }: Props) {
         ...list,
       ],
     });
-  };
-
-  const remove = (id: string) => {
-    onChange({ ...value, education: list.filter((x) => x.id !== id) });
   };
 
   return (
@@ -55,7 +72,13 @@ export function EducationSection({ value, onChange }: Props) {
       </div>
       <FieldSeparator />
 
-      {list.map((e, idx) => (
+      {list.map((e, idx) => {
+        const errors = sectionErrors.education[e.id] ?? {};
+        const institutionErrorId = `institution-${e.id}-error`;
+        const periodErrorId = `period-${e.id}-error`;
+        const majorErrorId = `major-${e.id}-error`;
+
+        return (
         <FieldGroup key={e.id} className="rounded-lg border p-4">
           <div className="flex items-center justify-between">
             <div className="font-bold">학력 {list.length - idx}</div>
@@ -68,7 +91,7 @@ export function EducationSection({ value, onChange }: Props) {
               삭제
             </Button>
           </div>
-          <Field>
+          <Field data-invalid={!!errors.institution}>
             <FieldLabel
               htmlFor={`institution-${e.id}`}
               className="text-sm text-muted-foreground"
@@ -79,12 +102,27 @@ export function EducationSection({ value, onChange }: Props) {
               id={`institution-${e.id}`}
               type="text"
               value={e.institution}
-              onChange={(ev) => update(e.id, { institution: ev.target.value })}
+              onChange={(ev) => {
+                const nextResume = update(e.id, {
+                  institution: ev.target.value,
+                });
+                revalidate(e.id, 'institution', nextResume);
+              }}
+              onBlur={() => touch(e.id, 'institution')}
               placeholder="예: 한국대학교"
               autoComplete="organization"
+              aria-invalid={!!errors.institution}
+              aria-describedby={
+                errors.institution ? institutionErrorId : undefined
+              }
             />
+            {errors.institution && (
+              <FieldError id={institutionErrorId}>
+                {errors.institution}
+              </FieldError>
+            )}
           </Field>
-          <Field>
+          <Field data-invalid={!!errors.period}>
             <FieldLabel
               htmlFor={`period-${e.id}`}
               className="text-sm text-muted-foreground"
@@ -95,14 +133,22 @@ export function EducationSection({ value, onChange }: Props) {
               id={`period-${e.id}`}
               type="text"
               value={e.period}
-              onChange={(ev) => update(e.id, { period: ev.target.value })}
+              onChange={(ev) => {
+                const nextResume = update(e.id, { period: ev.target.value });
+                revalidate(e.id, 'period', nextResume);
+              }}
+              onBlur={() => touch(e.id, 'period')}
               placeholder="예: 2021.03 - 2025.02"
               autoComplete="off"
               inputMode="numeric"
-              required
+              aria-invalid={!!errors.period}
+              aria-describedby={errors.period ? periodErrorId : undefined}
             />
+            {errors.period && (
+              <FieldError id={periodErrorId}>{errors.period}</FieldError>
+            )}
           </Field>
-          <Field>
+          <Field data-invalid={!!errors.major}>
             <FieldLabel
               htmlFor={`major-${e.id}`}
               className="text-sm text-muted-foreground"
@@ -113,13 +159,23 @@ export function EducationSection({ value, onChange }: Props) {
               id={`major-${e.id}`}
               type="text"
               value={e.major}
-              onChange={(ev) => update(e.id, { major: ev.target.value })}
+              onChange={(ev) => {
+                const nextResume = update(e.id, { major: ev.target.value });
+                revalidate(e.id, 'major', nextResume);
+              }}
+              onBlur={() => touch(e.id, 'major')}
               placeholder="예: 컴퓨터공학과"
               autoComplete="off"
+              aria-invalid={!!errors.major}
+              aria-describedby={errors.major ? majorErrorId : undefined}
             />
+            {errors.major && (
+              <FieldError id={majorErrorId}>{errors.major}</FieldError>
+            )}
           </Field>
         </FieldGroup>
-      ))}
+        );
+      })}
     </FieldSet>
   );
 }

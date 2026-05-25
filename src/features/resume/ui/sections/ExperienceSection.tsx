@@ -14,6 +14,7 @@ import { Input } from '@/components/ui/input';
 import { Textarea } from '@/components/ui/textarea';
 import { Checkbox } from '@/components/ui/checkbox';
 import { Plus } from 'lucide-react';
+import { useResumeEditor } from '../../context/resumeEditor.context';
 
 type Props = { value: Resume; onChange: (next: Resume) => void };
 
@@ -22,13 +23,27 @@ function uid() {
 }
 
 export function ExperienceSection({ value, onChange }: Props) {
+  const { sectionErrors, touchSectionField, revalidateSectionField } =
+    useResumeEditor();
   const list = value.experience;
 
   const update = (id: string, patch: Partial<Experience>) => {
-    onChange({
-      ...value,
-      experience: list.map((x) => (x.id === id ? { ...x, ...patch } : x)),
-    });
+    const nextExperience = list.map((x) =>
+      x.id === id ? { ...x, ...patch } : x,
+    );
+    const nextResume = { ...value, experience: nextExperience };
+
+    onChange(nextResume);
+
+    return nextResume;
+  };
+
+  const revalidate = (id: string, field: string, nextResume: Resume) => {
+    revalidateSectionField('experience', id, field, nextResume);
+  };
+
+  const touch = (id: string, field: string) => {
+    touchSectionField('experience', id, field, value);
   };
 
   const add = () => {
@@ -53,11 +68,6 @@ export function ExperienceSection({ value, onChange }: Props) {
     onChange({ ...value, experience: list.filter((x) => x.id !== id) });
   };
 
-  function isEndBeforeStart(start: string, end?: string, isCurrent?: boolean) {
-    if (isCurrent || !start || !end) return false;
-    return end < start;
-  }
-
   return (
     <FieldSet>
       <FieldLegend>경력정보</FieldLegend>
@@ -72,8 +82,12 @@ export function ExperienceSection({ value, onChange }: Props) {
       <FieldSeparator />
 
       {list.map((e, idx) => {
-        const hasInvalidPeriod = isEndBeforeStart(e.start, e.end, e.isCurrent);
+        const errors = sectionErrors.experience[e.id] ?? {};
+        const companyErrorId = `company-${e.id}-error`;
+        const startErrorId = `start-${e.id}-error`;
         const endErrorId = `end-${e.id}-error`;
+        const roleErrorId = `role-${e.id}-error`;
+        const descriptionErrorId = `description-${e.id}-error`;
 
         return (
           <FieldGroup key={e.id} className="rounded-lg border p-4">
@@ -89,7 +103,7 @@ export function ExperienceSection({ value, onChange }: Props) {
               </Button>
             </div>
             <div className="grid gap-3 grid-cols-[auto_70px]">
-              <Field>
+              <Field data-invalid={!!errors.company}>
                 <FieldLabel
                   htmlFor={`company-${e.id}`}
                   className="text-sm text-muted-foreground"
@@ -100,10 +114,21 @@ export function ExperienceSection({ value, onChange }: Props) {
                   id={`company-${e.id}`}
                   type="text"
                   value={e.company}
-                  onChange={(ev) => update(e.id, { company: ev.target.value })}
+                  onChange={(ev) => {
+                    const nextResume = update(e.id, {
+                      company: ev.target.value,
+                    });
+                    revalidate(e.id, 'company', nextResume);
+                  }}
+                  onBlur={() => touch(e.id, 'company')}
                   placeholder="예: 닷킷 스튜디오"
                   autoComplete="organization"
+                  aria-invalid={!!errors.company}
+                  aria-describedby={errors.company ? companyErrorId : undefined}
                 />
+                {errors.company && (
+                  <FieldError id={companyErrorId}>{errors.company}</FieldError>
+                )}
               </Field>
               <Field orientation="horizontal" className="mt-8">
                 <Checkbox
@@ -111,7 +136,11 @@ export function ExperienceSection({ value, onChange }: Props) {
                   checked={e.isCurrent}
                   onCheckedChange={(checked) => {
                     const isCurrent = checked === true;
-                    update(e.id, { isCurrent, end: isCurrent ? '' : e.end });
+                    const nextResume = update(e.id, {
+                      isCurrent,
+                      end: isCurrent ? '' : e.end,
+                    });
+                    revalidate(e.id, 'end', nextResume);
                   }}
                   className="peer"
                 />
@@ -124,7 +153,7 @@ export function ExperienceSection({ value, onChange }: Props) {
               </Field>
             </div>
             <div className="grid grid-cols-2 gap-3">
-              <Field>
+              <Field data-invalid={!!errors.start}>
                 <FieldLabel
                   htmlFor={`start-${e.id}`}
                   className="text-sm text-muted-foreground"
@@ -135,11 +164,21 @@ export function ExperienceSection({ value, onChange }: Props) {
                   id={`start-${e.id}`}
                   type="month"
                   value={e.start}
-                  onChange={(ev) => update(e.id, { start: ev.target.value })}
+                  onChange={(ev) => {
+                    const nextResume = update(e.id, { start: ev.target.value });
+                    revalidate(e.id, 'start', nextResume);
+                    revalidate(e.id, 'end', nextResume);
+                  }}
+                  onBlur={() => touch(e.id, 'start')}
                   autoComplete="off"
+                  aria-invalid={!!errors.start}
+                  aria-describedby={errors.start ? startErrorId : undefined}
                 />
+                {errors.start && (
+                  <FieldError id={startErrorId}>{errors.start}</FieldError>
+                )}
               </Field>
-              <Field data-invalid={hasInvalidPeriod}>
+              <Field data-invalid={!!errors.end}>
                 <FieldLabel
                   htmlFor={`end-${e.id}`}
                   className="text-sm text-muted-foreground"
@@ -150,20 +189,22 @@ export function ExperienceSection({ value, onChange }: Props) {
                   id={`end-${e.id}`}
                   type="month"
                   value={e.end ?? ''}
-                  onChange={(ev) => update(e.id, { end: ev.target.value })}
+                  onChange={(ev) => {
+                    const nextResume = update(e.id, { end: ev.target.value });
+                    revalidate(e.id, 'end', nextResume);
+                  }}
+                  onBlur={() => touch(e.id, 'end')}
                   disabled={e.isCurrent}
                   autoComplete="off"
-                  aria-invalid={hasInvalidPeriod}
-                  aria-describedby={hasInvalidPeriod ? endErrorId : undefined}
+                  aria-invalid={!!errors.end}
+                  aria-describedby={errors.end ? endErrorId : undefined}
                 />
-                {hasInvalidPeriod && (
-                  <FieldError id={endErrorId}>
-                    종료일은 시작일보다 늦어야 합니다.
-                  </FieldError>
+                {errors.end && (
+                  <FieldError id={endErrorId}>{errors.end}</FieldError>
                 )}
               </Field>
             </div>
-            <Field>
+            <Field data-invalid={!!errors.role}>
               <FieldLabel
                 htmlFor={`role-${e.id}`}
                 className="text-sm text-muted-foreground"
@@ -174,13 +215,22 @@ export function ExperienceSection({ value, onChange }: Props) {
                 id={`role-${e.id}`}
                 type="text"
                 value={e.role}
-                onChange={(ev) => update(e.id, { role: ev.target.value })}
+                onChange={(ev) => {
+                  const nextResume = update(e.id, { role: ev.target.value });
+                  revalidate(e.id, 'role', nextResume);
+                }}
+                onBlur={() => touch(e.id, 'role')}
                 placeholder="예: 웹 퍼블리셔 인턴"
                 autoComplete="organization-title"
+                aria-invalid={!!errors.role}
+                aria-describedby={errors.role ? roleErrorId : undefined}
               />
+              {errors.role && (
+                <FieldError id={roleErrorId}>{errors.role}</FieldError>
+              )}
             </Field>
             <div className="mt-3">
-              <Field>
+              <Field data-invalid={!!errors.description}>
                 <FieldLabel
                   htmlFor={`description-${e.id}`}
                   className="text-sm text-muted-foreground"
@@ -190,15 +240,28 @@ export function ExperienceSection({ value, onChange }: Props) {
                 <Textarea
                   id={`description-${e.id}`}
                   value={e.description}
-                  onChange={(ev) =>
-                    update(e.id, { description: ev.target.value })
-                  }
+                  onChange={(ev) => {
+                    const nextResume = update(e.id, {
+                      description: ev.target.value,
+                    });
+                    revalidate(e.id, 'description', nextResume);
+                  }}
+                  onBlur={() => touch(e.id, 'description')}
                   rows={5}
                   placeholder={
                     '예)\n- 이벤트 페이지 HTML/CSS 마크업 및 반응형 레이아웃 구현\n- 반복되는 카드 UI를 React 컴포넌트로 분리해 유지보수성 개선\n- Lighthouse 접근성 경고를 확인하고 label/alt 누락 항목 수정'
                   }
                   autoComplete="off"
+                  aria-invalid={!!errors.description}
+                  aria-describedby={
+                    errors.description ? descriptionErrorId : undefined
+                  }
                 />
+                {errors.description && (
+                  <FieldError id={descriptionErrorId}>
+                    {errors.description}
+                  </FieldError>
+                )}
               </Field>
             </div>
           </FieldGroup>

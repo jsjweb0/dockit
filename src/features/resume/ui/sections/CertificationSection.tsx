@@ -2,6 +2,7 @@ import type { Resume, Certification } from '../../model/resume.types';
 import {
   Field,
   FieldDescription,
+  FieldError,
   FieldGroup,
   FieldLabel,
   FieldLegend,
@@ -11,6 +12,7 @@ import {
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Plus } from 'lucide-react';
+import { useResumeEditor } from '../../context/resumeEditor.context';
 
 type Props = { value: Resume; onChange: (next: Resume) => void };
 
@@ -19,13 +21,27 @@ function uid() {
 }
 
 export function CertificationSection({ value, onChange }: Props) {
+  const { sectionErrors, touchSectionField, revalidateSectionField } =
+    useResumeEditor();
   const list = value.certifications;
 
   const update = (id: string, patch: Partial<Certification>) => {
-    onChange({
-      ...value,
-      certifications: list.map((x) => (x.id === id ? { ...x, ...patch } : x)),
-    });
+    const nextCertifications = list.map((x) =>
+      x.id === id ? { ...x, ...patch } : x,
+    );
+    const nextResume = { ...value, certifications: nextCertifications };
+
+    onChange(nextResume);
+
+    return nextResume;
+  };
+
+  const revalidate = (id: string, field: string, nextResume: Resume) => {
+    revalidateSectionField('certifications', id, field, nextResume);
+  };
+
+  const touch = (id: string, field: string) => {
+    touchSectionField('certifications', id, field, value);
   };
 
   const add = () => {
@@ -55,7 +71,13 @@ export function CertificationSection({ value, onChange }: Props) {
       </div>
       <FieldSeparator />
 
-      {list.map((c, idx) => (
+      {list.map((c, idx) => {
+        const errors = sectionErrors.certifications[c.id] ?? {};
+        const nameErrorId = `certification-name-${c.id}-error`;
+        const acquiredAtErrorId = `acquiredAt-${c.id}-error`;
+        const issuerErrorId = `issuer-${c.id}-error`;
+
+        return (
         <FieldGroup key={c.id} className="rounded-lg border p-4">
           <div className="mb-3 flex items-center justify-between">
             <div className="font-medium">자격증 {list.length - idx}</div>
@@ -70,7 +92,7 @@ export function CertificationSection({ value, onChange }: Props) {
           </div>
 
           <div className="grid gap-3 sm:grid-cols-2">
-            <Field>
+            <Field data-invalid={!!errors.name}>
               <FieldLabel
                 htmlFor={`certification-name-${c.id}`}
                 className="text-sm text-muted-foreground"
@@ -81,12 +103,21 @@ export function CertificationSection({ value, onChange }: Props) {
                 id={`certification-name-${c.id}`}
                 type="text"
                 value={c.name}
-                onChange={(ev) => update(c.id, { name: ev.target.value })}
+                onChange={(ev) => {
+                  const nextResume = update(c.id, { name: ev.target.value });
+                  revalidate(c.id, 'name', nextResume);
+                }}
+                onBlur={() => touch(c.id, 'name')}
                 placeholder="예: 웹디자인기능사"
                 autoComplete="off"
+                aria-invalid={!!errors.name}
+                aria-describedby={errors.name ? nameErrorId : undefined}
               />
+              {errors.name && (
+                <FieldError id={nameErrorId}>{errors.name}</FieldError>
+              )}
             </Field>
-            <Field>
+            <Field data-invalid={!!errors.acquiredAt}>
               <FieldLabel
                 htmlFor={`acquiredAt-${c.id}`}
                 className="text-sm text-muted-foreground"
@@ -97,14 +128,29 @@ export function CertificationSection({ value, onChange }: Props) {
                 type="date"
                 id={`acquiredAt-${c.id}`}
                 value={c.acquiredAt}
-                onChange={(ev) => update(c.id, { acquiredAt: ev.target.value })}
+                onChange={(ev) => {
+                  const nextResume = update(c.id, {
+                    acquiredAt: ev.target.value,
+                  });
+                  revalidate(c.id, 'acquiredAt', nextResume);
+                }}
+                onBlur={() => touch(c.id, 'acquiredAt')}
                 placeholder="예: 2024.06"
                 inputMode="numeric"
                 autoComplete="off"
+                aria-invalid={!!errors.acquiredAt}
+                aria-describedby={
+                  errors.acquiredAt ? acquiredAtErrorId : undefined
+                }
               />
+              {errors.acquiredAt && (
+                <FieldError id={acquiredAtErrorId}>
+                  {errors.acquiredAt}
+                </FieldError>
+              )}
             </Field>
           </div>
-          <Field>
+          <Field data-invalid={!!errors.issuer}>
             <FieldLabel
               htmlFor={`issuer-${c.id}`}
               className="text-sm text-muted-foreground"
@@ -115,13 +161,23 @@ export function CertificationSection({ value, onChange }: Props) {
               id={`issuer-${c.id}`}
               type="text"
               value={c.issuer}
-              onChange={(ev) => update(c.id, { issuer: ev.target.value })}
+              onChange={(ev) => {
+                const nextResume = update(c.id, { issuer: ev.target.value });
+                revalidate(c.id, 'issuer', nextResume);
+              }}
+              onBlur={() => touch(c.id, 'issuer')}
               placeholder="예: 한국산업인력공단"
               autoComplete="organization"
+              aria-invalid={!!errors.issuer}
+              aria-describedby={errors.issuer ? issuerErrorId : undefined}
             />
+            {errors.issuer && (
+              <FieldError id={issuerErrorId}>{errors.issuer}</FieldError>
+            )}
           </Field>
         </FieldGroup>
-      ))}
+        );
+      })}
     </FieldSet>
   );
 }

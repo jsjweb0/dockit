@@ -183,8 +183,8 @@ export function EditorHeader({
             )}
 
             <Button
-              type="submit"
-              form="resume-form"
+              type="button"
+              onClick={actions.onSave}
               disabled={!isDirty || isSaving}
               className="max-lg:grow"
             >

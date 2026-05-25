@@ -2,6 +2,7 @@ import type { Resume, LinkItem } from '../../model/resume.types';
 import {
   Field,
   FieldDescription,
+  FieldError,
   FieldGroup,
   FieldLabel,
   FieldLegend,
@@ -11,6 +12,7 @@ import {
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Plus } from 'lucide-react';
+import { useResumeEditor } from '../../context/resumeEditor.context';
 
 type Props = { value: Resume; onChange: (next: Resume) => void };
 
@@ -19,13 +21,26 @@ function uid() {
 }
 
 export function LinkItemSection({ value, onChange }: Props) {
+  const { sectionErrors, touchSectionField, revalidateSectionField } =
+    useResumeEditor();
   const list = value.links;
 
   const update = (id: string, patch: Partial<LinkItem>) => {
-    onChange({
-      ...value,
-      links: list.map((x) => (x.id === id ? { ...x, ...patch } : x)),
-    });
+    const nextLinks = list.map((x) => (x.id === id ? { ...x, ...patch } : x));
+
+    const nextResume = { ...value, links: nextLinks };
+
+    onChange(nextResume);
+
+    return nextResume;
+  };
+
+  const revalidate = (id: string, field: string, nextResume: Resume) => {
+    revalidateSectionField('links', id, field, nextResume);
+  };
+
+  const touch = (id: string, field: string) => {
+    touchSectionField('links', id, field, value);
   };
 
   const add = () => {
@@ -53,59 +68,82 @@ export function LinkItemSection({ value, onChange }: Props) {
       </div>
       <FieldSeparator />
 
-      {list.map((l, idx) => (
-        <FieldGroup key={l.id} className="rounded-lg border p-4">
-          <div className="mb-3 flex items-center justify-between">
-            <div className="font-medium">링크 {list.length - idx}</div>
-            <Button
-              type="button"
-              variant="ghost"
-              onClick={() => remove(l.id)}
-              disabled={list.length <= 1}
-            >
-              삭제
-            </Button>
-          </div>
+      {list.map((l, idx) => {
+        const errors = sectionErrors.links[l.id] ?? {};
+        const labelErrorId = `label-${l.id}-error`;
+        const urlErrorId = `url-${l.id}-error`;
 
-          <div className="grid gap-3 sm:grid-cols-2">
-            <Field>
-              <FieldLabel
-                htmlFor={`label-${l.id}`}
-                className="text-sm text-muted-foreground"
+        return (
+          <FieldGroup key={l.id} className="rounded-lg border p-4">
+            <div className="mb-3 flex items-center justify-between">
+              <div className="font-medium">링크 {list.length - idx}</div>
+              <Button
+                type="button"
+                variant="ghost"
+                onClick={() => remove(l.id)}
+                disabled={list.length <= 1}
               >
-                링크 이름
-              </FieldLabel>
-              <Input
-                id={`label-${l.id}`}
-                type="text"
-                value={l.label}
-                onChange={(ev) => update(l.id, { label: ev.target.value })}
-                placeholder="예: GitHub"
-                autoComplete="off"
-                required
-              />
-            </Field>
-            <Field>
-              <FieldLabel
-                htmlFor={`url-${l.id}`}
-                className="text-sm text-muted-foreground"
-              >
-                URL
-              </FieldLabel>
-              <Input
-                id={`url-${l.id}`}
-                type="url"
-                value={l.url}
-                onChange={(ev) => update(l.id, { url: ev.target.value })}
-                placeholder="예: https://github.com/username"
-                inputMode="url"
-                autoComplete="url"
-                required
-              />
-            </Field>
-          </div>
-        </FieldGroup>
-      ))}
+                삭제
+              </Button>
+            </div>
+
+            <div className="grid gap-3 sm:grid-cols-2">
+              <Field data-invalid={!!errors.label}>
+                <FieldLabel
+                  htmlFor={`label-${l.id}`}
+                  className="text-sm text-muted-foreground"
+                >
+                  링크 이름
+                </FieldLabel>
+                <Input
+                  id={`label-${l.id}`}
+                  type="text"
+                  value={l.label}
+                  onChange={(ev) => {
+                    const nextResume = update(l.id, { label: ev.target.value });
+                    revalidate(l.id, 'label', nextResume);
+                  }}
+                  onBlur={() => touch(l.id, 'label')}
+                  placeholder="예: GitHub"
+                  autoComplete="off"
+                  aria-invalid={!!errors.label}
+                  aria-describedby={errors.label ? labelErrorId : undefined}
+                />
+                {errors.label && (
+                  <FieldError id={labelErrorId}>{errors.label}</FieldError>
+                )}
+              </Field>
+
+              <Field data-invalid={!!errors.url}>
+                <FieldLabel
+                  htmlFor={`url-${l.id}`}
+                  className="text-sm text-muted-foreground"
+                >
+                  URL
+                </FieldLabel>
+                <Input
+                  id={`url-${l.id}`}
+                  type="url"
+                  value={l.url}
+                  onChange={(ev) => {
+                    const nextResume = update(l.id, { url: ev.target.value });
+                    revalidate(l.id, 'url', nextResume);
+                  }}
+                  onBlur={() => touch(l.id, 'url')}
+                  placeholder="예: https://github.com/username"
+                  inputMode="url"
+                  autoComplete="url"
+                  aria-invalid={!!errors.url}
+                  aria-describedby={errors.url ? urlErrorId : undefined}
+                />
+                {errors.url && (
+                  <FieldError id={urlErrorId}>{errors.url}</FieldError>
+                )}
+              </Field>
+            </div>
+          </FieldGroup>
+        );
+      })}
     </FieldSet>
   );
 }

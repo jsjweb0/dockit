@@ -2,7 +2,7 @@ import { ResumeForm } from '@/features/resume/ui/ResumeForm';
 import { ResumePreview } from '@/features/resume/ui/ResumePreview';
 import { Card, CardContent } from '@/components/ui/card.tsx';
 import { useResumeEditor } from '@/features/resume/context/resumeEditor.context.tsx';
-import { Info, PanelRightClose, PanelRightOpen } from 'lucide-react';
+import { Info, ChevronRight } from 'lucide-react';
 import { useEffect, useRef, useState } from 'react';
 import {
   Tooltip,
@@ -22,15 +22,13 @@ type ResumeBuilderOutletContext = {
     onTogglePreview: () => void;
     onPreviewAnimationEnd: () => void;
   };
-  onSave: () => void;
 };
 
 const A4_PREVIEW_WIDTH = 794;
 const A4_PREVIEW_HEIGHT = 1123;
 
 export function ResumeBuilderPage() {
-  const { previewControls, onSave } =
-    useOutletContext<ResumeBuilderOutletContext>();
+  const { previewControls } = useOutletContext<ResumeBuilderOutletContext>();
   const {
     isPreviewOpen,
     isPreviewClosing,
@@ -85,27 +83,29 @@ export function ResumeBuilderPage() {
   return (
     <div
       className={cn(
-        'lg:grid',
+        'lg:grid lg:relative',
         isPreviewOpen
           ? 'lg:grid-cols-[minmax(0,1fr)_minmax(0,1.3fr)]'
           : 'lg:grid-cols-[minmax(0,1fr)_auto]',
       )}
     >
-      <ResumeForm value={resume} onChange={setResume} onSubmit={onSave} />
+      <ResumeForm value={resume} onChange={setResume} />
 
       {!isPreviewOpen && (
         <Tooltip>
           <TooltipTrigger asChild>
             <Button
               variant="outline"
-              className="fixed right-6 top-[calc(var(--editor-header-height)+24px)] z-10 gap-2 bg-background shadow-sm max-lg:hidden"
+              className="absolute right-0 top-3 z-10 w-18 h-18 rounded-full bg-background shadow-sm max-lg:hidden"
               onClick={onTogglePreview}
               aria-expanded={isPreviewOpen}
               aria-controls="preview-panel"
               aria-label="미리보기 열기"
             >
-              <PanelRightOpen className="size-4" aria-hidden="true" />
-              미리보기 열기
+              <ChevronRight
+                className="size-8.5 rotate-180"
+                aria-hidden="true"
+              />
             </Button>
           </TooltipTrigger>
           <TooltipContent side="left">
@@ -119,14 +119,14 @@ export function ResumeBuilderPage() {
         onAnimationEnd={onPreviewAnimationEnd}
         className={cn(
           'overflow-auto fixed inset-0 pt-[calc(var(--editor-header-height)+18px)] pb-[calc(var(--editor-mobile-actions-height)+24px)]',
-          'lg:static bg-[#f7f8fa] px-4 lg:border-l lg:border-l-gray-100 md:px-8 lg:pt-8 lg:pb-8',
+          'lg:static bg-[#f7f8fa] px-4 lg:border-l lg:border-l-gray-100 md:px-8 lg:pt-4 lg:pb-8',
           isPreviewOpen || isPreviewClosing ? 'block' : 'hidden',
           shouldAnimatePreviewOpen && 'animate-preview-open',
           isPreviewClosing && 'animate-preview-close',
         )}
         aria-labelledby="resume-preview-title"
       >
-        <div className="mb-4 flex items-center justify-between gap-4 border-b border-gray-200 pb-3 md:mb-5 md:pb-4">
+        <div className="mb-2 flex items-center justify-between gap-4 ">
           <div className="flex items-center gap-1.5">
             <h2
               id="resume-preview-title"
@@ -135,23 +135,26 @@ export function ResumeBuilderPage() {
               미리보기
             </h2>
             <p className="flex gap-2 items-center">
-              <Info className="fill-black stroke-white size-5 md:size-6" aria-hidden="true" />
-              <span className="text-xs md:text-sm text-primary/60">입력하면 자동 반영됩니다.</span>
+              <Info
+                className="fill-black stroke-white size-5 md:size-6"
+                aria-hidden="true"
+              />
+              <span className="text-xs md:text-sm text-primary/60">
+                입력하면 자동 반영됩니다.
+              </span>
             </p>
           </div>
-
           <Tooltip>
             <TooltipTrigger asChild>
               <Button
                 variant="outline"
-                className="gap-2 bg-background max-lg:hidden"
+                className="w-18 h-18 rounded-full bg-background shadow-sm max-lg:hidden -mr-2.5"
                 onClick={onTogglePreview}
                 aria-expanded={isPreviewOpen}
                 aria-controls="preview-panel"
                 aria-label="미리보기 닫기"
               >
-                <PanelRightClose className="size-4" aria-hidden="true" />
-                닫기
+                <ChevronRight className="size-8.5" aria-hidden="true" />
               </Button>
             </TooltipTrigger>
             <TooltipContent side="bottom">

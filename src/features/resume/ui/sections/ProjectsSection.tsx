@@ -2,6 +2,7 @@ import type { Project, Resume } from '../../model/resume.types';
 import {
   Field,
   FieldDescription,
+  FieldError,
   FieldGroup,
   FieldLabel,
   FieldLegend,
@@ -12,6 +13,7 @@ import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Textarea } from '@/components/ui/textarea';
 import { Plus } from 'lucide-react';
+import { useResumeEditor } from '../../context/resumeEditor.context';
 
 type Props = { value: Resume; onChange: (next: Resume) => void };
 
@@ -20,13 +22,25 @@ function uid() {
 }
 
 export function ProjectsSection({ value, onChange }: Props) {
+  const { sectionErrors, touchSectionField, revalidateSectionField } =
+    useResumeEditor();
   const list = value.projects;
 
   const update = (id: string, patch: Partial<Project>) => {
-    onChange({
-      ...value,
-      projects: list.map((x) => (x.id === id ? { ...x, ...patch } : x)),
-    });
+    const nextProjects = list.map((x) => (x.id === id ? { ...x, ...patch } : x));
+    const nextResume = { ...value, projects: nextProjects };
+
+    onChange(nextResume);
+
+    return nextResume;
+  };
+
+  const revalidate = (id: string, field: string, nextResume: Resume) => {
+    revalidateSectionField('projects', id, field, nextResume);
+  };
+
+  const touch = (id: string, field: string) => {
+    touchSectionField('projects', id, field, value);
   };
 
   const add = () => {
@@ -63,7 +77,15 @@ export function ProjectsSection({ value, onChange }: Props) {
       </div>
       <FieldSeparator />
 
-      {list.map((p, idx) => (
+      {list.map((p, idx) => {
+        const errors = sectionErrors.projects[p.id] ?? {};
+        const nameErrorId = `name-${p.id}-error`;
+        const periodErrorId = `period-${p.id}-error`;
+        const stackErrorId = `stack-${p.id}-error`;
+        const linkErrorId = `link-${p.id}-error`;
+        const descriptionErrorId = `description-${p.id}-error`;
+
+        return (
         <FieldGroup key={p.id} className="rounded-lg border p-4">
           <div className="mb-3 flex items-center justify-between">
             <div className="font-medium">프로젝트 {list.length - idx}</div>
@@ -78,7 +100,7 @@ export function ProjectsSection({ value, onChange }: Props) {
           </div>
 
           <div className="grid gap-3 sm:grid-cols-2">
-            <Field>
+            <Field data-invalid={!!errors.name}>
               <FieldLabel
                 htmlFor={`name-${p.id}`}
                 className="text-sm text-muted-foreground"
@@ -89,13 +111,21 @@ export function ProjectsSection({ value, onChange }: Props) {
                 id={`name-${p.id}`}
                 type="text"
                 value={p.name}
-                onChange={(e) => update(p.id, { name: e.target.value })}
+                onChange={(e) => {
+                  const nextResume = update(p.id, { name: e.target.value });
+                  revalidate(p.id, 'name', nextResume);
+                }}
+                onBlur={() => touch(p.id, 'name')}
                 placeholder="예: DocKit 국문 이력서 작성 도구"
                 autoComplete="off"
-                required
+                aria-invalid={!!errors.name}
+                aria-describedby={errors.name ? nameErrorId : undefined}
               />
+              {errors.name && (
+                <FieldError id={nameErrorId}>{errors.name}</FieldError>
+              )}
             </Field>
-            <Field>
+            <Field data-invalid={!!errors.period}>
               <FieldLabel
                 htmlFor={`period-${p.id}`}
                 className="text-sm text-muted-foreground"
@@ -106,14 +136,22 @@ export function ProjectsSection({ value, onChange }: Props) {
                 id={`period-${p.id}`}
                 type="text"
                 value={p.period}
-                onChange={(e) => update(p.id, { period: e.target.value })}
+                onChange={(e) => {
+                  const nextResume = update(p.id, { period: e.target.value });
+                  revalidate(p.id, 'period', nextResume);
+                }}
+                onBlur={() => touch(p.id, 'period')}
                 placeholder="예: 2026.04 - 2026.05"
                 autoComplete="off"
                 inputMode="numeric"
-                required
+                aria-invalid={!!errors.period}
+                aria-describedby={errors.period ? periodErrorId : undefined}
               />
+              {errors.period && (
+                <FieldError id={periodErrorId}>{errors.period}</FieldError>
+              )}
             </Field>
-            <Field>
+            <Field data-invalid={!!errors.stack}>
               <FieldLabel
                 htmlFor={`stack-${p.id}`}
                 className="text-sm text-muted-foreground"
@@ -124,13 +162,21 @@ export function ProjectsSection({ value, onChange }: Props) {
                 id={`stack-${p.id}`}
                 type="text"
                 value={p.stack}
-                onChange={(e) => update(p.id, { stack: e.target.value })}
+                onChange={(e) => {
+                  const nextResume = update(p.id, { stack: e.target.value });
+                  revalidate(p.id, 'stack', nextResume);
+                }}
+                onBlur={() => touch(p.id, 'stack')}
                 placeholder="예: React, TypeScript, Vite, Tailwind CSS"
                 autoComplete="off"
-                required
+                aria-invalid={!!errors.stack}
+                aria-describedby={errors.stack ? stackErrorId : undefined}
               />
+              {errors.stack && (
+                <FieldError id={stackErrorId}>{errors.stack}</FieldError>
+              )}
             </Field>
-            <Field>
+            <Field data-invalid={!!errors.link}>
               <FieldLabel
                 htmlFor={`link-${p.id}`}
                 className="text-sm text-muted-foreground"
@@ -141,14 +187,23 @@ export function ProjectsSection({ value, onChange }: Props) {
                 id={`link-${p.id}`}
                 type="url"
                 value={p.link ?? ''}
-                onChange={(e) => update(p.id, { link: e.target.value })}
+                onChange={(e) => {
+                  const nextResume = update(p.id, { link: e.target.value });
+                  revalidate(p.id, 'link', nextResume);
+                }}
+                onBlur={() => touch(p.id, 'link')}
                 placeholder="예: https://github.com/username/dockit"
                 inputMode="url"
                 autoComplete="url"
+                aria-invalid={!!errors.link}
+                aria-describedby={errors.link ? linkErrorId : undefined}
               />
+              {errors.link && (
+                <FieldError id={linkErrorId}>{errors.link}</FieldError>
+              )}
             </Field>
           </div>
-          <Field>
+          <Field data-invalid={!!errors.description}>
             <FieldLabel
               htmlFor={`description-${p.id}`}
               className="text-sm text-muted-foreground"
@@ -158,17 +213,32 @@ export function ProjectsSection({ value, onChange }: Props) {
             <Textarea
               id={`description-${p.id}`}
               value={p.description}
-              onChange={(e) => update(p.id, { description: e.target.value })}
+              onChange={(e) => {
+                const nextResume = update(p.id, {
+                  description: e.target.value,
+                });
+                revalidate(p.id, 'description', nextResume);
+              }}
+              onBlur={() => touch(p.id, 'description')}
               rows={5}
               placeholder={
                 '예)\n- 사용자가 입력한 이력서 데이터를 국문 표 양식 미리보기에 실시간 반영\n- colSpan/rowSpan 기반 문서형 레이아웃을 구성하고 빈 행 보정 처리\n- 모바일 작성 화면과 데스크톱 미리보기 영역의 반응형 레이아웃 개선'
               }
               autoComplete="off"
-              required
+              aria-invalid={!!errors.description}
+              aria-describedby={
+                errors.description ? descriptionErrorId : undefined
+              }
             />
+            {errors.description && (
+              <FieldError id={descriptionErrorId}>
+                {errors.description}
+              </FieldError>
+            )}
           </Field>
         </FieldGroup>
-      ))}
+        );
+      })}
     </FieldSet>
   );
 }
