@@ -1,5 +1,7 @@
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import type { Resume } from '../model/resume.types';
+import { useResumeEditor } from '../context/resumeEditor.context';
+import type { ResumeValidationTab } from '../context/resumeEditor.context';
 import { BasicsSection } from './sections/BasicsSection';
 import { EducationSection } from './sections/EducationSection';
 import { CertificationSection } from './sections/CertificationSection';
@@ -7,6 +9,7 @@ import { ExperienceSection } from './sections/ExperienceSection';
 import { ProjectsSection } from './sections/ProjectsSection';
 import { SkillsSection } from './sections/SkillsSection';
 import { LinkItemSection } from '@/features/resume/ui/sections/LinkItemSection';
+import { useState } from 'react';
 
 type Props = {
   value: Resume;
@@ -14,19 +17,59 @@ type Props = {
 };
 
 export function ResumeForm({ value, onChange }: Props) {
+  const { validationErrorCounts, getFirstValidationErrorTarget } =
+    useResumeEditor();
+  const [activeTab, setActiveTab] = useState('basics');
+
+  const tabs = [
+    { value: 'basics', label: '기본', count: validationErrorCounts.basics },
+    { value: 'edu', label: '학력', count: validationErrorCounts.edu },
+    { value: 'cer', label: '자격증', count: validationErrorCounts.cer },
+    { value: 'exp', label: '경력', count: validationErrorCounts.exp },
+    { value: 'proj', label: '프로젝트', count: validationErrorCounts.proj },
+    { value: 'link', label: '링크', count: validationErrorCounts.link },
+    { value: 'skills', label: '스킬', count: validationErrorCounts.skills },
+  ] as const;
+
+  const focusFirstError = (tab: ResumeValidationTab) => {
+    const target = getFirstValidationErrorTarget(tab);
+
+    if (!target) return;
+
+    setActiveTab(target.tab);
+
+    requestAnimationFrame(() => {
+      document.getElementById(target.fieldId)?.focus();
+    });
+  };
+
   return (
     <section className="resumeEditorPane lg:px-10 lg:pt-9 lg:pb-15">
       <h2 className="mb-4 text-xl md:text-2xl font-semibold">문서작성</h2>
 
-      <Tabs defaultValue="basics" className="w-full">
+      <Tabs value={activeTab} onValueChange={setActiveTab} className="w-full">
         <TabsList className="flex h-auto w-full justify-start overflow-x-auto p-1 sm:grid sm:grid-cols-7">
-          <TabsTrigger value="basics">기본</TabsTrigger>
-          <TabsTrigger value="edu">학력</TabsTrigger>
-          <TabsTrigger value="cer">자격증</TabsTrigger>
-          <TabsTrigger value="exp">경력</TabsTrigger>
-          <TabsTrigger value="proj">프로젝트</TabsTrigger>
-          <TabsTrigger value="link">링크</TabsTrigger>
-          <TabsTrigger value="skills">스킬</TabsTrigger>
+          {tabs.map((tab) => (
+            <TabsTrigger
+              key={tab.value}
+              value={tab.value}
+              className="gap-1"
+              onClick={() => focusFirstError(tab.value)}
+            >
+              <span>{tab.label}</span>
+              {tab.count > 0 && (
+                <>
+                  <span
+                    className="inline-flex min-w-4.5 items-center justify-center rounded-full bg-red-500 px-0.5 text-xs font-semibold leading-4.5 text-white"
+                    aria-hidden="true"
+                  >
+                    {tab.count}
+                  </span>
+                  <span className="sr-only">오류 {tab.count}개</span>
+                </>
+              )}
+            </TabsTrigger>
+          ))}
         </TabsList>
 
         <TabsContent value="basics" className="mt-4">

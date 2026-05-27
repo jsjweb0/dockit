@@ -32,6 +32,30 @@ import {
 
 type SectionFieldKey = `${ResumeListSection}:${string}:${string}`;
 
+type ValidationErrorCounts = {
+  basics: number;
+  edu: number;
+  cer: number;
+  exp: number;
+  proj: number;
+  link: number;
+  skills: number;
+};
+
+export type ResumeValidationTab =
+  | 'basics'
+  | 'edu'
+  | 'cer'
+  | 'exp'
+  | 'proj'
+  | 'link'
+  | 'skills';
+
+export type ValidationErrorTarget = {
+  tab: ResumeValidationTab;
+  fieldId: string;
+};
+
 type ResumeEditorState = {
   resumeId: string;
   resume: Resume;
@@ -43,6 +67,11 @@ type ResumeEditorState = {
   previewRef: React.RefObject<HTMLElement | null>;
   basicsErrors: BasicsFieldErrors;
   sectionErrors: ResumeSectionErrors;
+  validationErrorCounts: ValidationErrorCounts;
+  totalValidationErrorCount: number;
+  getFirstValidationErrorTarget: (
+    tab?: ResumeValidationTab,
+  ) => ValidationErrorTarget | null;
   touchBasicsField: (
     field: BasicsValidatedField,
     basics?: Resume['basics'],
@@ -79,6 +108,55 @@ const getSectionFieldKey = (
   id: string,
   field: string,
 ): SectionFieldKey => `${section}:${id}:${field}`;
+
+const countSectionErrors = (errors: Record<string, Record<string, string>>) =>
+  Object.values(errors).reduce(
+    (total, item) => total + Object.keys(item).length,
+    0,
+  );
+
+const BASICS_FIELD_IDS: Record<BasicsValidatedField, string> = {
+  workerTitle: 'workerTitle',
+  name: 'userName',
+  phone: 'phone',
+  email: 'email',
+};
+
+const SECTION_TABS: Record<ResumeListSection, ResumeValidationTab> = {
+  education: 'edu',
+  certifications: 'cer',
+  experience: 'exp',
+  projects: 'proj',
+  links: 'link',
+};
+
+const TAB_SECTIONS: Partial<Record<ResumeValidationTab, ResumeListSection>> = {
+  edu: 'education',
+  cer: 'certifications',
+  exp: 'experience',
+  proj: 'projects',
+  link: 'links',
+};
+
+const SECTION_ITEMS = {
+  education: (resume: Resume) => resume.education,
+  certifications: (resume: Resume) => resume.certifications,
+  experience: (resume: Resume) => resume.experience,
+  projects: (resume: Resume) => resume.projects,
+  links: (resume: Resume) => resume.links,
+};
+
+const getSectionInputId = (
+  section: ResumeListSection,
+  id: string,
+  field: string,
+) => {
+  if (section === 'certifications' && field === 'name') {
+    return `certification-name-${id}`;
+  }
+
+  return `${field}-${id}`;
+};
 
 export function ResumeEditorProvider({
   resumeId,
@@ -361,6 +439,74 @@ export function ResumeEditorProvider({
     return () => clearTimeout(timer);
   }, [persist, resume, isDirty, isSaving]);
 
+  const validationErrorCounts = useMemo(
+    () => ({
+      basics: Object.keys(basicsErrors).length,
+      edu: countSectionErrors(sectionErrors.education),
+      cer: countSectionErrors(sectionErrors.certifications),
+      exp: countSectionErrors(sectionErrors.experience),
+      proj: countSectionErrors(sectionErrors.projects),
+      link: countSectionErrors(sectionErrors.links),
+      skills: 0,
+    }),
+    [basicsErrors, sectionErrors],
+  );
+
+  const totalValidationErrorCount = useMemo(
+    () =>
+      Object.values(validationErrorCounts).reduce(
+        (total, count) => total + count,
+        0,
+      ),
+    [validationErrorCounts],
+  );
+
+  const getFirstValidationErrorTarget = useCallback(
+    (tab?: ResumeValidationTab): ValidationErrorTarget | null => {
+      if (!tab || tab === 'basics') {
+        const basicsField = BASICS_VALIDATED_FIELDS.find(
+          (field) => basicsErrors[field],
+        );
+
+        if (basicsField) {
+          return {
+            tab: 'basics',
+            fieldId: BASICS_FIELD_IDS[basicsField],
+          };
+        }
+
+        if (tab === 'basics') return null;
+      }
+
+      const sections = tab
+        ? TAB_SECTIONS[tab]
+          ? [TAB_SECTIONS[tab]]
+          : []
+        : (Object.keys(SECTION_TABS) as ResumeListSection[]);
+
+      for (const section of sections) {
+        const currentSectionErrors = sectionErrors[section];
+        const fields = SECTION_VALIDATED_FIELDS[section];
+
+        for (const item of SECTION_ITEMS[section](resume)) {
+          const erroredField = fields.find(
+            (field) => currentSectionErrors[item.id]?.[field],
+          );
+
+          if (erroredField) {
+            return {
+              tab: SECTION_TABS[section],
+              fieldId: getSectionInputId(section, item.id, erroredField),
+            };
+          }
+        }
+      }
+
+      return null;
+    },
+    [basicsErrors, resume, sectionErrors],
+  );
+
   const value = useMemo(
     () => ({
       resumeId,
@@ -373,6 +519,9 @@ export function ResumeEditorProvider({
       previewRef,
       basicsErrors,
       sectionErrors,
+      validationErrorCounts,
+      totalValidationErrorCount,
+      getFirstValidationErrorTarget,
       touchBasicsField,
       revalidateBasicsField,
       touchSectionField,
@@ -392,6 +541,9 @@ export function ResumeEditorProvider({
       exportResumePdf,
       basicsErrors,
       sectionErrors,
+      validationErrorCounts,
+      totalValidationErrorCount,
+      getFirstValidationErrorTarget,
       touchBasicsField,
       revalidateBasicsField,
       touchSectionField,
