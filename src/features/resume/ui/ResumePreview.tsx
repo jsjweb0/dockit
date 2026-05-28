@@ -21,6 +21,13 @@ function toPreviewOrder<T>(rows: T[]) {
   return [...rows].reverse();
 }
 
+function hasAnyValue<T extends Record<string, unknown>>(
+  row: T,
+  keys: Array<keyof T>,
+) {
+  return keys.some((key) => Boolean(row[key]));
+}
+
 function formatPeriod(start?: string, end?: string, isCurrent?: boolean) {
   if (!start && !end && !isCurrent) return '-';
   return `${start || '시작'} - ${isCurrent ? '재직중' : end || '종료'}`;
@@ -48,35 +55,55 @@ function KoreanDate({ value }: { value?: string }) {
 export const ResumePreview = forwardRef<HTMLElement, Props>(
   function ResumePreview({ value }, ref) {
     const b = value.basics;
-    const educationRows = fillRows(toPreviewOrder(value.education), {
-      id: 'empty-education',
-      period: '',
-      institution: '',
-      major: '',
-    });
-    const certificationRows = fillRows(toPreviewOrder(value.certifications), {
-      id: 'empty-certification',
-      acquiredAt: '',
-      name: '',
-      issuer: '',
-    });
-    const experienceRows = fillRows(toPreviewOrder(value.experience), {
-      id: 'empty-experience',
-      company: '',
-      role: '',
-      start: '',
-      isCurrent: false,
-      end: '',
-      description: '',
-    });
-    const projectRows = fillRows(toPreviewOrder(value.projects), {
-      id: 'empty-project',
-      name: '',
-      period: '',
-      stack: '',
-      description: '',
-      link: '',
-    });
+    const educationRows = fillRows(
+      toPreviewOrder(value.education).filter((row) =>
+        hasAnyValue(row, ['period', 'institution', 'major']),
+      ),
+      {
+        id: 'empty-education',
+        period: '',
+        institution: '',
+        major: '',
+      }
+    );
+    const certificationRows = fillRows(
+      toPreviewOrder(value.certifications).filter((row) =>
+        hasAnyValue(row, ['acquiredAt', 'name', 'issuer'])
+      ),
+      {
+        id: 'empty-certification',
+        acquiredAt: '',
+        name: '',
+        issuer: '',
+      }
+    );
+    const experienceRows = fillRows(
+      toPreviewOrder(value.experience).filter((row) =>
+        hasAnyValue(row, ['company', 'role', 'start', 'end', 'description'])
+      ),
+      {
+        id: 'empty-experience',
+        company: '',
+        role: '',
+        start: '',
+        isCurrent: false,
+        end: '',
+        description: '',
+      }
+    );
+    const projectRows = fillRows(
+      toPreviewOrder(value.projects).filter((row) =>
+        hasAnyValue(row, ['name', 'period', 'stack', 'description', 'link']),
+      ),
+      {
+        id: 'empty-project',
+        name: '',
+        period: '',
+        stack: '',
+        description: '',
+        link: '',
+      }
+    );
 
     return (
       <section
@@ -250,8 +277,8 @@ export const ResumePreview = forwardRef<HTMLElement, Props>(
                 <td colSpan={3} className="docTable__center">
                   {career.role || (index === 0 && '')}
                 </td>
-                <td colSpan={7}>
-                  <div className="whitespace-pre-line">
+                <td colSpan={7} className="docTable__multiline">
+                  <div className="docTable__multilineText">
                     {career.description || ''}
                   </div>
                 </td>
@@ -291,9 +318,13 @@ export const ResumePreview = forwardRef<HTMLElement, Props>(
                   {project.period || (index === 0 && '')}
                 </td>
                 <td colSpan={6}>{project.name || (index === 0 && '')}</td>
-                <td colSpan={5}>{project.stack || (index === 0 && '')}</td>
-                <td colSpan={7}>
-                  <div className="whitespace-pre-line">
+                <td colSpan={5} className="docTable__multiline">
+                  <div className="docTable__clamp docTable__multilineText">
+                    {project.stack || (index === 0 && '')}
+                  </div>
+                </td>
+                <td colSpan={7} className="docTable__multiline">
+                  <div className="docTable__multilineText">
                     {project.description || ''}
                   </div>
                 </td>

@@ -196,7 +196,8 @@
   width: 100%;
   table-layout: fixed;
   margin-bottom: 10px;
-  border-collapse: collapse;
+  border-collapse: separate;
+  border-spacing: 0;
   border: 2px solid #000;
 }
 
@@ -206,13 +207,22 @@
 
 .docTable th,
 .docTable td {
-  min-height: 34px;
-  border: 1px solid #aaa;
+  border: 0;
+  border-right: 1px solid #aaa;
+  border-bottom: 1px solid #aaa;
   padding: 7px 9px;
   vertical-align: middle;
   text-align: left;
   white-space: normal;
   overflow-wrap: anywhere;
+}
+
+.docTable tr > :last-child {
+  border-right: 0;
+}
+
+.docTable tbody tr:last-child > * {
+  border-bottom: 0;
 }
 
 .docTable th {
@@ -223,6 +233,21 @@
 
 .docTable td {
   height: 34px;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.docTable__multiline {
+  white-space: normal;
+  overflow: visible;
+  text-overflow: clip;
+  line-height: 1.35;
+}
+
+.docTable__multilineText {
+  white-space: pre-line;
+  line-height: 1.35;
 }
 
 .docTable__center {
@@ -260,25 +285,6 @@
   }
 }
 
-@media print {
-  @page {
-    size: A4;
-    margin: 0;
-  }
-
-  body {
-    width: 210mm;
-    height: 297mm;
-    margin: 0;
-    background: #fff;
-  }
-
-  .resumeDocument {
-    width: 190mm;
-    min-height: 277mm;
-  }
-}
-
 @keyframes previewOpen {
   from {
     opacity: 0;
@@ -309,4 +315,66 @@
 
 .animate-preview-close {
   animation: previewClose 250ms ease-in both;
+}
+
+@media print {
+  @page {
+    size: A4;
+    margin: 0;
+  }
+
+  body {
+    width: 210mm;
+    height: 297mm;
+    margin: 0;
+    padding:0;
+    background: #fff;
+  }
+
+  header, footer,
+  .resumeEditorPane,
+  .resumePreview__title { 
+    display: none; 
+  }
+
+  main { padding:0; }
+
+  .resumeDocument {
+    width: 194mm;
+    min-height: auto;
+    padding: 10mm;
+    box-shadow: none;
+  }
+  
+  #preview-panel { display: block !important; position:static; padding:0; }
+  [data-slot="card-content"]:has(.resumeDocument) { padding:0; }
+  
+  .resumePreviewScaler {
+    height: auto !important;
+    transform: none !important;
+  }
+
+  .docTable {
+    margin-bottom: 6px;
+  }
+  
+  .docTable th,
+  .docTable td {
+    padding: 4px 6px;
+    line-height: 1.35;
+  }
+
+  .docTable__clamp {
+    display: -webkit-box;
+    -webkit-line-clamp: 2;
+    -webkit-box-orient: vertical;
+    overflow: hidden;
+  }
+
+  .resumeDocument__sign {
+    gap: 8px;
+    font-size: 12px;
+    break-inside: avoid;
+    page-break-inside: avoid;
+  }
 }

@@ -118,7 +118,7 @@ export function ResumeBuilderPage() {
         id="preview-panel"
         onAnimationEnd={onPreviewAnimationEnd}
         className={cn(
-          'overflow-auto fixed inset-0 pt-[calc(var(--editor-header-height)+18px)] pb-[calc(var(--editor-mobile-actions-height)+24px)]',
+          'overflow-auto fixed inset-0 z-10 pt-[calc(var(--editor-header-height)+18px)] pb-[calc(var(--editor-mobile-actions-height)+24px)]',
           'lg:static bg-[#f7f8fa] px-4 lg:border-l lg:border-l-gray-100 md:px-8 lg:pt-4 lg:pb-8',
           isPreviewOpen || isPreviewClosing ? 'block' : 'hidden',
           shouldAnimatePreviewOpen && 'animate-preview-open',
@@ -126,7 +126,7 @@ export function ResumeBuilderPage() {
         )}
         aria-labelledby="resume-preview-title"
       >
-        <div className="mb-2 flex items-center justify-between gap-4 ">
+        <div className="resumePreview__title mb-2 flex items-center justify-between gap-4 ">
           <div className="flex items-center gap-1.5">
             <h2
               id="resume-preview-title"
