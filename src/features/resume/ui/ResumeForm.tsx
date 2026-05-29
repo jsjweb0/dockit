@@ -53,14 +53,14 @@ export function ResumeForm({ value, onChange }: Props) {
             <TabsTrigger
               key={tab.value}
               value={tab.value}
-              className="gap-1"
+              className="gap-0.5"
               onClick={() => focusFirstError(tab.value)}
             >
               <span>{tab.label}</span>
               {tab.count > 0 && (
                 <>
                   <span
-                    className="inline-flex min-w-4.5 items-center justify-center rounded-full bg-red-500 px-0.5 text-xs font-semibold leading-4.5 text-white"
+                    className="inline-flex min-w-4 items-center justify-center rounded-full bg-red-500 px-0.5 text-[10px] font-semibold leading-4 text-white"
                     aria-hidden="true"
                   >
                     {tab.count}

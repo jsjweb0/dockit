@@ -6,14 +6,16 @@ type Props = { value: Resume };
 
 const PREVIEW_ROW_COUNT = 3;
 
-function fillRows<T>(rows: T[], emptyRow: T) {
+function fillRows<T>(rows: T[], createEmptyRow: (index: number) => T) {
   if (rows.length >= PREVIEW_ROW_COUNT) {
     return rows;
   }
 
   return [
     ...rows,
-    ...Array.from({ length: PREVIEW_ROW_COUNT - rows.length }, () => emptyRow),
+    ...Array.from({ length: PREVIEW_ROW_COUNT - rows.length },
+      (_, index) => createEmptyRow(index),
+    ),
   ];
 }
 
@@ -59,50 +61,50 @@ export const ResumePreview = forwardRef<HTMLElement, Props>(
       toPreviewOrder(value.education).filter((row) =>
         hasAnyValue(row, ['period', 'institution', 'major']),
       ),
-      {
-        id: 'empty-education',
+      (index) => ({
+        id: `empty-education-${index}`,
         period: '',
         institution: '',
         major: '',
-      }
+      }),
     );
     const certificationRows = fillRows(
       toPreviewOrder(value.certifications).filter((row) =>
         hasAnyValue(row, ['acquiredAt', 'name', 'issuer'])
       ),
-      {
-        id: 'empty-certification',
+      (index) => ({
+        id: `empty-certification-${index}`,
         acquiredAt: '',
         name: '',
         issuer: '',
-      }
+      })
     );
     const experienceRows = fillRows(
       toPreviewOrder(value.experience).filter((row) =>
         hasAnyValue(row, ['company', 'role', 'start', 'end', 'description'])
       ),
-      {
-        id: 'empty-experience',
+      (index) => ({
+        id: `empty-experience-${index}`,
         company: '',
         role: '',
         start: '',
         isCurrent: false,
         end: '',
         description: '',
-      }
+      })
     );
     const projectRows = fillRows(
       toPreviewOrder(value.projects).filter((row) =>
         hasAnyValue(row, ['name', 'period', 'stack', 'description', 'link']),
       ),
-      {
-        id: 'empty-project',
+      (index) => ({
+        id: `empty-project-${index}`,
         name: '',
         period: '',
         stack: '',
         description: '',
         link: '',
-      }
+      })
     );
 
     return (
@@ -173,7 +175,9 @@ export const ResumePreview = forwardRef<HTMLElement, Props>(
           </tbody>
         </table>
 
-        <table className="docTable">
+        <table className="docTable"
+          key={value.education.map((item) => item.id).join('|')}
+        >
           <caption className="sr-only">학력사항</caption>
           <tbody>
             <tr>
@@ -196,7 +200,7 @@ export const ResumePreview = forwardRef<HTMLElement, Props>(
               </th>
             </tr>
             {educationRows.map((e, index) => (
-              <tr key={`${e.id || 'education'}-${index}`}>
+              <tr key={e.id}>
                 <td colSpan={9} className="docTable__center">
                   {e.period || (index === 0 && '')}
                 </td>
@@ -207,7 +211,9 @@ export const ResumePreview = forwardRef<HTMLElement, Props>(
           </tbody>
         </table>
 
-        <table className="docTable">
+        <table className="docTable"
+          key={value.certifications.map((item) => item.id).join('|')}
+        >
           <caption className="sr-only">자격증</caption>
           <tbody>
             <tr>
@@ -230,7 +236,7 @@ export const ResumePreview = forwardRef<HTMLElement, Props>(
               </th>
             </tr>
             {certificationRows.map((cert, index) => (
-              <tr key={`${cert.id || 'certification'}-${index}`}>
+              <tr key={cert.id}>
                 <td colSpan={7} className="docTable__center">
                   {cert.acquiredAt || (index === 0 && '')}
                 </td>
@@ -241,7 +247,9 @@ export const ResumePreview = forwardRef<HTMLElement, Props>(
           </tbody>
         </table>
 
-        <table className="docTable">
+        <table className="docTable"
+          key={value.experience.map((item) => item.id).join('|')}
+        >
           <caption className="sr-only">경력사항</caption>
           <tbody>
             <tr>
@@ -267,7 +275,7 @@ export const ResumePreview = forwardRef<HTMLElement, Props>(
               </th>
             </tr>
             {experienceRows.map((career, index) => (
-              <tr key={`${career.id || 'experience'}-${index}`}>
+              <tr key={career.id}>
                 <td colSpan={9} className="docTable__center">
                   {career.company || career.start || career.end
                     ? formatPeriod(career.start, career.end, career.isCurrent)
@@ -287,7 +295,9 @@ export const ResumePreview = forwardRef<HTMLElement, Props>(
           </tbody>
         </table>
 
-        <table className="docTable">
+        <table className="docTable"
+          key={value.projects.map((item) => item.id).join('|')}
+        >
           <caption className="sr-only">프로젝트</caption>
           <tbody>
             <tr>
@@ -313,7 +323,7 @@ export const ResumePreview = forwardRef<HTMLElement, Props>(
               </th>
             </tr>
             {projectRows.map((project, index) => (
-              <tr key={`${project.id || 'project'}-${index}`}>
+              <tr key={project.id}>
                 <td colSpan={7} className="docTable__center">
                   {project.period || (index === 0 && '')}
                 </td>

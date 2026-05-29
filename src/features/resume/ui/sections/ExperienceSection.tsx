@@ -249,7 +249,7 @@ export function ExperienceSection({ value, onChange }: Props) {
                   onBlur={() => touch(e.id, 'description')}
                   rows={5}
                   placeholder={
-                    '예)\n- 이벤트 페이지 HTML/CSS 마크업 및 반응형 레이아웃 구현\n- 반복되는 카드 UI를 React 컴포넌트로 분리해 유지보수성 개선\n- Lighthouse 접근성 경고를 확인하고 label/alt 누락 항목 수정'
+                    '예)\n- HTML/CSS 마크업 및 반응형 레이아웃 구현\n- Lighthouse 접근성 경고를 확인하고 label/alt 누락 항목 수정'
                   }
                   autoComplete="off"
                   aria-invalid={!!errors.description}
