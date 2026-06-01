@@ -55,7 +55,7 @@ export function SkillsSection({ value, onChange }: Props) {
                         type="text"
                         value={primaryText}
                         onChange={(e) => setPrimary(e.target.value)}
-                        placeholder="예: HTML, CSS, JavaScript, React, TypeScript"
+                        placeholder="예: React, TypeScript"
                         autoComplete="off"
                         required
                     />
@@ -67,7 +67,7 @@ export function SkillsSection({ value, onChange }: Props) {
                         type="text"
                         value={toolsText}
                         onChange={(e) => setTools(e.target.value)}
-                        placeholder="예: Git, GitHub, Figma, Notion, Vercel"
+                        placeholder="예: Git, GitHub, Figma"
                         autoComplete="off"
                     />
                 </Field>

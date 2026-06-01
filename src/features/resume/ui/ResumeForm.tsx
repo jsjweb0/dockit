@@ -9,7 +9,7 @@ import { ExperienceSection } from './sections/ExperienceSection';
 import { ProjectsSection } from './sections/ProjectsSection';
 import { SkillsSection } from './sections/SkillsSection';
 import { LinkItemSection } from '@/features/resume/ui/sections/LinkItemSection';
-import { useState } from 'react';
+import { useEffect, useRef, useState } from 'react';
 
 type Props = {
   value: Resume;
@@ -17,7 +17,7 @@ type Props = {
 };
 
 export function ResumeForm({ value, onChange }: Props) {
-  const { validationErrorCounts, getFirstValidationErrorTarget } =
+  const { validationErrorCounts, getFirstValidationErrorTarget, resetVersion } =
     useResumeEditor();
   const [activeTab, setActiveTab] = useState('basics');
 
@@ -30,6 +30,17 @@ export function ResumeForm({ value, onChange }: Props) {
     { value: 'link', label: '링크', count: validationErrorCounts.link },
     { value: 'skills', label: '스킬', count: validationErrorCounts.skills },
   ] as const;
+
+  const pendingFocusId = useRef<string | null>(null);
+
+  useEffect(() => {
+    if (!pendingFocusId.current) return;
+    const el = document.getElementById(pendingFocusId.current);
+    if (el) {
+      el.focus();
+      pendingFocusId.current = null;
+    }
+  }, [activeTab]);
 
   const focusFirstError = (tab: ResumeValidationTab) => {
     const target = getFirstValidationErrorTarget(tab);
@@ -97,7 +108,11 @@ export function ResumeForm({ value, onChange }: Props) {
         </TabsContent>
 
         <TabsContent value="skills" className="mt-4">
-          <SkillsSection value={value} onChange={onChange} />
+          <SkillsSection
+            key={resetVersion}
+            value={value}
+            onChange={onChange}
+          />
         </TabsContent>
       </Tabs>
     </section>

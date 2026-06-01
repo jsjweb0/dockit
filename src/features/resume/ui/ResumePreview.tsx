@@ -175,9 +175,7 @@ export const ResumePreview = forwardRef<HTMLElement, Props>(
           </tbody>
         </table>
 
-        <table className="docTable"
-          key={value.education.map((item) => item.id).join('|')}
-        >
+        <table className="docTable">
           <caption className="sr-only">학력사항</caption>
           <tbody>
             <tr>

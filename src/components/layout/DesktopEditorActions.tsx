@@ -26,8 +26,8 @@ export function DesktopEditorActions({ actions, status }: Props) {
       <Tooltip>
         <TooltipTrigger asChild>
           <Button variant="outline" size="icon" className="rounded-full" aria-label="PDF 다운로드"
-          onClick={onExportPdf}
-          disabled={isExporting}
+            onClick={onExportPdf}
+            disabled={isExporting}
           >
             <FileTextIcon className="size-5" />
           </Button>
@@ -60,7 +60,7 @@ export function DesktopEditorActions({ actions, status }: Props) {
       <Tooltip>
         <ConfirmDialog
           title="전체 초기화할까요?"
-          description="입력한 내용이 모두 초기화됩니다. 이 작업은 되돌릴 수 없어요."
+          description="현재 작성 중인 내용이 모두 초기화됩니다. 저장하지 않은 변경 사항은 삭제되며, 기존 저장본은 유지됩니다."
           confirmText="초기화"
           onConfirm={onReset}
           trigger={

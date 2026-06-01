@@ -97,7 +97,7 @@ export function EditorHeader({
   }, []);
 
   return (
-    <header className="sticky top-0 z-20 border-b bg-background/95 lg:backdrop-blur px-2 py-2.5 lg:px-6">
+    <header className="sticky top-0 z-50 border-b bg-background/95 lg:backdrop-blur px-2 py-2.5 lg:px-6">
       <div className="mx-auto flex lg:flex-wrap items-center justify-between md:gap-3">
         <div className="flex min-w-0 items-center gap-3 max-lg:grow max-lg:pl-2 max-lg:pr-6">
           {isDirty ? (
@@ -107,23 +107,23 @@ export function EditorHeader({
               confirmText="나가기"
               onConfirm={onExitHome}
               trigger={
-                <button
-                  type="button"
-                  className="shrink-0 flex min-h-10 items-center"
+                <Button
+                  variant="link"
+                  className="shrink-0 flex min-h-10 items-center p-0"
                 >
-                  <img src="/logo.svg" className="h-4 w-auto" alt="DocKit" />
-                </button>
+                  <img src="/logo.svg" className="h-3 lg:h-4 w-auto" alt="DocKit" />
+                </Button>
               }
             />
           ) : (
-            <button
-              type="button"
+            <Button
+              variant="link"
               onClick={onExitHome}
-              className="shrink-0 flex min-h-10 items-center"
+              className="shrink-0 flex min-h-10 items-center p-0"
               aria-label="메인으로 나가기"
             >
-              <img src="/logo.svg" className="h-4 w-auto" alt="DocKit" />
-            </button>
+              <img src="/logo.svg" className="h-3 lg:h-4 w-auto" alt="DocKit" />
+            </Button>
           )}
           <div className="flex items-center gap-2 min-w-0 md:absolute md:left-1/2 md:-translate-x-1/2 max-md:grow max-md:justify-center">
             <p className="shrink-0 text-xs text-white bg-black rounded-full px-2 py-1">
@@ -137,7 +137,11 @@ export function EditorHeader({
 
         <div className="flex items-center gap-3">
           {statusText && (
-            <span className="inline-flex min-h-9 items-center gap-1 text-sm text-muted-foreground max-md:absolute right-2 top-full">
+            <span
+              role="status"
+              aria-live="polite"
+              aria-atomic="true"
+              className="inline-flex min-h-9 items-center gap-1 text-sm text-muted-foreground max-md:absolute right-2 top-full">
               {statusText}
             </span>
           )}

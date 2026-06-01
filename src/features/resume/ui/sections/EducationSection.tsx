@@ -79,101 +79,102 @@ export function EducationSection({ value, onChange }: Props) {
         const majorErrorId = `major-${e.id}-error`;
 
         return (
-        <FieldGroup key={e.id} className="rounded-lg border p-4">
-          <div className="flex items-center justify-between">
-            <div className="font-bold">학력 {list.length - idx}</div>
-            <Button
-              type="button"
-              variant="ghost"
-              onClick={() => remove(e.id)}
-              disabled={list.length <= 1}
-            >
-              삭제
-            </Button>
-          </div>
-          <Field data-invalid={!!errors.institution}>
-            <FieldLabel
-              htmlFor={`institution-${e.id}`}
-              className="text-sm text-muted-foreground"
-            >
-              학교
-            </FieldLabel>
-            <Input
-              id={`institution-${e.id}`}
-              type="text"
-              value={e.institution}
-              onChange={(ev) => {
-                const nextResume = update(e.id, {
-                  institution: ev.target.value,
-                });
-                revalidate(e.id, 'institution', nextResume);
-              }}
-              onBlur={() => touch(e.id, 'institution')}
-              placeholder="예: 한국대학교"
-              autoComplete="organization"
-              aria-invalid={!!errors.institution}
-              aria-describedby={
-                errors.institution ? institutionErrorId : undefined
-              }
-            />
-            {errors.institution && (
-              <FieldError id={institutionErrorId}>
-                {errors.institution}
-              </FieldError>
-            )}
-          </Field>
-          <Field data-invalid={!!errors.period}>
-            <FieldLabel
-              htmlFor={`period-${e.id}`}
-              className="text-sm text-muted-foreground"
-            >
-              기간
-            </FieldLabel>
-            <Input
-              id={`period-${e.id}`}
-              type="text"
-              value={e.period}
-              onChange={(ev) => {
-                const nextResume = update(e.id, { period: ev.target.value });
-                revalidate(e.id, 'period', nextResume);
-              }}
-              onBlur={() => touch(e.id, 'period')}
-              placeholder="예: 2021.03 - 2025.02"
-              autoComplete="off"
-              inputMode="numeric"
-              aria-invalid={!!errors.period}
-              aria-describedby={errors.period ? periodErrorId : undefined}
-            />
-            {errors.period && (
-              <FieldError id={periodErrorId}>{errors.period}</FieldError>
-            )}
-          </Field>
-          <Field data-invalid={!!errors.major}>
-            <FieldLabel
-              htmlFor={`major-${e.id}`}
-              className="text-sm text-muted-foreground"
-            >
-              학과(전공)
-            </FieldLabel>
-            <Input
-              id={`major-${e.id}`}
-              type="text"
-              value={e.major}
-              onChange={(ev) => {
-                const nextResume = update(e.id, { major: ev.target.value });
-                revalidate(e.id, 'major', nextResume);
-              }}
-              onBlur={() => touch(e.id, 'major')}
-              placeholder="예: 컴퓨터공학과"
-              autoComplete="off"
-              aria-invalid={!!errors.major}
-              aria-describedby={errors.major ? majorErrorId : undefined}
-            />
-            {errors.major && (
-              <FieldError id={majorErrorId}>{errors.major}</FieldError>
-            )}
-          </Field>
-        </FieldGroup>
+          <FieldGroup key={e.id} className="rounded-lg border p-4">
+            <div className="flex items-center justify-between">
+              <div className="font-bold">학력 {list.length - idx}</div>
+              <Button
+                type="button"
+                variant="ghost"
+                onClick={() => remove(e.id)}
+                disabled={list.length <= 1}
+                aria-label={`학력 ${list.length - idx} 삭제`}
+              >
+                삭제
+              </Button>
+            </div>
+            <Field data-invalid={!!errors.institution}>
+              <FieldLabel
+                htmlFor={`institution-${e.id}`}
+                className="text-sm text-muted-foreground"
+              >
+                학교
+              </FieldLabel>
+              <Input
+                id={`institution-${e.id}`}
+                type="text"
+                value={e.institution}
+                onChange={(ev) => {
+                  const nextResume = update(e.id, {
+                    institution: ev.target.value,
+                  });
+                  revalidate(e.id, 'institution', nextResume);
+                }}
+                onBlur={() => touch(e.id, 'institution')}
+                placeholder="예: 한국대학교"
+                autoComplete="organization"
+                aria-invalid={!!errors.institution}
+                aria-describedby={
+                  errors.institution ? institutionErrorId : undefined
+                }
+              />
+              {errors.institution && (
+                <FieldError id={institutionErrorId}>
+                  {errors.institution}
+                </FieldError>
+              )}
+            </Field>
+            <Field data-invalid={!!errors.period}>
+              <FieldLabel
+                htmlFor={`period-${e.id}`}
+                className="text-sm text-muted-foreground"
+              >
+                기간
+              </FieldLabel>
+              <Input
+                id={`period-${e.id}`}
+                type="text"
+                value={e.period}
+                onChange={(ev) => {
+                  const nextResume = update(e.id, { period: ev.target.value });
+                  revalidate(e.id, 'period', nextResume);
+                }}
+                onBlur={() => touch(e.id, 'period')}
+                placeholder="예: 2021.03 - 2025.02"
+                autoComplete="off"
+                inputMode="numeric"
+                aria-invalid={!!errors.period}
+                aria-describedby={errors.period ? periodErrorId : undefined}
+              />
+              {errors.period && (
+                <FieldError id={periodErrorId}>{errors.period}</FieldError>
+              )}
+            </Field>
+            <Field data-invalid={!!errors.major}>
+              <FieldLabel
+                htmlFor={`major-${e.id}`}
+                className="text-sm text-muted-foreground"
+              >
+                학과(전공)
+              </FieldLabel>
+              <Input
+                id={`major-${e.id}`}
+                type="text"
+                value={e.major}
+                onChange={(ev) => {
+                  const nextResume = update(e.id, { major: ev.target.value });
+                  revalidate(e.id, 'major', nextResume);
+                }}
+                onBlur={() => touch(e.id, 'major')}
+                placeholder="예: 컴퓨터공학과"
+                autoComplete="off"
+                aria-invalid={!!errors.major}
+                aria-describedby={errors.major ? majorErrorId : undefined}
+              />
+              {errors.major && (
+                <FieldError id={majorErrorId}>{errors.major}</FieldError>
+              )}
+            </Field>
+          </FieldGroup>
         );
       })}
     </FieldSet>

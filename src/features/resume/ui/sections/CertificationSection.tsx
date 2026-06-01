@@ -78,104 +78,105 @@ export function CertificationSection({ value, onChange }: Props) {
         const issuerErrorId = `issuer-${c.id}-error`;
 
         return (
-        <FieldGroup key={c.id} className="rounded-lg border p-4">
-          <div className="mb-3 flex items-center justify-between">
-            <div className="font-medium">자격증 {list.length - idx}</div>
-            <Button
-              type="button"
-              variant="ghost"
-              onClick={() => remove(c.id)}
-              disabled={list.length <= 1}
-            >
-              삭제
-            </Button>
-          </div>
+          <FieldGroup key={c.id} className="rounded-lg border p-4">
+            <div className="mb-3 flex items-center justify-between">
+              <div className="font-medium">자격증 {list.length - idx}</div>
+              <Button
+                type="button"
+                variant="ghost"
+                onClick={() => remove(c.id)}
+                disabled={list.length <= 1}
+                aria-label={`자격증 ${list.length - idx} 삭제`}
+              >
+                삭제
+              </Button>
+            </div>
 
-          <div className="grid gap-3 sm:grid-cols-2">
-            <Field data-invalid={!!errors.name}>
+            <div className="grid gap-3 sm:grid-cols-2">
+              <Field data-invalid={!!errors.name}>
+                <FieldLabel
+                  htmlFor={`certification-name-${c.id}`}
+                  className="text-sm text-muted-foreground"
+                >
+                  자격증
+                </FieldLabel>
+                <Input
+                  id={`certification-name-${c.id}`}
+                  type="text"
+                  value={c.name}
+                  onChange={(ev) => {
+                    const nextResume = update(c.id, { name: ev.target.value });
+                    revalidate(c.id, 'name', nextResume);
+                  }}
+                  onBlur={() => touch(c.id, 'name')}
+                  placeholder="예: 웹디자인기능사"
+                  autoComplete="off"
+                  aria-invalid={!!errors.name}
+                  aria-describedby={errors.name ? nameErrorId : undefined}
+                />
+                {errors.name && (
+                  <FieldError id={nameErrorId}>{errors.name}</FieldError>
+                )}
+              </Field>
+              <Field data-invalid={!!errors.acquiredAt}>
+                <FieldLabel
+                  htmlFor={`acquiredAt-${c.id}`}
+                  className="text-sm text-muted-foreground"
+                >
+                  취득일
+                </FieldLabel>
+                <Input
+                  type="date"
+                  id={`acquiredAt-${c.id}`}
+                  value={c.acquiredAt}
+                  onChange={(ev) => {
+                    const nextResume = update(c.id, {
+                      acquiredAt: ev.target.value,
+                    });
+                    revalidate(c.id, 'acquiredAt', nextResume);
+                  }}
+                  onBlur={() => touch(c.id, 'acquiredAt')}
+                  placeholder="예: 2024.06"
+                  inputMode="numeric"
+                  autoComplete="off"
+                  aria-invalid={!!errors.acquiredAt}
+                  aria-describedby={
+                    errors.acquiredAt ? acquiredAtErrorId : undefined
+                  }
+                />
+                {errors.acquiredAt && (
+                  <FieldError id={acquiredAtErrorId}>
+                    {errors.acquiredAt}
+                  </FieldError>
+                )}
+              </Field>
+            </div>
+            <Field data-invalid={!!errors.issuer}>
               <FieldLabel
-                htmlFor={`certification-name-${c.id}`}
+                htmlFor={`issuer-${c.id}`}
                 className="text-sm text-muted-foreground"
               >
-                자격증
+                발행처
               </FieldLabel>
               <Input
-                id={`certification-name-${c.id}`}
+                id={`issuer-${c.id}`}
                 type="text"
-                value={c.name}
+                value={c.issuer}
                 onChange={(ev) => {
-                  const nextResume = update(c.id, { name: ev.target.value });
-                  revalidate(c.id, 'name', nextResume);
+                  const nextResume = update(c.id, { issuer: ev.target.value });
+                  revalidate(c.id, 'issuer', nextResume);
                 }}
-                onBlur={() => touch(c.id, 'name')}
-                placeholder="예: 웹디자인기능사"
-                autoComplete="off"
-                aria-invalid={!!errors.name}
-                aria-describedby={errors.name ? nameErrorId : undefined}
+                onBlur={() => touch(c.id, 'issuer')}
+                placeholder="예: 한국산업인력공단"
+                autoComplete="organization"
+                aria-invalid={!!errors.issuer}
+                aria-describedby={errors.issuer ? issuerErrorId : undefined}
               />
-              {errors.name && (
-                <FieldError id={nameErrorId}>{errors.name}</FieldError>
+              {errors.issuer && (
+                <FieldError id={issuerErrorId}>{errors.issuer}</FieldError>
               )}
             </Field>
-            <Field data-invalid={!!errors.acquiredAt}>
-              <FieldLabel
-                htmlFor={`acquiredAt-${c.id}`}
-                className="text-sm text-muted-foreground"
-              >
-                취득일
-              </FieldLabel>
-              <Input
-                type="date"
-                id={`acquiredAt-${c.id}`}
-                value={c.acquiredAt}
-                onChange={(ev) => {
-                  const nextResume = update(c.id, {
-                    acquiredAt: ev.target.value,
-                  });
-                  revalidate(c.id, 'acquiredAt', nextResume);
-                }}
-                onBlur={() => touch(c.id, 'acquiredAt')}
-                placeholder="예: 2024.06"
-                inputMode="numeric"
-                autoComplete="off"
-                aria-invalid={!!errors.acquiredAt}
-                aria-describedby={
-                  errors.acquiredAt ? acquiredAtErrorId : undefined
-                }
-              />
-              {errors.acquiredAt && (
-                <FieldError id={acquiredAtErrorId}>
-                  {errors.acquiredAt}
-                </FieldError>
-              )}
-            </Field>
-          </div>
-          <Field data-invalid={!!errors.issuer}>
-            <FieldLabel
-              htmlFor={`issuer-${c.id}`}
-              className="text-sm text-muted-foreground"
-            >
-              발행처
-            </FieldLabel>
-            <Input
-              id={`issuer-${c.id}`}
-              type="text"
-              value={c.issuer}
-              onChange={(ev) => {
-                const nextResume = update(c.id, { issuer: ev.target.value });
-                revalidate(c.id, 'issuer', nextResume);
-              }}
-              onBlur={() => touch(c.id, 'issuer')}
-              placeholder="예: 한국산업인력공단"
-              autoComplete="organization"
-              aria-invalid={!!errors.issuer}
-              aria-describedby={errors.issuer ? issuerErrorId : undefined}
-            />
-            {errors.issuer && (
-              <FieldError id={issuerErrorId}>{errors.issuer}</FieldError>
-            )}
-          </Field>
-        </FieldGroup>
+          </FieldGroup>
         );
       })}
     </FieldSet>

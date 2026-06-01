@@ -58,12 +58,11 @@ export function defaultResume(): Resume {
       },
     ],
     links: [
-      { id: uid(), label: 'GitHub', url: '' },
-      { id: uid(), label: 'Portfolio', url: '' },
+      { id: uid(), label: '', url: '' },
     ],
     skills: {
-      primary: ['React', 'TypeScript'],
-      tools: ['Git', 'Figma'],
+      primary: [],
+      tools: [],
     },
   };
 }

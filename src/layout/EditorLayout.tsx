@@ -9,6 +9,7 @@ import {
 import { getInitialPreviewOpen } from '@/constants/editor';
 import { AlertTriangle } from 'lucide-react';
 import { cn } from '@/lib/utils';
+import { usePageTitle } from '@/hooks/usePageTitle';
 
 function uid() {
   return Math.random().toString(36).slice(2, 10);
@@ -79,6 +80,9 @@ function EditorInner({ previewControls }: EditorInnerProps) {
     window.addEventListener('beforeunload', handler);
     return () => window.removeEventListener('beforeunload', handler);
   }, [isDirty]);
+
+  const name = resume.basics?.name?.trim();
+  usePageTitle(name ? `${name} 이력서` : `새 이력서`);
 
   return (
     <>

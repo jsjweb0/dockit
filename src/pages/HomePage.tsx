@@ -1,17 +1,23 @@
 import { Link } from 'react-router-dom';
 import { useState } from 'react';
-import { ArrowRight, Clock3 } from 'lucide-react';
+import { ArrowRight, Clock3, Trash2 } from 'lucide-react';
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
 import { documentTemplates } from '@/features/documents/model/documentTemplates';
 import {
   listRecentResumeDrafts,
   type ResumeDraftSummary,
+  deleteResumeDraft
 } from '@/features/resume/model/resume.storage';
+import { ConfirmDialog } from '@/components/ui/confirm-dialog';
 import { formatRelativeTime } from '@/utils/time';
+import { cn } from '@/lib/utils';
+import { usePageTitle } from '@/hooks/usePageTitle';
 
 export function HomePage() {
-  const [recentDrafts] = useState<ResumeDraftSummary[]>(() =>
+  usePageTitle();
+
+  const [recentDrafts, setRecentDrafts] = useState<ResumeDraftSummary[]>(() =>
     listRecentResumeDrafts(3),
   );
 
@@ -60,29 +66,41 @@ export function HomePage() {
 
           <div className="grid gap-3 md:grid-cols-3">
             {recentDrafts.map((draft) => (
-              <Link
-                key={draft.id}
-                to={`/resume/${draft.id}`}
-                className="block rounded-lg border bg-card p-5 transition-colors hover:border-primary/50 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring"
-              >
-                <article className="grid h-full gap-3">
-                  <div className="flex items-start justify-between gap-3">
-                    <h3 className="line-clamp-2 text-lg font-semibold">
-                      {draft.title}
-                    </h3>
-                    <Clock3
-                      className="mt-1 size-4 shrink-0 text-muted-foreground"
-                      aria-hidden="true"
-                    />
-                  </div>
+              <article key={draft.id} className={cn(
+                'group grid grid-cols-[1fr_auto] h-full gap-3 rounded-lg border bg-card p-5',
+                'transition-colors has-[a:hover]:border-primary/50 has-[a:focus]:border-primary/50',
+              )}>
+                <Link to={`/resume/${draft.id}`}
+                  className="grid gap-3 pt-1 focus-visible:outline-none"
+                >
+                  <h3 className="line-clamp-2 text-lg font-semibold group-hover:text-primary">
+                    {draft.title}
+                  </h3>
                   <p className="line-clamp-2 text-sm leading-6 text-muted-foreground">
                     {draft.description}
                   </p>
-                  <p className="text-xs font-medium text-muted-foreground text-right">
-                    {formatRelativeTime(draft.updatedAt)}
-                  </p>
-                </article>
-              </Link>
+                </Link>
+                <ConfirmDialog
+                  title="문서 삭제"
+                  description="저장된 문서와 최근 작성 목록에서 완전히 삭제됩니다. 이 작업은 되돌릴 수 없습니다."
+                  confirmText="삭제"
+                  onConfirm={() => {
+                    deleteResumeDraft(draft.id);
+                    setRecentDrafts(listRecentResumeDrafts(3));
+                  }}
+                  trigger={
+                    <Button variant="ghost" size="icon" aria-label={`${draft.title} 삭제`}>
+                      <Trash2 aria-hidden="true" />
+                    </Button>
+                  } />
+                <div className="col-span-2 flex gap-1 items-center justify-end text-xs font-medium text-muted-foreground">
+                  <Clock3
+                    className="size-4 shrink-0"
+                    aria-hidden="true"
+                  />
+                  {formatRelativeTime(draft.updatedAt)}
+                </div>
+              </article>
             ))}
           </div>
         </section>
