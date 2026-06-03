@@ -47,16 +47,22 @@ export function ResumeForm({ value, onChange }: Props) {
 
     if (!target) return;
 
-    setActiveTab(target.tab);
+    pendingFocusId.current = target.fieldId;
 
-    requestAnimationFrame(() => {
+    if (target.tab === activeTab) {
       document.getElementById(target.fieldId)?.focus();
-    });
+      pendingFocusId.current = null;
+      return;
+    }
+
+    setActiveTab(target.tab);
   };
 
   return (
     <section className="resumeEditorPane lg:px-10 lg:pt-9 lg:pb-15">
-      <h2 className="mb-4 text-xl md:text-2xl font-semibold">문서작성</h2>
+      <div className="flex justify-between items-center mb-4">
+        <h2 className="text-xl md:text-2xl font-semibold">문서작성</h2>
+      </div>
 
       <Tabs value={activeTab} onValueChange={setActiveTab} className="w-full">
         <TabsList className="flex h-auto w-full justify-start overflow-x-auto p-1 sm:grid sm:grid-cols-7">

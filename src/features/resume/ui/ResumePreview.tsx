@@ -111,10 +111,10 @@ export const ResumePreview = forwardRef<HTMLElement, Props>(
       <section
         ref={ref}
         className="resumeDocument"
-        aria-label="국문 이력서 미리보기"
+        aria-label="resume-preview-title"
       >
         <div className="resumeDocument__header">
-          <h2 className="resumeDocument__title" aria-label="이력서">
+          <h2 id="resume-preview-title" className="resumeDocument__title">
             <span>이</span>
             <span>력</span>
             <span>서</span>
@@ -185,7 +185,10 @@ export const ResumePreview = forwardRef<HTMLElement, Props>(
                 rowSpan={educationRows.length + 1}
                 className="docTable__rowGroup"
               >
-                학력사항
+                학
+                <br />력
+                <br />사
+                <br />항
               </th>
               <th scope="col" colSpan={9}>
                 기간
@@ -199,7 +202,7 @@ export const ResumePreview = forwardRef<HTMLElement, Props>(
             </tr>
             {educationRows.map((e, index) => (
               <tr key={e.id}>
-                <td colSpan={9} className="docTable__center">
+                <td colSpan={9}>
                   {e.period || (index === 0 && '')}
                 </td>
                 <td colSpan={9}>{e.institution || (index === 0 && '')}</td>
@@ -221,7 +224,9 @@ export const ResumePreview = forwardRef<HTMLElement, Props>(
                 rowSpan={certificationRows.length + 1}
                 className="docTable__rowGroup"
               >
-                자격증
+                자
+                <br />격
+                <br />증
               </th>
               <th scope="col" colSpan={7}>
                 취득일
@@ -235,7 +240,7 @@ export const ResumePreview = forwardRef<HTMLElement, Props>(
             </tr>
             {certificationRows.map((cert, index) => (
               <tr key={cert.id}>
-                <td colSpan={7} className="docTable__center">
+                <td colSpan={7}>
                   {cert.acquiredAt || (index === 0 && '')}
                 </td>
                 <td colSpan={10}>{cert.name || (index === 0 && '')}</td>
@@ -257,9 +262,12 @@ export const ResumePreview = forwardRef<HTMLElement, Props>(
                 rowSpan={experienceRows.length + 1}
                 className="docTable__rowGroup"
               >
-                경력사항
+                경
+                <br />력
+                <br />사
+                <br />항
               </th>
-              <th scope="col" colSpan={9}>
+              <th scope="col" colSpan={7}>
                 근무기간
               </th>
               <th scope="col" colSpan={6}>
@@ -268,13 +276,13 @@ export const ResumePreview = forwardRef<HTMLElement, Props>(
               <th scope="col" colSpan={3}>
                 직위
               </th>
-              <th scope="col" colSpan={7}>
+              <th scope="col" colSpan={9}>
                 담당업무
               </th>
             </tr>
             {experienceRows.map((career, index) => (
               <tr key={career.id}>
-                <td colSpan={9} className="docTable__center">
+                <td colSpan={7}>
                   {career.company || career.start || career.end
                     ? formatPeriod(career.start, career.end, career.isCurrent)
                     : index === 0 && ''}
@@ -283,7 +291,7 @@ export const ResumePreview = forwardRef<HTMLElement, Props>(
                 <td colSpan={3} className="docTable__center">
                   {career.role || (index === 0 && '')}
                 </td>
-                <td colSpan={7} className="docTable__multiline">
+                <td colSpan={9} className="docTable__multiline">
                   <div className="docTable__multilineText">
                     {career.description || ''}
                   </div>
@@ -305,33 +313,36 @@ export const ResumePreview = forwardRef<HTMLElement, Props>(
                 rowSpan={projectRows.length + 1}
                 className="docTable__rowGroup"
               >
-                프로젝트
+                프
+                <br />로
+                <br />젝
+                <br />트
               </th>
               <th scope="col" colSpan={7}>
                 기간
               </th>
-              <th scope="col" colSpan={6}>
+              <th scope="col" colSpan={5}>
                 프로젝트명
               </th>
               <th scope="col" colSpan={5}>
                 기술
               </th>
-              <th scope="col" colSpan={7}>
+              <th scope="col" colSpan={8}>
                 주요내용
               </th>
             </tr>
             {projectRows.map((project, index) => (
               <tr key={project.id}>
-                <td colSpan={7} className="docTable__center">
+                <td colSpan={7}>
                   {project.period || (index === 0 && '')}
                 </td>
-                <td colSpan={6}>{project.name || (index === 0 && '')}</td>
+                <td colSpan={5}>{project.name || (index === 0 && '')}</td>
                 <td colSpan={5} className="docTable__multiline">
-                  <div className="docTable__clamp docTable__multilineText">
+                  <div className="docTable__multilineText">
                     {project.stack || (index === 0 && '')}
                   </div>
                 </td>
-                <td colSpan={7} className="docTable__multiline">
+                <td colSpan={8} className="docTable__multiline">
                   <div className="docTable__multilineText">
                     {project.description || ''}
                   </div>
@@ -348,7 +359,11 @@ export const ResumePreview = forwardRef<HTMLElement, Props>(
               <th scope="row" colSpan={4}>
                 핵심 스킬
               </th>
-              <td colSpan={9}>{value.skills.primary.join(', ') || ''}</td>
+              <td colSpan={9} className="docTable__multiline">
+                <div className="docTable__multilineText">
+                  {value.skills.primary.join(', ') || ''}
+                </div>
+              </td>
               <th scope="row" colSpan={4}>
                 링크
               </th>

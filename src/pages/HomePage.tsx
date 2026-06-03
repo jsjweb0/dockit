@@ -9,7 +9,17 @@ import {
   type ResumeDraftSummary,
   deleteResumeDraft
 } from '@/features/resume/model/resume.storage';
-import { ConfirmDialog } from '@/components/ui/confirm-dialog';
+import {
+  AlertDialog,
+  AlertDialogAction,
+  AlertDialogCancel,
+  AlertDialogContent,
+  AlertDialogDescription,
+  AlertDialogFooter,
+  AlertDialogHeader,
+  AlertDialogTitle,
+  AlertDialogTrigger,
+} from "@/components/ui/alert-dialog"
 import { formatRelativeTime } from '@/utils/time';
 import { cn } from '@/lib/utils';
 import { usePageTitle } from '@/hooks/usePageTitle';
@@ -80,19 +90,30 @@ export function HomePage() {
                     {draft.description}
                   </p>
                 </Link>
-                <ConfirmDialog
-                  title="문서 삭제"
-                  description="저장된 문서와 최근 작성 목록에서 완전히 삭제됩니다. 이 작업은 되돌릴 수 없습니다."
-                  confirmText="삭제"
-                  onConfirm={() => {
-                    deleteResumeDraft(draft.id);
-                    setRecentDrafts(listRecentResumeDrafts(3));
-                  }}
-                  trigger={
+                <AlertDialog>
+                  <AlertDialogTrigger asChild>
                     <Button variant="ghost" size="icon" aria-label={`${draft.title} 삭제`}>
                       <Trash2 aria-hidden="true" />
                     </Button>
-                  } />
+                  </AlertDialogTrigger>
+                  <AlertDialogContent size="sm">
+                    <AlertDialogHeader>
+                      <AlertDialogTitle>문서를 삭제할까요?</AlertDialogTitle>
+                      <AlertDialogDescription>
+                        저장된 문서와 최근 작성 목록에서 완전히 삭제됩니다. 이 작업은 되돌릴 수 없습니다.
+                      </AlertDialogDescription>
+                    </AlertDialogHeader>
+                    <AlertDialogFooter>
+                      <AlertDialogCancel>닫기</AlertDialogCancel>
+                      <AlertDialogAction aria-label={`${draft.title} 삭제`} onClick={() => {
+                        deleteResumeDraft(draft.id);
+                        setRecentDrafts(listRecentResumeDrafts(3));
+                      }}>
+                        삭제
+                      </AlertDialogAction>
+                    </AlertDialogFooter>
+                  </AlertDialogContent>
+                </AlertDialog>
                 <div className="col-span-2 flex gap-1 items-center justify-end text-xs font-medium text-muted-foreground">
                   <Clock3
                     className="size-4 shrink-0"

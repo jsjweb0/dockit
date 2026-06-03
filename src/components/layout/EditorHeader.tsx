@@ -3,7 +3,17 @@ import { DesktopEditorActions } from '@/components/layout/DesktopEditorActions';
 import { MobileEditorActions } from './MobileEditorActions';
 import { PanelRightOpen } from 'lucide-react';
 import { formatRelativeTime } from '@/utils/time.ts';
-import { ConfirmDialog } from '@/components/ui/confirm-dialog';
+import {
+  AlertDialog,
+  AlertDialogAction,
+  AlertDialogCancel,
+  AlertDialogContent,
+  AlertDialogDescription,
+  AlertDialogFooter,
+  AlertDialogHeader,
+  AlertDialogTitle,
+  AlertDialogTrigger,
+} from '@/components/ui/alert-dialog';
 import { toast } from 'sonner';
 import { Button } from '@/components/ui/button';
 import { cn } from '@/lib/utils';
@@ -11,6 +21,7 @@ import { cn } from '@/lib/utils';
 export type EditorActions = {
   onSave: () => void;
   onReset: () => void;
+  onLoadSample: () => void;
   onExportImage: () => void;
   onExportPdf: () => void;
   onExitHome: () => void;
@@ -101,20 +112,28 @@ export function EditorHeader({
       <div className="mx-auto flex lg:flex-wrap items-center justify-between md:gap-3">
         <div className="flex min-w-0 items-center gap-3 max-lg:grow max-lg:pl-2 max-lg:pr-6">
           {isDirty ? (
-            <ConfirmDialog
-              title="메인으로 나갈까요?"
-              description="메인으로 나가면 편집 중인 내용이 모두 사라집니다. 그래도 나갈까요?"
-              confirmText="나가기"
-              onConfirm={onExitHome}
-              trigger={
+            <AlertDialog>
+              <AlertDialogTrigger asChild>
                 <Button
                   variant="link"
                   className="shrink-0 flex min-h-10 items-center p-0"
                 >
                   <img src="/logo.svg" className="h-3 lg:h-4 w-auto" alt="DocKit" />
                 </Button>
-              }
-            />
+              </AlertDialogTrigger>
+              <AlertDialogContent size="sm">
+                <AlertDialogHeader>
+                  <AlertDialogTitle>메인으로 나갈까요?</AlertDialogTitle>
+                  <AlertDialogDescription>
+                    메인으로 나가면 편집 중인 내용이 모두 사라집니다. 그래도 나갈까요?
+                  </AlertDialogDescription>
+                </AlertDialogHeader>
+                <AlertDialogFooter>
+                  <AlertDialogCancel>취소</AlertDialogCancel>
+                  <AlertDialogAction onClick={onExitHome}>나가기</AlertDialogAction>
+                </AlertDialogFooter>
+              </AlertDialogContent>
+            </AlertDialog>
           ) : (
             <Button
               variant="link"
@@ -160,12 +179,8 @@ export function EditorHeader({
             )}
           >
             {isDirty ? (
-              <ConfirmDialog
-                title="저장되지 않은 변경사항이 있어요"
-                description="저장하지 않은 변경사항은 메인으로 나가면 사라질 수 있어요. 그래도 나갈까요?"
-                confirmText="나가기"
-                onConfirm={onExitHome}
-                trigger={
+              <AlertDialog>
+                <AlertDialogTrigger asChild>
                   <Button
                     variant="outline"
                     aria-label="메인으로 나가기"
@@ -173,8 +188,20 @@ export function EditorHeader({
                   >
                     나가기
                   </Button>
-                }
-              />
+                </AlertDialogTrigger>
+                <AlertDialogContent size="sm">
+                  <AlertDialogHeader>
+                    <AlertDialogTitle>저장되지 않은 변경사항이 있어요</AlertDialogTitle>
+                    <AlertDialogDescription>
+                      저장하지 않은 변경사항은 메인으로 나가면 사라질 수 있어요. 그래도 나갈까요?
+                    </AlertDialogDescription>
+                  </AlertDialogHeader>
+                  <AlertDialogFooter>
+                    <AlertDialogCancel>취소</AlertDialogCancel>
+                    <AlertDialogAction onClick={onExitHome}>나가기</AlertDialogAction>
+                  </AlertDialogFooter>
+                </AlertDialogContent>
+              </AlertDialog>
             ) : (
               <Button
                 variant="outline"

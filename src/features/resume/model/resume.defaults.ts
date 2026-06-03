@@ -27,7 +27,14 @@ export function defaultResume(): Resume {
       summary: '',
       submittedAt: todayKorea(),
     },
-    education: [{ id: uid(), period: '', institution: '', major: '' }],
+    education: [
+      {
+        id: uid(),
+        period: '',
+        institution: '',
+        major: '',
+      },
+    ],
     certifications: [
       {
         id: uid(),
@@ -57,9 +64,7 @@ export function defaultResume(): Resume {
         link: '',
       },
     ],
-    links: [
-      { id: uid(), label: '', url: '' },
-    ],
+    links: [{ id: uid(), label: '', url: '' }],
     skills: {
       primary: [],
       tools: [],

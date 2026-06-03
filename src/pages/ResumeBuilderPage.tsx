@@ -95,7 +95,7 @@ export function ResumeBuilderPage() {
         <TooltipTrigger asChild>
           <Button
             variant="outline"
-            className="absolute right-4.5 top-3 z-20 w-18 h-18 rounded-full bg-background shadow-sm max-lg:hidden"
+            className="previewToggleButton absolute right-4.5 top-3 z-20 w-18 h-18 rounded-full bg-background shadow-sm max-lg:hidden"
             onClick={onTogglePreview}
             aria-expanded={isPreviewOpen}
             aria-controls="preview-panel"

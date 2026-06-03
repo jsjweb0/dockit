@@ -1,3 +1,4 @@
+import { useRef, useState } from 'react';
 import {
   DropdownMenu,
   DropdownMenuContent,
@@ -5,10 +6,20 @@ import {
   DropdownMenuItem,
   DropdownMenuLabel,
   DropdownMenuTrigger,
+  DropdownMenuSeparator
 } from '@/components/ui/dropdown-menu';
 import { Button } from '@/components/ui/button';
-import { ConfirmDialog } from '@/components/ui/confirm-dialog';
-import { MoreVertical, FileText as FileTextIcon, ImageDownIcon, RefreshCcw  } from 'lucide-react';
+import {
+  AlertDialog,
+  AlertDialogAction,
+  AlertDialogCancel,
+  AlertDialogContent,
+  AlertDialogDescription,
+  AlertDialogFooter,
+  AlertDialogHeader,
+  AlertDialogTitle,
+} from '@/components/ui/alert-dialog';
+import { MoreVertical, ImageDownIcon, RefreshCcw, FileInput, FilePenLine } from 'lucide-react';
 import type {
   EditorActions,
   EditorStatus,
@@ -20,8 +31,33 @@ type Props = {
 };
 
 export function MobileEditorActions({ actions, status }: Props) {
-  const { onReset, onExportImage, onExportPdf } = actions;
+  const { onReset, onLoadSample, onExportImage, onExportPdf } = actions;
   const { isDirty, isSaving, isExporting } = status;
+  const menuButtonRef = useRef<HTMLButtonElement>(null);
+  const [isResetDialogOpen, setIsResetDialogOpen] = useState(false);
+  const [isLoadSampleDialogOpen, setIsLoadSampleDialogOpen] = useState(false);
+
+  const focusMenuButton = () => {
+    requestAnimationFrame(() => {
+      menuButtonRef.current?.focus();
+    });
+  };
+
+  const handleResetDialogOpenChange = (open: boolean) => {
+    setIsResetDialogOpen(open);
+
+    if (!open) {
+      focusMenuButton();
+    }
+  };
+
+  const handleLoadSampleDialogOpenChange = (open: boolean) => {
+    setIsLoadSampleDialogOpen(open);
+
+    if (!open) {
+      focusMenuButton();
+    }
+  };
 
   return (
     <div className="flex items-center gap-2 lg:hidden">
@@ -32,6 +68,7 @@ export function MobileEditorActions({ actions, status }: Props) {
       <DropdownMenu>
         <DropdownMenuTrigger asChild>
           <Button
+            ref={menuButtonRef}
             variant="outline"
             size="icon"
             aria-label="문서 작업 메뉴"
@@ -43,32 +80,68 @@ export function MobileEditorActions({ actions, status }: Props) {
         <DropdownMenuContent align="end">
           <DropdownMenuGroup>
             <DropdownMenuLabel>작업</DropdownMenuLabel>
+            <DropdownMenuItem onSelect={() => setIsLoadSampleDialogOpen(true)}>
+              <FilePenLine className="size-4" />
+              예시 불러오기
+            </DropdownMenuItem>
             <DropdownMenuItem onSelect={onExportPdf} disabled={isExporting}>
-              <FileTextIcon className="size-4" />
+              <FileInput className="size-4" />
               {isExporting ? 'PDF 저장 중' : 'PDF 저장'}
             </DropdownMenuItem>
             <DropdownMenuItem onSelect={onExportImage} disabled={isExporting}>
               <ImageDownIcon className="size-4" />
               {isExporting ? '이미지 저장 중' : '이미지 저장'}
             </DropdownMenuItem>
-            <ConfirmDialog
-              title="전체 초기화할까요?"
-              description="입력한 내용이 모두 초기화됩니다. 이 작업은 되돌릴 수 없어요."
-              confirmText="초기화"
-              onConfirm={onReset}
-              trigger={
-                <DropdownMenuItem
-                  disabled={!isDirty || isSaving || isExporting}
-                  onSelect={(event) => event.preventDefault()}
-                >
-                  <RefreshCcw className="size-4" />
-                  전체 초기화
-                </DropdownMenuItem>
-              }
-            />
+
+            <DropdownMenuSeparator />
+
+            <DropdownMenuItem
+              disabled={!isDirty || isSaving || isExporting}
+              onSelect={() => setIsResetDialogOpen(true)}
+            >
+              <RefreshCcw className="size-4" />
+              전체 초기화
+            </DropdownMenuItem>
           </DropdownMenuGroup>
         </DropdownMenuContent>
       </DropdownMenu>
+
+      <AlertDialog
+        open={isLoadSampleDialogOpen}
+        onOpenChange={handleLoadSampleDialogOpenChange}
+      >
+        <AlertDialogContent size="sm">
+          <AlertDialogHeader>
+            <AlertDialogTitle>예시 내용 불러오기</AlertDialogTitle>
+            <AlertDialogDescription>
+              현재 작성 중인 내용이 예시 데이터로 덮어써집니다.
+              계속하시겠습니까?
+            </AlertDialogDescription>
+          </AlertDialogHeader>
+          <AlertDialogFooter>
+            <AlertDialogCancel>취소</AlertDialogCancel>
+            <AlertDialogAction onClick={onLoadSample}>적용</AlertDialogAction>
+          </AlertDialogFooter>
+        </AlertDialogContent>
+      </AlertDialog>
+
+      <AlertDialog
+        open={isResetDialogOpen}
+        onOpenChange={handleResetDialogOpenChange}
+      >
+        <AlertDialogContent size="sm">
+          <AlertDialogHeader>
+            <AlertDialogTitle>전체 초기화할까요?</AlertDialogTitle>
+            <AlertDialogDescription>
+              입력한 내용이 모두 초기화됩니다. 이 작업은 되돌릴 수 없어요.
+            </AlertDialogDescription>
+          </AlertDialogHeader>
+          <AlertDialogFooter>
+            <AlertDialogCancel>취소</AlertDialogCancel>
+            <AlertDialogAction onClick={onReset}>초기화</AlertDialogAction>
+          </AlertDialogFooter>
+        </AlertDialogContent>
+      </AlertDialog>
     </div>
   );
 }

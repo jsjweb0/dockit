@@ -10,6 +10,7 @@ import { getInitialPreviewOpen } from '@/constants/editor';
 import { AlertTriangle } from 'lucide-react';
 import { cn } from '@/lib/utils';
 import { usePageTitle } from '@/hooks/usePageTitle';
+import { sampleResume } from '@/features/resume/model/resume.sample';
 
 function uid() {
   return Math.random().toString(36).slice(2, 10);
@@ -33,6 +34,7 @@ function EditorInner({ previewControls }: EditorInnerProps) {
   const navigate = useNavigate();
   const {
     resume,
+    setResume,
     save,
     reset,
     exportImage,
@@ -51,6 +53,7 @@ function EditorInner({ previewControls }: EditorInnerProps) {
   const actions = {
     onSave: () => save({ silent: false }),
     onReset: reset,
+    onLoadSample: () => setResume(sampleResume()),
     onExportImage: exportImage,
     onExportPdf: exportResumePdf,
     onExitHome: handleExitHome,
