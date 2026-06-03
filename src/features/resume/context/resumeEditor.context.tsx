@@ -8,7 +8,8 @@ import React, {
   useState,
 } from 'react';
 import type { Resume } from '../model/resume.types';
-import { loadResume, resetResume, saveResume } from '../model/resume.storage';
+import { defaultResume } from '../model/resume.defaults';
+import { loadResume, saveResume } from '../model/resume.storage';
 import { toast } from 'sonner';
 import {
   exportResumeImage,
@@ -67,6 +68,7 @@ type ResumeEditorState = {
   previewRef: React.RefObject<HTMLElement | null>;
   basicsErrors: BasicsFieldErrors;
   sectionErrors: ResumeSectionErrors;
+  resetVersion: number;
   validationErrorCounts: ValidationErrorCounts;
   totalValidationErrorCount: number;
   getFirstValidationErrorTarget: (
@@ -174,6 +176,7 @@ export function ResumeEditorProvider({
   const [sectionErrors, setSectionErrors] = useState<ResumeSectionErrors>(
     emptyResumeSectionErrors,
   );
+  const [resetVersion, setResetVersion] = useState(0);
   const [touchedBasicsFields, setTouchedBasicsFields] = useState(
     emptyTouchedBasicsFields,
   );
@@ -369,13 +372,13 @@ export function ResumeEditorProvider({
   );
 
   const reset = useCallback(() => {
-    resetResume(resumeId);
-    setResume(loadResume(resumeId));
-    setIsDirty(false);
+    setResume(defaultResume());
+    setResetVersion((version) => version + 1);
+    setIsDirty(true);
     setLastSavedAt(null);
     clearBasicsValidation();
     clearSectionValidation();
-  }, [resumeId, clearBasicsValidation, clearSectionValidation]);
+  }, [clearBasicsValidation, clearSectionValidation]);
 
   const exportImage = useCallback(async () => {
     if (!validateResumeBeforeExport()) return;
@@ -519,6 +522,7 @@ export function ResumeEditorProvider({
       previewRef,
       basicsErrors,
       sectionErrors,
+      resetVersion,
       validationErrorCounts,
       totalValidationErrorCount,
       getFirstValidationErrorTarget,
@@ -541,6 +545,7 @@ export function ResumeEditorProvider({
       exportResumePdf,
       basicsErrors,
       sectionErrors,
+      resetVersion,
       validationErrorCounts,
       totalValidationErrorCount,
       getFirstValidationErrorTarget,

@@ -91,28 +91,28 @@ export function ResumeBuilderPage() {
     >
       <ResumeForm value={resume} onChange={setResume} />
 
-      {!isPreviewOpen && (
-        <Tooltip>
-          <TooltipTrigger asChild>
-            <Button
-              variant="outline"
-              className="absolute right-0 top-3 z-10 w-18 h-18 rounded-full bg-background shadow-sm max-lg:hidden"
-              onClick={onTogglePreview}
-              aria-expanded={isPreviewOpen}
-              aria-controls="preview-panel"
-              aria-label="미리보기 열기"
-            >
-              <ChevronRight
-                className="size-8.5 rotate-180"
-                aria-hidden="true"
-              />
-            </Button>
-          </TooltipTrigger>
-          <TooltipContent side="left">
-            <p>작성 화면 옆에 미리보기를 다시 표시합니다.</p>
-          </TooltipContent>
-        </Tooltip>
-      )}
+      <Tooltip>
+        <TooltipTrigger asChild>
+          <Button
+            variant="outline"
+            className="previewToggleButton absolute right-4.5 top-3 z-20 w-18 h-18 rounded-full bg-background shadow-sm max-lg:hidden"
+            onClick={onTogglePreview}
+            aria-expanded={isPreviewOpen}
+            aria-controls="preview-panel"
+            aria-label={isPreviewOpen ? '미리보기 닫기' : '미리보기 열기'}
+          >
+            <ChevronRight
+              className={cn('size-8.5',
+                !isPreviewOpen && 'rotate-180'
+              )}
+              aria-hidden="true"
+            />
+          </Button>
+        </TooltipTrigger>
+        <TooltipContent side="left">
+          {isPreviewOpen ? "미리보기 패널을 닫습니다." : "작성 화면 옆에 미리보기를 다시 표시합니다."}
+        </TooltipContent>
+      </Tooltip>
 
       <section
         id="preview-panel"
@@ -127,7 +127,7 @@ export function ResumeBuilderPage() {
         aria-labelledby="resume-preview-title"
       >
         <div className="resumePreview__title mb-2 flex items-center justify-between gap-4 ">
-          <div className="flex items-center gap-1.5">
+          <div className="flex items-center gap-1.5 mb-4 pt-4.5">
             <h2
               id="resume-preview-title"
               className="text-xl font-semibold md:text-2xl"
@@ -144,23 +144,7 @@ export function ResumeBuilderPage() {
               </span>
             </p>
           </div>
-          <Tooltip>
-            <TooltipTrigger asChild>
-              <Button
-                variant="outline"
-                className="w-18 h-18 rounded-full bg-background shadow-sm max-lg:hidden -mr-2.5"
-                onClick={onTogglePreview}
-                aria-expanded={isPreviewOpen}
-                aria-controls="preview-panel"
-                aria-label="미리보기 닫기"
-              >
-                <ChevronRight className="size-8.5" aria-hidden="true" />
-              </Button>
-            </TooltipTrigger>
-            <TooltipContent side="bottom">
-              <p>미리보기 패널을 닫습니다.</p>
-            </TooltipContent>
-          </Tooltip>
+
         </div>
 
         <Card className="border-0 py-0 shadow-none">

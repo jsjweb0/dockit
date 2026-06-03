@@ -12,7 +12,7 @@ export function DefaultHeader() {
       <div className="mx-auto flex items-center max-w-7xl gap-5 md:gap-8 py-3">
         <h1 className="shrink-0">
           <a href="/" className="inline-flex md:min-h-10 items-center">
-            <img src="/logo.svg" className="h-4 md:h-6 w-auto" alt="DocKit" />
+            <img src="/logo.svg" className="h-3.5 md:h-6 w-auto" alt="DocKit" />
           </a>
         </h1>
         <InputGroup>
@@ -26,6 +26,7 @@ export function DefaultHeader() {
             <Search />
           </InputGroupAddon>
           <InputGroupAddon align="inline-end">
+            {/* 검색어가 없을 때는 버튼을 숨기거나 disabled 처리 */}
             <InputGroupButton size="icon-sm" aria-label="검색어 지우기">
               <CircleX className="size-5" />
             </InputGroupButton>

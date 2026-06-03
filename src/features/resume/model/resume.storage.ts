@@ -64,7 +64,14 @@ export function loadResume(id: string): Resume {
     return {
       ...defaults,
       ...parsed,
+      meta: { ...defaults.meta, ...parsed.meta },
       basics: { ...defaults.basics, ...parsed.basics },
+      education: Array.isArray(parsed.education) ? parsed.education : defaults.education,
+      certifications: Array.isArray(parsed.certifications) ? parsed.certifications : defaults.certifications,
+      experience: Array.isArray(parsed.experience) ? parsed.experience : defaults.experience,
+      projects: Array.isArray(parsed.projects) ? parsed.projects : defaults.projects,
+      links: Array.isArray(parsed.links) ? parsed.links : defaults.links,
+      skills: { ...defaults.skills, ...parsed.skills },
     };
   } catch {
     return defaultResume();
@@ -87,7 +94,7 @@ export function saveResume(id: string, resume: Resume) {
   );
 }
 
-export function resetResume(id: string) {
+export function deleteResumeDraft(id: string) {
   localStorage.removeItem(keyOf(id));
   writeDrafts(readDrafts().filter((draft) => draft.id !== id));
 }

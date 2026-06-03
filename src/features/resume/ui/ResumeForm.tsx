@@ -9,7 +9,7 @@ import { ExperienceSection } from './sections/ExperienceSection';
 import { ProjectsSection } from './sections/ProjectsSection';
 import { SkillsSection } from './sections/SkillsSection';
 import { LinkItemSection } from '@/features/resume/ui/sections/LinkItemSection';
-import { useState } from 'react';
+import { useEffect, useRef, useState } from 'react';
 
 type Props = {
   value: Resume;
@@ -17,7 +17,7 @@ type Props = {
 };
 
 export function ResumeForm({ value, onChange }: Props) {
-  const { validationErrorCounts, getFirstValidationErrorTarget } =
+  const { validationErrorCounts, getFirstValidationErrorTarget, resetVersion } =
     useResumeEditor();
   const [activeTab, setActiveTab] = useState('basics');
 
@@ -31,21 +31,38 @@ export function ResumeForm({ value, onChange }: Props) {
     { value: 'skills', label: '스킬', count: validationErrorCounts.skills },
   ] as const;
 
+  const pendingFocusId = useRef<string | null>(null);
+
+  useEffect(() => {
+    if (!pendingFocusId.current) return;
+    const el = document.getElementById(pendingFocusId.current);
+    if (el) {
+      el.focus();
+      pendingFocusId.current = null;
+    }
+  }, [activeTab]);
+
   const focusFirstError = (tab: ResumeValidationTab) => {
     const target = getFirstValidationErrorTarget(tab);
 
     if (!target) return;
 
-    setActiveTab(target.tab);
+    pendingFocusId.current = target.fieldId;
 
-    requestAnimationFrame(() => {
+    if (target.tab === activeTab) {
       document.getElementById(target.fieldId)?.focus();
-    });
+      pendingFocusId.current = null;
+      return;
+    }
+
+    setActiveTab(target.tab);
   };
 
   return (
     <section className="resumeEditorPane lg:px-10 lg:pt-9 lg:pb-15">
-      <h2 className="mb-4 text-xl md:text-2xl font-semibold">문서작성</h2>
+      <div className="flex justify-between items-center mb-4">
+        <h2 className="text-xl md:text-2xl font-semibold">문서작성</h2>
+      </div>
 
       <Tabs value={activeTab} onValueChange={setActiveTab} className="w-full">
         <TabsList className="flex h-auto w-full justify-start overflow-x-auto p-1 sm:grid sm:grid-cols-7">
@@ -97,7 +114,11 @@ export function ResumeForm({ value, onChange }: Props) {
         </TabsContent>
 
         <TabsContent value="skills" className="mt-4">
-          <SkillsSection value={value} onChange={onChange} />
+          <SkillsSection
+            key={resetVersion}
+            value={value}
+            onChange={onChange}
+          />
         </TabsContent>
       </Tabs>
     </section>

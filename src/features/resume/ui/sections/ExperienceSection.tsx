@@ -88,6 +88,13 @@ export function ExperienceSection({ value, onChange }: Props) {
         const endErrorId = `end-${e.id}-error`;
         const roleErrorId = `role-${e.id}-error`;
         const descriptionErrorId = `description-${e.id}-error`;
+        const endCurrentNoteId = `isCurrent-note-${e.id}`;
+        const endDescriptionIds = [
+          errors.end ? endErrorId : null,
+          e.isCurrent ? endCurrentNoteId : null,
+        ]
+          .filter(Boolean)
+          .join(' ');
 
         return (
           <FieldGroup key={e.id} className="rounded-lg border p-4">
@@ -98,6 +105,7 @@ export function ExperienceSection({ value, onChange }: Props) {
                 variant="ghost"
                 onClick={() => remove(e.id)}
                 disabled={list.length <= 1}
+                aria-label={`경력 ${list.length - idx} 삭제`}
               >
                 삭제
               </Button>
@@ -121,7 +129,7 @@ export function ExperienceSection({ value, onChange }: Props) {
                     revalidate(e.id, 'company', nextResume);
                   }}
                   onBlur={() => touch(e.id, 'company')}
-                  placeholder="예: 닷킷 스튜디오"
+                  placeholder="예: 독킷 스튜디오"
                   autoComplete="organization"
                   aria-invalid={!!errors.company}
                   aria-describedby={errors.company ? companyErrorId : undefined}
@@ -195,12 +203,16 @@ export function ExperienceSection({ value, onChange }: Props) {
                   }}
                   onBlur={() => touch(e.id, 'end')}
                   disabled={e.isCurrent}
+                  aria-disabled={e.isCurrent}
                   autoComplete="off"
                   aria-invalid={!!errors.end}
-                  aria-describedby={errors.end ? endErrorId : undefined}
+                  aria-describedby={endDescriptionIds || undefined}
                 />
                 {errors.end && (
                   <FieldError id={endErrorId}>{errors.end}</FieldError>
+                )}
+                {e.isCurrent && (
+                  <span id={endCurrentNoteId} className="sr-only">재직 중 선택 시 종료일을 입력할 수 없습니다.</span>
                 )}
               </Field>
             </div>

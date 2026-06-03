@@ -82,6 +82,7 @@ export function LinkItemSection({ value, onChange }: Props) {
                 variant="ghost"
                 onClick={() => remove(l.id)}
                 disabled={list.length <= 1}
+                aria-label={`링크 ${list.length - idx} 삭제`}
               >
                 삭제
               </Button>
