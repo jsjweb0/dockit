@@ -38,7 +38,7 @@ function EditorInner({ previewControls }: EditorInnerProps) {
     save,
     reset,
     exportImage,
-    exportResumePdf,
+    printResume,
     isDirty,
     isSaving,
     isExporting,
@@ -55,7 +55,7 @@ function EditorInner({ previewControls }: EditorInnerProps) {
     onReset: reset,
     onLoadSample: () => setResume(sampleResume()),
     onExportImage: exportImage,
-    onExportPdf: exportResumePdf,
+    onPrintResume: printResume,
     onExitHome: handleExitHome,
   };
 

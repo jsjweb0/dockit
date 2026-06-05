@@ -28,7 +28,7 @@ type Props = {
 };
 
 export function DesktopEditorActions({ actions, status }: Props) {
-  const { onReset, onLoadSample, onExportImage, onExportPdf } = actions;
+  const { onReset, onLoadSample, onExportImage, onPrintResume } = actions;
   const { isDirty, isExporting } = status;
 
   return (
@@ -58,7 +58,7 @@ export function DesktopEditorActions({ actions, status }: Props) {
       <Tooltip>
         <TooltipTrigger asChild>
           <Button variant="outline" size="icon" className="rounded-full" aria-label="PDF 다운로드"
-            onClick={onExportPdf}
+            onClick={onPrintResume}
             disabled={isExporting}
           >
             <FileInput className="size-5" aria-hidden="true" />
@@ -66,7 +66,7 @@ export function DesktopEditorActions({ actions, status }: Props) {
         </TooltipTrigger>
         <TooltipContent>
           <p className="text-sm">
-            {isExporting ? 'PDF 저장 중' : 'PDF 저장'}
+            {isExporting ? 'PDF 저장 중' : 'PDF로 저장'}
           </p>
         </TooltipContent>
       </Tooltip>
