@@ -136,278 +136,289 @@
   button:not(:disabled) {
     @apply cursor-pointer;
   }
-}
-
-@layer utilities {
-}
-
-.resumePreviewScaler {
-  transform-origin: top center;
-}
-
-.resumeDocument {
-  width: 622px;
-  max-width: 794px;
-  margin: 0 auto;
-  padding: 24px;
-  background: #fff;
-  color: #111;
-  font-size: 12px;
-  line-height: 1.45;
-}
-
-.resumeDocument__header {
-  display: grid;
-  grid-template-columns: 1fr 1fr;
-  align-items: center;
-  gap: 24px;
-  margin-bottom: 12px;
-}
-
-.resumeDocument__title {
-  display: flex;
-  justify-content: center;
-  gap: 24px;
-  font-size: 28px;
-  font-weight: 800;
-  line-height: 1;
-}
-
-.resumeDocument__sign {
-  display: flex;
-  flex-direction: column;
-  gap: 18px;
-  margin-top: 30px;
-  text-align: center;
-  font-size: 14px;
-}
-
-.resumeDocument__writer {
-  text-align: right;
-}
-
-.resumeDocument__writer span {
-  display: inline-block;
-  min-width: 80px;
-  text-align: center;
-}
-
-.docTable {
-  width: 100%;
-  table-layout: fixed;
-  margin-bottom: 10px;
-  border-collapse: separate;
-  border-spacing: 0;
-  border: 2px solid #000;
-}
-
-.docTable--meta {
-  margin-bottom: 0;
-}
-
-.docTable th,
-.docTable td {
-  border: 0;
-  border-right: 1px solid #aaa;
-  border-bottom: 1px solid #aaa;
-  padding: 7px 9px;
-  vertical-align: middle;
-  white-space: normal;
-  overflow-wrap: anywhere;
-}
-
-.docTable tr > :last-child {
-  border-right: 0;
-}
-
-.docTable tbody tr:last-child > * {
-  border-bottom: 0;
-}
-
-.docTable th {
-  text-align: center;
-  background-color: var(--bg-muted);
-  font-weight: 700;
-}
-
-.docTable td {
-  white-space: nowrap;
-  overflow: hidden;
-  text-overflow: ellipsis;
-  height: 34px;
-}
-
-.docTable td.docTable__multiline {
-  white-space: normal;
-  overflow: visible;
-  text-overflow: clip;
-}
-
-.docTable__multilineText {
-  display: -webkit-box;
-  -webkit-line-clamp: 2;
-  -webkit-box-orient: vertical;
-  overflow: hidden;
-  text-overflow: ellipsis;
-}
-
-.docTable__center {
-  text-align: center;
-}
-
-.docTable__photo {
-  height: 136px;
-  border-right: 2px solid #000;
-  text-align: center;
-}
-
-.docTable__rowGroup {
-  width: 45px;
-}
-
-@media (max-width: 1024px) {
-  .resumePreviewViewport {
-    justify-content: flex-start;
+  input[type='date'],
+  input[type='time'],
+  input[type='month'] {
+    min-width: 0;
+    max-width: 100%;
     width: 100%;
-    overflow: hidden;
-  }
-  .resumePreviewScaler,
-  .resumeDocument {
-    width: 794px;
-  }
-  .resumePreviewScaler {
-    transform-origin: top left;
-  }
-
-  .resumeDocument {
-    padding: 18px;
-  }
-}
-
-@keyframes previewOpen {
-  from {
-    opacity: 0;
-    transform: translateX(100%);
-  }
-
-  to {
-    opacity: 1;
-    transform: translateX(0);
-  }
-}
-
-@keyframes previewClose {
-  from {
-    opacity: 1;
-    transform: translateX(0);
-  }
-
-  to {
-    opacity: 0;
-    transform: translateX(100%);
-  }
-}
-
-.animate-preview-open {
-  animation: previewOpen 250ms ease-out both;
-}
-
-.animate-preview-close {
-  animation: previewClose 250ms ease-in both;
-}
-
-@media print {
-  @page {
-    size: A4;
-    margin: 0;
-  }
-  html,
-  body {
-    width: 210mm;
-    margin: 0;
-    padding: 0;
-    background: #fff;
-  }
-
-  body * {
-    visibility: hidden;
-  }
-
-  .resumeDocument,
-  .resumeDocument * {
-    visibility: visible;
-  }
-
-  header,
-  footer,
-  .resumeEditorPane,
-  .previewToggleButton,
-  .resumePreview__title,
-  .docTable caption {
-    display: none;
-  }
-
-  main {
-    padding: 0;
-  }
-
-  .resumeDocument {
-    position: absolute;
-    top: 0;
-    left: 0;
     box-sizing: border-box;
-    width: 210mm;
-    height: auto;
-    min-height: auto;
-    margin: 0;
-    padding: 15mm 20mm;
-    background: #fff;
-    box-shadow: none;
+    -webkit-appearance: none;
+    appearance: none;
   }
+}
 
-  #preview-panel {
-    display: block !important;
-    position: static;
-    padding: 0;
-    background: #fff;
-    border: none;
-  }
-
-  [data-slot='card-content']:has(.resumeDocument) {
-    padding: 0;
-  }
-
+@layer components {
   .resumePreviewScaler {
-    width: auto !important;
-    height: auto !important;
-    transform: none !important;
+    transform-origin: top center;
+  }
+
+  .resumeDocument {
+    width: 622px;
+    max-width: 794px;
+    margin: 0 auto;
+    padding: 24px;
+    background: #fff;
+    color: #111;
+    font-size: 12px;
+    line-height: 1.45;
+  }
+
+  .resumeDocument__header {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    align-items: center;
+    gap: 24px;
+    margin-bottom: 12px;
+  }
+
+  .resumeDocument__title {
+    display: flex;
+    justify-content: center;
+    gap: 24px;
+    font-size: 28px;
+    font-weight: 800;
+    line-height: 1;
+  }
+
+  .resumeDocument__sign {
+    display: flex;
+    flex-direction: column;
+    gap: 18px;
+    margin-top: 30px;
+    text-align: center;
+    font-size: 14px;
+  }
+
+  .resumeDocument__writer {
+    text-align: right;
+  }
+
+  .resumeDocument__writer span {
+    display: inline-block;
+    min-width: 80px;
+    text-align: center;
   }
 
   .docTable {
-    margin-bottom: 6px;
+    width: 100%;
+    table-layout: fixed;
+    margin-bottom: 10px;
+    border-collapse: separate;
+    border-spacing: 0;
+    border: 2px solid #000;
   }
 
-  .docTable td {
-    height: 28px;
+  .docTable--meta {
+    margin-bottom: 0;
   }
 
   .docTable th,
   .docTable td {
-    padding: 4px 6px;
-    line-height: 1.35;
+    border: 0;
+    border-right: 1px solid #aaa;
+    border-bottom: 1px solid #aaa;
+    padding: 5px 9px;
+    vertical-align: middle;
+    white-space: normal;
+    overflow-wrap: anywhere;
   }
 
-  .docTable__clamp {
+  .docTable tr > :last-child {
+    border-right: 0;
+  }
+
+  .docTable tbody tr:last-child > * {
+    border-bottom: 0;
+  }
+
+  .docTable th {
+    text-align: center;
+    background-color: var(--bg-muted);
+    font-weight: 700;
+  }
+
+  .docTable td {
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    height: 34px;
+  }
+
+  .docTable td.docTable__multiline {
+    white-space: normal;
+    overflow: visible;
+    text-overflow: clip;
+  }
+
+  .docTable__multilineText {
     display: -webkit-box;
     -webkit-line-clamp: 2;
     -webkit-box-orient: vertical;
     overflow: hidden;
+    text-overflow: ellipsis;
   }
 
-  .resumeDocument__sign {
-    gap: 8px;
-    font-size: 12px;
-    break-inside: avoid;
-    page-break-inside: avoid;
+  .docTable__center {
+    text-align: center;
+  }
+
+  .docTable__photo {
+    height: 136px;
+    border-right: 2px solid #000;
+    text-align: center;
+  }
+
+  .docTable__rowGroup {
+    width: 45px;
+  }
+
+  @media (max-width: 1024px) {
+    .resumePreviewViewport {
+      justify-content: flex-start;
+      width: 100%;
+      overflow: hidden;
+    }
+    .resumePreviewScaler,
+    .resumeDocument {
+      width: 794px;
+    }
+    .resumePreviewScaler {
+      transform-origin: top left;
+    }
+
+    .resumeDocument {
+      padding: 18px;
+    }
+  }
+
+  @keyframes previewOpen {
+    from {
+      opacity: 0;
+      transform: translateX(100%);
+    }
+
+    to {
+      opacity: 1;
+      transform: translateX(0);
+    }
+  }
+
+  @keyframes previewClose {
+    from {
+      opacity: 1;
+      transform: translateX(0);
+    }
+
+    to {
+      opacity: 0;
+      transform: translateX(100%);
+    }
+  }
+
+  .animate-preview-open {
+    animation: previewOpen 250ms ease-out both;
+  }
+
+  .animate-preview-close {
+    animation: previewClose 250ms ease-in both;
+  }
+
+  @media print {
+    @page {
+      size: A4;
+      margin: 0;
+    }
+    html,
+    body {
+      width: 210mm;
+      margin: 0;
+      padding: 0;
+      background: #fff;
+    }
+
+    body * {
+      visibility: hidden;
+    }
+
+    .resumeDocument,
+    .resumeDocument * {
+      visibility: visible;
+    }
+
+    header,
+    footer,
+    .resumeEditorPane,
+    .previewToggleButton,
+    .resumePreview__title,
+    .docTable caption {
+      display: none;
+    }
+
+    main {
+      padding: 0;
+    }
+
+    .resumeDocument {
+      position: absolute;
+      top: 0;
+      left: 0;
+      box-sizing: border-box;
+      width: 210mm;
+      height: auto;
+      min-height: auto;
+      margin: 0;
+      padding: 15mm 20mm;
+      background: #fff;
+      box-shadow: none;
+    }
+
+    #preview-panel {
+      display: block !important;
+      position: static;
+      padding: 0;
+      background: #fff;
+      border: none;
+      animation: none;
+      transform: none;
+    }
+
+    [data-slot='card-content']:has(.resumeDocument) {
+      padding: 0;
+    }
+
+    .resumePreviewScaler {
+      width: auto !important;
+      height: auto !important;
+      transform: none !important;
+    }
+
+    .docTable {
+      margin-bottom: 6px;
+    }
+
+    .docTable td {
+      height: 28px;
+    }
+
+    .docTable th,
+    .docTable td {
+      padding: 5px 6px;
+      line-height: 1.35;
+    }
+
+    .docTable__clamp {
+      display: -webkit-box;
+      -webkit-line-clamp: 2;
+      -webkit-box-orient: vertical;
+      overflow: hidden;
+    }
+
+    .resumeDocument__sign {
+      gap: 24px;
+      font-size: 12px;
+      break-inside: avoid;
+      page-break-inside: avoid;
+    }
   }
 }

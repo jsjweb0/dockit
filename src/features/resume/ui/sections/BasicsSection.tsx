@@ -14,6 +14,7 @@ import {
 } from '@/components/ui/field.tsx';
 import { useResumeEditor } from '../../context/resumeEditor.context';
 import type { BasicsValidatedField } from '../../model/resume.basics.validation';
+import { cn } from '@/lib/utils';
 
 type Props = { value: Resume; onChange: (next: Resume) => void };
 
@@ -38,6 +39,9 @@ export function BasicsSection({ value, onChange }: Props) {
   const phoneField = bindValidatedField('phone');
   const emailField = bindValidatedField('email');
   const workerTitleField = bindValidatedField('workerTitle');
+
+  const summaryLength = b.summary.length;
+  const summaryLimit = 100;
 
   return (
     <FieldSet>
@@ -228,16 +232,26 @@ export function BasicsSection({ value, onChange }: Props) {
         <Field>
           <FieldLabel htmlFor="summary" className="font-bold">
             간단 소개
+            <span id="summary-help" className="sr-only">100자 이내로 작성해 주세요.</span>
           </FieldLabel>
-          <Textarea
-            id="summary"
-            value={b.summary}
-            onChange={(e) => set('summary', e.target.value)}
-            rows={4}
-            placeholder="예) 퍼블리싱 기반의 접근성/성능을 고려한 React UI를 만들고, 제품 관점으로 개선합니다."
-            className="resize-none"
-            autoComplete="off"
-          />
+          <div className="relative">
+            <Textarea
+              id="summary"
+              value={b.summary}
+              onChange={(e) => set('summary', e.target.value)}
+              maxLength={summaryLimit}
+              aria-describedby="summary-help summary-count"
+              placeholder="예: 웹 표준과 반응형 UI를 고려해 사용하기 쉬운 화면을 구현합니다."
+              className="resize-none h-31 sm:h-24 pb-6"
+              autoComplete="off"
+            />
+            <p id="summary-count" className="absolute right-2 bottom-2 text-sm tracking-tight text-gray-400">
+              <span className={cn(summaryLength >= 80 && 'font-bold')}>
+                {summaryLength}
+              </span>{' '}
+              / {summaryLimit}
+            </p>
+          </div>
         </Field>
         <Field>
           <FieldLabel htmlFor="submittedAt" className="font-bold">

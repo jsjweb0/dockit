@@ -33,22 +33,21 @@ export function HomePage() {
 
   return (
     <main className="mx-auto w-full max-w-7xl px-4 py-8 sm:px-6 lg:px-8">
-      <section className="grid gap-5 border-b py-8 pt-3 mb-10 md:py-18 md:mb-20">
+      <section className="grid gap-6 border-b py-10 pt-3 mb-10 md:py-18 md:mb-20">
         <Badge variant="secondary" className="w-fit">
           DocKit MVP
         </Badge>
-        <div className="grid gap-3">
+        <div className="grid gap-4">
           <h2 className="text-3xl font-bold leading-tight text-foreground sm:text-4xl break-keep">
             입력 폼으로 작성하고, <br />
             제출용 문서 레이아웃으로 바로 확인합니다.
           </h2>
           <p className="text-base leading-7 text-muted-foreground">
-            이력서부터 자기소개서, 경력기술서, 프로젝트 보고서까지 포트폴리오와
-            취업 준비에 필요한 문서를 한 곳에서 작성하는 React 문서 작성
-            도구입니다.
+            이력서부터 자기소개서, 경력기술서, 프로젝트 보고서까지 <br />
+            포트폴리오와 취업 준비에 필요한 문서를 한 곳에서 작성하는 React 문서 작성 도구입니다.
           </p>
         </div>
-        <div className="flex flex-wrap gap-3">
+        <div className="flex flex-wrap">
           <Button asChild>
             <Link to="/resume">
               이력서 작성 시작

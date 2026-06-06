@@ -17,7 +17,7 @@ export function sampleResume(): Resume {
       address: '서울특별시 강남구 삼성동',
       title: '프론트엔드 개발자',
       summary:
-        'React와 TypeScript 기반의 반응형 UI 구현에 관심이 있는 주니어 프론트엔드 개발자입니다.',
+        'React 기반 UI 구현과 웹 표준 마크업에 관심이 있는 프론트엔드 지원자입니다.',
       submittedAt: '2026-06-02',
     },
     education: [
