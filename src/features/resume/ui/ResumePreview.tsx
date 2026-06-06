@@ -377,6 +377,22 @@ export const ResumePreview = forwardRef<HTMLElement, Props>(
           </tbody>
         </table>
 
+        {b.summary && (
+          <table className="docTable">
+            <caption className="sr-only">간단 소개</caption>
+            <tbody>
+              <tr>
+                <th scope="row" colSpan={3}>간단 소개</th>
+                <td colSpan={10} className="docTable__multiline">
+                  <div className="docTable__multilineText">
+                    {b.summary}
+                  </div>
+                </td>
+              </tr>
+            </tbody>
+          </table>
+        )}
+
         <div className="resumeDocument__sign">
           <p>상기 내용은 사실과 다름없음을 확인합니다.</p>
           <p className="flex justify-center gap-4">

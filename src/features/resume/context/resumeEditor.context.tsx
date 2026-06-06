@@ -13,7 +13,7 @@ import { loadResume, saveResume } from '../model/resume.storage';
 import { toast } from 'sonner';
 import {
   exportResumeImage,
-  exportResumePdf as exportResumePdfFile,
+  openResumePrintDialog,
 } from '../model/resume.export';
 import {
   BASICS_VALIDATED_FIELDS,
@@ -64,7 +64,7 @@ type ResumeEditorState = {
   save: (opts?: { silent?: boolean }) => Promise<void>;
   reset: () => void;
   exportImage: () => Promise<void>;
-  exportResumePdf: () => Promise<void>;
+  printResume: () => Promise<void>;
   previewRef: React.RefObject<HTMLElement | null>;
   basicsErrors: BasicsFieldErrors;
   sectionErrors: ResumeSectionErrors;
@@ -409,7 +409,7 @@ export function ResumeEditorProvider({
     validateResumeBeforeExport,
   ]);
 
-  const exportResumePdf = useCallback(async () => {
+  const printResume = useCallback(async () => {
     if (!validateResumeBeforeExport()) return;
 
     if (!previewRef.current) {
@@ -419,12 +419,7 @@ export function ResumeEditorProvider({
 
     setIsExporting(true);
     try {
-      const name = resume.basics.name.trim() || 'resume';
-      await exportResumePdfFile({
-        fileName: `${name}-${resume.basics.title}.pdf`,
-        target: previewRef.current,
-      });
-      toast.success('PDF 저장 완료');
+      openResumePrintDialog();
     } catch (error) {
       toast.error(
         error instanceof Error ? error.message : 'PDF 저장에 실패했습니다.',
@@ -432,7 +427,7 @@ export function ResumeEditorProvider({
     } finally {
       setIsExporting(false);
     }
-  }, [resume.basics, validateResumeBeforeExport]);
+  }, [validateResumeBeforeExport]);
 
   useEffect(() => {
     if (!isDirty || isSaving) return;
@@ -518,7 +513,7 @@ export function ResumeEditorProvider({
       save: persist,
       reset,
       exportImage,
-      exportResumePdf,
+      printResume,
       previewRef,
       basicsErrors,
       sectionErrors,
@@ -542,7 +537,7 @@ export function ResumeEditorProvider({
       persist,
       reset,
       exportImage,
-      exportResumePdf,
+      printResume,
       basicsErrors,
       sectionErrors,
       resetVersion,

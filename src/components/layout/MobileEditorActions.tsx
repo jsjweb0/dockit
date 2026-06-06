@@ -31,7 +31,7 @@ type Props = {
 };
 
 export function MobileEditorActions({ actions, status }: Props) {
-  const { onReset, onLoadSample, onExportImage, onExportPdf } = actions;
+  const { onReset, onLoadSample, onExportImage, onPrintResume } = actions;
   const { isDirty, isSaving, isExporting } = status;
   const menuButtonRef = useRef<HTMLButtonElement>(null);
   const [isResetDialogOpen, setIsResetDialogOpen] = useState(false);
@@ -84,9 +84,9 @@ export function MobileEditorActions({ actions, status }: Props) {
               <FilePenLine className="size-4" />
               예시 불러오기
             </DropdownMenuItem>
-            <DropdownMenuItem onSelect={onExportPdf} disabled={isExporting}>
+            <DropdownMenuItem onSelect={onPrintResume} disabled={isExporting}>
               <FileInput className="size-4" />
-              {isExporting ? 'PDF 저장 중' : 'PDF 저장'}
+              {isExporting ? 'PDF 저장 중' : 'PDF로 저장'}
             </DropdownMenuItem>
             <DropdownMenuItem onSelect={onExportImage} disabled={isExporting}>
               <ImageDownIcon className="size-4" />
