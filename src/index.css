@@ -136,6 +136,7 @@
   button:not(:disabled) {
     @apply cursor-pointer;
   }
+
   input[type='date'],
   input[type='time'],
   input[type='month'] {
@@ -145,6 +146,15 @@
     box-sizing: border-box;
     -webkit-appearance: none;
     appearance: none;
+  }
+
+  header [type='search'] {
+    -webkit-appearance: textfield;
+  }
+
+  header [type='search']::-webkit-search-cancel-button,
+  header [type='search']::-webkit-search-results-button {
+    display: none;
   }
 }
 
