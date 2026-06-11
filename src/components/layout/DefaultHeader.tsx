@@ -31,10 +31,6 @@ export function DefaultHeader() {
     return () => window.clearTimeout(timerId);
   }, [keyword, navigate]);
 
-  useEffect(() => {
-    setKeyword(searchParams.get('search') ?? '');
-  }, [searchParams]);
-
   return (
     <header className="sticky top-0 z-20 border-b bg-background/95 backdrop-blur">
       <div className="mx-auto flex items-center max-w-7xl gap-5 md:gap-8 py-3 px-4 md:px-8">

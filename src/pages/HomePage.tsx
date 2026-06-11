@@ -1,6 +1,6 @@
 import { Link, useSearchParams } from 'react-router-dom';
 import { useState } from 'react';
-import { ArrowRight, Clock3, Trash2, Info as InfoIcon, RefreshCcw } from 'lucide-react';
+import { ArrowRight, Clock3, Trash2, Info as InfoIcon, RefreshCcw, Hash as HashIcon } from 'lucide-react';
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
 import { documentTemplates } from '@/features/documents/model/documentTemplates';
@@ -159,10 +159,10 @@ export function HomePage() {
                 type="button"
                 variant="link"
                 size="sm"
-                className="rounded-full"
+                className="gap-1 rounded-full"
                 onClick={() => setSearchParams({ search: keyword })}
               >
-                <span>#</span>
+                <HashIcon className="size-3.5" />
                 {keyword}
               </Button>
             ))}
