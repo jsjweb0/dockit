@@ -108,13 +108,9 @@ export const ResumePreview = forwardRef<HTMLElement, Props>(
     );
 
     return (
-      <section
-        ref={ref}
-        className="resumeDocument"
-        aria-label="resume-preview-title"
-      >
+      <section ref={ref} className="resumeDocument" aria-hidden="true">
         <div className="resumeDocument__header">
-          <h2 id="resume-preview-title" className="resumeDocument__title">
+          <h2 className="resumeDocument__title">
             <span>이</span>
             <span>력</span>
             <span>서</span>

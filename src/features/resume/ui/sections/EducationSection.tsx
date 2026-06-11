@@ -77,11 +77,18 @@ export function EducationSection({ value, onChange }: Props) {
         const institutionErrorId = `institution-${e.id}-error`;
         const periodErrorId = `period-${e.id}-error`;
         const majorErrorId = `major-${e.id}-error`;
+        const groupTitleId = `education-${e.id}-title`;
 
         return (
-          <FieldGroup key={e.id} className="rounded-lg border p-4">
+          <FieldGroup
+            key={e.id}
+            className="rounded-lg border p-4"
+            aria-labelledby={groupTitleId}
+          >
             <div className="flex items-center justify-between">
-              <div className="font-bold">학력 {list.length - idx}</div>
+              <div id={groupTitleId} className="font-bold">
+                학력 {list.length - idx}
+              </div>
               <Button
                 type="button"
                 variant="ghost"

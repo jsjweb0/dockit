@@ -245,7 +245,7 @@ export function BasicsSection({ value, onChange }: Props) {
               className="resize-none h-31 sm:h-24 pb-6"
               autoComplete="off"
             />
-            <p id="summary-count" className="absolute right-2 bottom-2 text-sm tracking-tight text-gray-400">
+            <p id="summary-count" className="absolute right-2 bottom-2 text-sm tracking-tight text-gray-500">
               <span className={cn(summaryLength >= 80 && 'font-bold')}>
                 {summaryLength}
               </span>{' '}

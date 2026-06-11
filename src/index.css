@@ -334,6 +334,13 @@
     animation: previewClose 250ms ease-in both;
   }
 
+  @media (prefers-reduced-motion: reduce) {
+    .animate-preview-open,
+    .animate-preview-close {
+      animation: none;
+    }
+  }
+
   @media print {
     @page {
       size: A4;

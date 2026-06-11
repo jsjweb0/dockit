@@ -72,11 +72,18 @@ export function LinkItemSection({ value, onChange }: Props) {
         const errors = sectionErrors.links[l.id] ?? {};
         const labelErrorId = `label-${l.id}-error`;
         const urlErrorId = `url-${l.id}-error`;
+        const groupTitleId = `link-${l.id}-title`;
 
         return (
-          <FieldGroup key={l.id} className="rounded-lg border p-4">
+          <FieldGroup
+            key={l.id}
+            className="rounded-lg border p-4"
+            aria-labelledby={groupTitleId}
+          >
             <div className="mb-3 flex items-center justify-between">
-              <div className="font-medium">링크 {list.length - idx}</div>
+              <div id={groupTitleId} className="font-medium">
+                링크 {list.length - idx}
+              </div>
               <Button
                 type="button"
                 variant="ghost"

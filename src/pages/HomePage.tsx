@@ -98,7 +98,7 @@ export function HomePage() {
             {recentDrafts.map((draft) => (
               <article key={draft.id} className={cn(
                 'group grid grid-cols-[1fr_auto] h-full gap-3 rounded-lg border bg-card p-5',
-                'transition-colors has-[a:hover]:border-primary/50 has-[a:focus]:border-primary/50',
+                'transition-colors has-[a:hover]:border-ring has-[a:focus-visible]:ring-ring/50 has-[a:focus-visible]:ring-2',
               )}>
                 <Link to={`/resume/${draft.id}`}
                   className="grid gap-3 pt-1 focus-visible:outline-none"
@@ -149,8 +149,8 @@ export function HomePage() {
 
       {keyword && filteredTemplates.length === 0 ? (
         <div className="h-[calc(100dvh-(240px))] flex flex-col gap-3.5 justify-center items-center max-w-md m-auto text-center">
-          <span className="inline-block rounded-full bg-muted p-2"><InfoIcon className="size-5" /></span>
-          <p className="mb-1 text-muted-foreground">
+          <span className="inline-block rounded-full bg-muted p-2"><InfoIcon className="size-5" aria-hidden="true" /></span>
+          <p className="mb-1 text-muted-foreground" role="status" aria-live="polite" aria-atomic="true">
             <span className="text-black text-lg">검색 결과가 없어요.</span> <br />다른 키워드로 검색해보세요.
           </p>
           <div className="flex flex-wrap gap-1 mb-2">
@@ -162,13 +162,13 @@ export function HomePage() {
                 className="gap-1 rounded-full"
                 onClick={() => setSearchParams({ search: keyword })}
               >
-                <HashIcon className="size-3.5" />
+                <HashIcon className="size-3.5" aria-hidden="true" />
                 {keyword}
               </Button>
             ))}
           </div>
           <Button variant="outline" onClick={handleResetSearch}>
-            <RefreshCcw />
+            <RefreshCcw aria-hidden="true" />
             검색 초기화
           </Button>
         </div>
@@ -178,14 +178,19 @@ export function HomePage() {
             <h2 id="template-heading" className="text-2xl font-semibold">
               {keyword ? '문서 양식 검색 결과' : '문서 양식'}
             </h2>
-            <p className="mt-1 text-muted-foreground">
-              {keyword ? (
-                <>
-                  "<strong className="font-medium">{keyword}</strong>"에 대한 검색 결과입니다.
-                </>
-              )
-                : '먼저 이력서를 완성하고, 같은 구조로 양식을 확장할 예정입니다.'}
-            </p>
+            {keyword ? (
+              <p className="mt-1 text-muted-foreground"
+                role='status'
+                aria-live='polite'
+                aria-atomic='true'
+              >
+                "<strong className="font-medium">{keyword}</strong>"에 대한 검색 결과{' '}
+                {filteredTemplates.length}개입니다.
+              </p>
+            ) : (
+              <p className="mt-1 text-muted-foreground">먼저 이력서를 완성하고, 같은 구조로 양식을 확장할 예정입니다.</p>
+            )}
+
           </div>
           <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
             {filteredTemplates.map((template) => {
