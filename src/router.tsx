@@ -3,7 +3,7 @@ import { createBrowserRouter } from "react-router-dom";
 import { DefaultLayout } from "@/layout/DefaultLayout.tsx";
 import { HomePage } from "@/pages/HomePage.tsx";
 import { ErrorFallback } from "@/components/ErrorFallback";
-import { LoaderCircleIcon } from "lucide-react";
+import { Spinner } from './components/ui/spinner';
 
 const EditorLayout = lazy(() =>
     import('@/layout/EditorLayout').then((module) => ({
@@ -20,7 +20,7 @@ const ResumeBuilderPage = lazy(() =>
 function RouteLoadingFallback() {
     return (
         <main className="mx-auto flex max-w-7xl justify-center items-center gap-2 px-4 py-8 text-sm text-muted-foreground">
-            <LoaderCircleIcon className="size-4" aria-hidden="true" />
+            <Spinner className="size-4" aria-hidden="true" />
             문서 작성기를 불러오는 중입니다.
         </main>
     );
