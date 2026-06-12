@@ -95,11 +95,18 @@ export function ExperienceSection({ value, onChange }: Props) {
         ]
           .filter(Boolean)
           .join(' ');
+        const groupTitleId = `experience-${e.id}-title`;
 
         return (
-          <FieldGroup key={e.id} className="rounded-lg border p-4">
+          <FieldGroup
+            key={e.id}
+            className="rounded-lg border p-4"
+            aria-labelledby={groupTitleId}
+          >
             <div className="mb-3 flex items-center justify-between">
-              <div className="font-medium">경력 {list.length - idx}</div>
+              <div id={groupTitleId} className="font-medium">
+                경력 {list.length - idx}
+              </div>
               <Button
                 type="button"
                 variant="ghost"

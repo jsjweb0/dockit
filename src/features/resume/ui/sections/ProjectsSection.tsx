@@ -84,11 +84,18 @@ export function ProjectsSection({ value, onChange }: Props) {
         const stackErrorId = `stack-${p.id}-error`;
         const linkErrorId = `link-${p.id}-error`;
         const descriptionErrorId = `description-${p.id}-error`;
+        const groupTitleId = `project-${p.id}-title`;
 
         return (
-          <FieldGroup key={p.id} className="rounded-lg border p-4">
+          <FieldGroup
+            key={p.id}
+            className="rounded-lg border p-4"
+            aria-labelledby={groupTitleId}
+          >
             <div className="mb-3 flex items-center justify-between">
-              <div className="font-medium">프로젝트 {list.length - idx}</div>
+              <div id={groupTitleId} className="font-medium">
+                프로젝트 {list.length - idx}
+              </div>
               <Button
                 type="button"
                 variant="ghost"

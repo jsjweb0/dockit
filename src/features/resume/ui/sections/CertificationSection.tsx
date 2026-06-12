@@ -66,7 +66,7 @@ export function CertificationSection({ value, onChange }: Props) {
           지원 직무와 관련 있는 자격증 위주로 입력해 주세요.
         </FieldDescription>
         <Button type="button" variant="outline" className="gap-1" onClick={add}>
-          <Plus /> 자격증 추가
+          <Plus aria-hidden="true" /> 자격증 추가
         </Button>
       </div>
       <FieldSeparator />
@@ -76,11 +76,18 @@ export function CertificationSection({ value, onChange }: Props) {
         const nameErrorId = `certification-name-${c.id}-error`;
         const acquiredAtErrorId = `acquiredAt-${c.id}-error`;
         const issuerErrorId = `issuer-${c.id}-error`;
+        const groupTitleId = `certification-${c.id}-title`;
 
         return (
-          <FieldGroup key={c.id} className="rounded-lg border p-4">
+          <FieldGroup
+            key={c.id}
+            className="rounded-lg border p-4"
+            aria-labelledby={groupTitleId}
+          >
             <div className="mb-3 flex items-center justify-between">
-              <div className="font-medium">자격증 {list.length - idx}</div>
+              <div id={groupTitleId} className="font-medium">
+                자격증 {list.length - idx}
+              </div>
               <Button
                 type="button"
                 variant="ghost"

@@ -177,6 +177,8 @@ export function EditorHeader({
               'transition-transform duration-300',
               isMobileActionVisible ? 'translate-y-0' : 'translate-y-full',
             )}
+            aria-hidden={!isMobileActionVisible}
+            inert={!isMobileActionVisible}
           >
             {isDirty ? (
               <AlertDialog>

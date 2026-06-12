@@ -111,12 +111,12 @@ export function ResumePreviewPanel({
                     shouldAnimatePreviewOpen && 'animate-preview-open',
                     isPreviewClosing && 'animate-preview-close',
                 )}
-                aria-labelledby="resume-preview-title"
+                aria-labelledby="resume-preview-panel-title"
             >
                 <div className="resumePreview__title mb-2 flex items-center justify-between gap-4">
                     <div className="flex items-center gap-1.5 mb-4 lg:pt-4.5">
                         <h2
-                            id="resume-preview-title"
+                            id="resume-preview-panel-title"
                             className="text-xl font-semibold md:text-2xl"
                         >
                             미리보기
@@ -131,8 +131,11 @@ export function ResumePreviewPanel({
                             </span>
                         </p>
                     </div>
-
                 </div>
+
+                <p className="sr-only">
+                    이 영역은 왼쪽 입력 내용을 시각적으로 확인하는 출력 미리보기입니다. 내용 수정은 왼쪽 입력 폼에서 진행해 주세요.
+                </p>
 
                 <Card className="border-0 py-0 shadow-none">
                     <CardContent className="overflow-x-auto p-4 md:p-6">
