@@ -1,31 +1,25 @@
 import { Outlet, useNavigate, useParams } from 'react-router-dom';
-import { useEffect, useState } from 'react';
+import { useEffect } from 'react';
 import { Toaster } from '@/components/ui/sonner';
 import { EditorHeader } from '@/components/layout/EditorHeader';
 import {
   ResumeEditorProvider,
   useResumeEditor,
 } from '@/features/resume/context/resumeEditor.context';
-import { getInitialPreviewOpen } from '@/constants/editor';
 import { AlertTriangle } from 'lucide-react';
 import { cn } from '@/lib/utils';
 import { usePageTitle } from '@/hooks/usePageTitle';
 import { sampleResume } from '@/features/resume/model/resume.sample';
+import { useDocumentPreviewControls } from '@/features/documents/hooks/useDocumentPreviewControls';
+import { useUnsavedChangesWarning } from '@/features/documents/hooks/useUnsavedChangesWarning';
+import type { DocumentPreviewControls } from '@/features/documents/ui/DocumentBuilderLayout';
 
 function uid() {
   return Math.random().toString(36).slice(2, 10);
 }
 
-type PreviewControls = {
-  isPreviewOpen: boolean;
-  isPreviewClosing: boolean;
-  shouldAnimatePreviewOpen: boolean;
-  onTogglePreview: () => void;
-  onPreviewAnimationEnd: () => void;
-};
-
 type EditorInnerProps = {
-  previewControls: PreviewControls;
+  previewControls: DocumentPreviewControls;
 };
 
 // Provider 안에서만 useResumeEditor 사용
@@ -73,16 +67,7 @@ function EditorInner({ previewControls }: EditorInnerProps) {
     if (!id) navigate(`/resume/${uid()}`, { replace: true });
   }, [id, navigate]);
 
-  // 저장 안 한 상태에서 탭닫기/새로고침/브라우저 뒤로가기에 confirm
-  useEffect(() => {
-    const handler = (e: BeforeUnloadEvent) => {
-      if (!isDirty) return;
-      e.preventDefault();
-      e.returnValue = '';
-    };
-    window.addEventListener('beforeunload', handler);
-    return () => window.removeEventListener('beforeunload', handler);
-  }, [isDirty]);
+  useUnsavedChangesWarning(isDirty);
 
   const name = resume.basics?.name?.trim();
   usePageTitle(name ? `${name} 이력서` : `새 이력서`);
@@ -116,7 +101,17 @@ function EditorInner({ previewControls }: EditorInnerProps) {
             </p>
           </div>
         )}
-        <Outlet context={{ previewControls, onSave: actions.onSave }} />
+
+        <div
+          className={cn(
+            'lg:grid lg:relative',
+            isPreviewOpen
+              ? 'lg:grid-cols-[minmax(0,1fr)_minmax(0,1.3fr)]'
+              : 'lg:grid-cols-[minmax(0,1fr)_auto]',
+          )}
+        >
+          <Outlet context={{ previewControls, onSave: actions.onSave }} />
+        </div>
       </main>
 
       <Toaster />
@@ -127,42 +122,7 @@ function EditorInner({ previewControls }: EditorInnerProps) {
 export function EditorLayout() {
   const { id } = useParams();
   const resumeId = id ?? 'new';
-
-  const [isPreviewOpen, setIsPreviewOpen] = useState(getInitialPreviewOpen);
-  const [isPreviewClosing, setIsPreviewClosing] = useState(false);
-  const [hasPreviewBeenClosed, setHasPreviewBeenClosed] = useState(false);
-
-  const closePreview = () => {
-    setIsPreviewClosing(true);
-  };
-
-  const handleTogglePreview = () => {
-    if (isPreviewClosing) return;
-
-    if (isPreviewOpen) {
-      closePreview();
-      return;
-    }
-
-    setIsPreviewOpen(true);
-  };
-
-  const handlePreviewAnimationEnd = () => {
-    if (!isPreviewClosing) return;
-
-    setIsPreviewOpen(false);
-    setIsPreviewClosing(false);
-    setHasPreviewBeenClosed(true);
-  };
-
-  const previewControls = {
-    isPreviewOpen,
-    isPreviewClosing,
-    shouldAnimatePreviewOpen:
-      isPreviewOpen && !isPreviewClosing && hasPreviewBeenClosed,
-    onTogglePreview: handleTogglePreview,
-    onPreviewAnimationEnd: handlePreviewAnimationEnd,
-  };
+  const previewControls = useDocumentPreviewControls();
 
   return (
     <div className="min-h-dvh ">

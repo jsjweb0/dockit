@@ -1,6 +1,10 @@
-type ExportResumeImageOptions = {
+type ExportDocumentImageOptions = {
   fileName: string;
   target: HTMLElement;
+};
+
+type ExportDocumentPdfOptions = {
+  fileName: string;
 };
 
 function collectDocumentStyles() {
@@ -30,10 +34,10 @@ function downloadBlob(blob: Blob, fileName: string) {
 }
 
 // 이미지 내보내기
-export async function exportResumeImage({
+export async function exportDocumentImage({
   fileName,
   target,
-}: ExportResumeImageOptions) {
+}: ExportDocumentImageOptions) {
   const width = Math.ceil(target.offsetWidth);
   const height = Math.ceil(target.offsetHeight);
   const clone = target.cloneNode(true) as HTMLElement;
@@ -93,6 +97,18 @@ export async function exportResumeImage({
 }
 
 // pdf 내보내기
-export function openResumePrintDialog() {
+export function exportDocumentPdf({ fileName }: ExportDocumentPdfOptions) {
+  const originalTitle = document.title;
+
+  const restore = () => {
+    document.body.classList.remove('printing');
+    document.title = originalTitle;
+    window.removeEventListener('afterprint', restore);
+  };
+
+  document.title = fileName.replace('.pdf', '');
+  document.body.classList.add('printing');
+
+  window.addEventListener('afterprint', restore);
   window.print();
 }
