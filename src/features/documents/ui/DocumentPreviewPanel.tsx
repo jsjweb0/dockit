@@ -1,4 +1,4 @@
-import { useEffect, useRef, useState, type ReactNode } from 'react';
+import { useCallback, useEffect, useRef, useState, type ReactNode } from 'react';
 import { Card, CardContent } from '@/components/ui/card.tsx';
 import {
   Tooltip,
@@ -33,31 +33,29 @@ export function DocumentPreviewPanel({
   const previewViewportRef = useRef<HTMLDivElement | null>(null);
   const [previewScale, setPreviewScale] = useState(1);
 
-  useEffect(() => {
+  const updatePreviewScale = useCallback(() => {
     const viewport = previewViewportRef.current;
     if (!viewport) return;
 
-    const mobileQuery = window.matchMedia(MOBILE_PREVIEW_QUERY);
+    const nextScale = Math.min(1, viewport.clientWidth / A4_PREVIEW_WIDTH);
+    setPreviewScale(Number(nextScale.toFixed(3)));
+  }, []);
 
-    const updatePreviewScale = () => {
-      const nextScale = mobileQuery.matches
-        ? Math.min(1, viewport.clientWidth / A4_PREVIEW_WIDTH)
-        : 1;
-
-      setPreviewScale(Number(nextScale.toFixed(3)));
-    };
+  useEffect(() => {
+    if (!isPreviewOpen && !isPreviewClosing) return;
 
     updatePreviewScale();
 
+    const viewport = previewViewportRef.current;
+    if (!viewport) return;
+
     const resizeObserver = new ResizeObserver(updatePreviewScale);
     resizeObserver.observe(viewport);
-    mobileQuery.addEventListener('change', updatePreviewScale);
 
     return () => {
       resizeObserver.disconnect();
-      mobileQuery.removeEventListener('change', updatePreviewScale);
     };
-  }, []);
+  }, [isPreviewOpen, isPreviewClosing, updatePreviewScale]);
 
   useEffect(() => {
     const mobileQuery = window.matchMedia(MOBILE_PREVIEW_QUERY);
@@ -139,13 +137,20 @@ export function DocumentPreviewPanel({
           <CardContent className="overflow-x-auto p-4 md:p-6">
             <div ref={previewViewportRef} className="resumePreviewViewport">
               <div
-                className="resumePreviewScaler"
+                className="resumePreviewFrame"
                 style={{
+                  width: A4_PREVIEW_WIDTH * previewScale,
                   height: A4_PREVIEW_HEIGHT * previewScale,
-                  transform: `scale(${previewScale})`,
                 }}
               >
-                {children}
+                <div
+                  className="resumePreviewScaler"
+                  style={{
+                    transform: `scale(${previewScale})`,
+                  }}
+                >
+                  {children}
+                </div>
               </div>
             </div>
           </CardContent>

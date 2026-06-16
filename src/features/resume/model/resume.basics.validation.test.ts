@@ -55,14 +55,17 @@ describe('validateBasicsField', () => {
     ).toBe('연락처를 입력해 주세요.');
   });
 
-  it('올바르지 않은 연락처면 에러 메시지를 반환한다', () => {
-    expect(
-      validateBasicsField('phone', {
-        ...validBasics,
-        phone: '0312345678',
-      }),
-    ).toBe('올바른 휴대폰 번호 형식이 아닙니다.');
-  });
+  it.each(['011-1234-5678', '02-1234-5678'])(
+    '010이 아닌 연락처 %s이면 에러 메시지를 반환한다',
+    (phone) => {
+      expect(
+        validateBasicsField('phone', {
+          ...validBasics,
+          phone,
+        }),
+      ).toBe('010-0000-0000 형식으로 입력해 주세요.');
+    },
+  );
 
   it('010-1234-5678 형식은 통과한다', () => {
     expect(

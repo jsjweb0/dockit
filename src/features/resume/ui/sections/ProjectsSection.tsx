@@ -14,12 +14,9 @@ import { Input } from '@/components/ui/input';
 import { Textarea } from '@/components/ui/textarea';
 import { Plus } from 'lucide-react';
 import { useResumeEditor } from '../../context/resumeEditor.context';
+import { createId } from '@/lib/utils';
 
 type Props = { value: Resume; onChange: (next: Resume) => void };
-
-function uid() {
-  return Math.random().toString(36).slice(2, 10);
-}
 
 export function ProjectsSection({ value, onChange }: Props) {
   const { sectionErrors, touchSectionField, revalidateSectionField } =
@@ -48,7 +45,7 @@ export function ProjectsSection({ value, onChange }: Props) {
       ...value,
       projects: [
         {
-          id: uid(),
+          id: createId(),
           name: '',
           period: '',
           stack: '',

@@ -159,13 +159,26 @@
 }
 
 @layer components {
+  .resumePreviewViewport {
+    width: 100%;
+    overflow: hidden;
+    text-align: center;
+  }
+
+  .resumePreviewFrame {
+    display: inline-block;
+    overflow: hidden;
+    vertical-align: top;
+  }
+
   .resumePreviewScaler {
-    transform-origin: top center;
+    width: 794px;
+    transform-origin: top left;
+    text-align: left;
   }
 
   .resumeDocument {
-    width: 622px;
-    max-width: 794px;
+    width: 794px;
     margin: 0 auto;
     padding: 24px;
     background: #fff;
@@ -284,19 +297,6 @@
   }
 
   @media (max-width: 1024px) {
-    .resumePreviewViewport {
-      justify-content: flex-start;
-      width: 100%;
-      overflow: hidden;
-    }
-    .resumePreviewScaler,
-    .resumeDocument {
-      width: 794px;
-    }
-    .resumePreviewScaler {
-      transform-origin: top left;
-    }
-
     .resumeDocument {
       padding: 18px;
     }

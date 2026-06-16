@@ -167,15 +167,15 @@ export function BasicsSection({ value, onChange }: Props) {
             value={b.phone}
             onChange={(e) => {
               const digits = e.target.value.replace(/\D/g, '').slice(0, 11);
-              const formatted = digits
-                .replace(/^(02)(\d{0,4})(\d{0,4})$/, (_, area, mid, last) =>
-                  [area, mid, last].filter(Boolean).join('-'),
-                )
-                .replace(/^(01\d)(\d{0,4})(\d{0,4})$/, (_, area, mid, last) =>
-                  [area, mid, last].filter(Boolean).join('-'),
-                );
+
+              const formatted = digits.replace(
+                /^(010)(\d{0,4})(\d{0,4})$/,
+                (_, prefix, mid, last) => [prefix, mid, last].filter(Boolean).join('-'),
+              );
+
               const nextPhone = formatted || digits;
               const nextBasics = { ...b, phone: nextPhone };
+
               onChange({ ...value, basics: nextBasics });
               phoneField.onChangeAfter(nextBasics);
             }}
