@@ -1,86 +1,108 @@
-# DocKit
+# DocKit — 국문 이력서 작성 도구
 
-DocKit은 문서 양식을 입력 폼으로 작성하고, 제출용 레이아웃을 실시간으로 확인하는 React 문서 작성 도구입니다.
+> 입력하면 제출용 문서 형태로 즉시 확인됩니다.
 
-현재 MVP는 국문 이력서 작성 흐름에 집중했습니다. 사용자는 기본 정보, 학력, 자격증, 경력, 프로젝트, 링크, 스킬을 입력하고 오른쪽 미리보기에서 문서 형태를 바로 확인할 수 있습니다.
+[데모 보기](https://dockit.jsjweb0.workers.dev/) · [GitHub](https://github.com/jsjweb0/dockit)
 
-현재는 샘플 데이터 불러오기, 최근 작성중 목록, 텍스트형 PDF 저장, 이미지 저장, 접근성 개선이 반영된 상태입니다.
-입력값 검증 로직과 저장 시간 표시 로직에는 Vitest 단위 테스트를 추가해 주요 경계값과 오류 메시지를 확인했습니다.
+![DocKit 예시 불러오기와 PDF 저장 흐름](./docs/readme/dockit-demo.gif)
 
-## Demo
+---
 
-- 배포 링크: [https://dockit.jsjweb0.workers.dev/](https://dockit.jsjweb0.workers.dev/)
-- GitHub 링크: [https://github.com/jsjweb0/dockit](https://github.com/jsjweb0/dockit)
-- 배포 환경: Cloudflare Workers
+## 만든 이유
 
-## Tech Stack
+국문 이력서는 표 기반 레이아웃이라 Word나 한글 없이 작성하기 불편하고,
+기존 온라인 이력서 서비스는 자유도가 낮아 원하는 형식으로 출력이 어렵습니다.
+HTML 표 마크업으로 실제 이력서 레이아웃을 직접 구현하고,
+입력 폼과 실시간 미리보기를 함께 제공해 이 문제를 해결했습니다.
 
-- React 19
-- TypeScript
-- Vite
-- Tailwind CSS
-- React Router
-- localStorage
-- Radix UI
-- Vitest
-- Cloudflare Workers
+**개발 기간**: 2026.04 ~ 진행 중 (1인 개발)
 
-## Main Features
+---
 
-- 국문 이력서 작성에 필요한 기본 정보, 학력, 자격증, 경력, 프로젝트, 링크, 스킬 섹션 제공
-- 입력 영역과 미리보기 영역을 분리해 작성 중 문서 결과를 바로 확인
-- 반복 섹션을 추가/삭제할 수 있도록 데이터 구조와 UI 구성
-- localStorage를 사용해 저장한 이력서를 최근 작성중 목록에서 다시 열 수 있도록 구성
-- 작성 중인 내용이 있을 때 이탈 방지 안내 제공
-- 예시 불러오기 버튼으로 샘플 이력서 데이터를 폼과 미리보기에 즉시 반영
-- 브라우저 인쇄 기능과 `@media print` 스타일을 활용해 텍스트 선택 가능한 PDF 저장 흐름 제공
-- 미리보기 영역을 이미지로 저장할 수 있는 내보내기 기능 제공
-- 오류가 있는 탭을 선택하면 첫 번째 오류 입력 필드로 포커스 이동
-- 기본 정보와 선택 섹션 입력값을 검증하고, 빈 값/공백/잘못된 형식에 맞는 오류 메시지 제공
-- Vitest 단위 테스트로 저장 시간 표시, 기본 정보 검증, 선택 섹션 검증 로직의 주요 케이스 확인
-- AlertDialog 닫힘 후 포커스 복귀 흐름을 정리해 키보드 사용성 개선
-- 모바일과 데스크톱에서 사용할 수 있도록 반응형 레이아웃 구성
+## 주요 기능
 
-## My Role
+| 기능            | 설명                                                                                        |
+| --------------- | ------------------------------------------------------------------------------------------- |
+| 실시간 미리보기 | 입력값이 즉시 제출용 문서 형태로 반영됩니다.                                                |
+| 자동 저장       | 작성 중 이탈 방지 안내와 localStorage 저장으로 작업 손실을 줄였습니다.                      |
+| PDF 저장        | 브라우저 인쇄와 `@media print` 스타일을 사용해 텍스트 선택 가능한 PDF로 저장할 수 있습니다. |
+| 입력값 검증     | 빈 값, 형식 오류, 기간 순서 오류를 입력 흐름 안에서 확인할 수 있습니다.                     |
+| 최근 작성 목록  | 여러 문서를 저장하고 이어 작성할 수 있도록 문서 메타 정보를 관리합니다.                     |
 
-- React + TypeScript 기반 프로젝트 구조 설계
-- 이력서 데이터 타입, 기본값, 저장 로직 구성
-- 폼 입력 UI와 실시간 미리보기 UI 구현
-- 반응형 레이아웃, label 연결, 버튼 상태, 다이얼로그 포커스 등 접근성 품질 점검
-- Cloudflare Workers 기반 정적 배포 설정 구성
-- Vitest 기반 단위 테스트를 추가해 저장 시간 표시와 이력서 검증 로직의 주요 케이스 검증
+현재는 국문 이력서 작성 흐름을 중심으로 구현했습니다. 자기소개서 작성 화면은 동일한 문서 작성 구조로 확장 중입니다.
 
-## Problems Solved
+---
 
-- 이력서 섹션별 입력값을 하나의 상태 구조로 관리해 미리보기와 폼이 같은 데이터를 사용하도록 만들었습니다.
-- 반복되는 프로젝트, 경력, 링크 입력 UI를 섹션 컴포넌트로 나누어 유지보수하기 쉽게 정리했습니다.
-- 작성 중인 이력서를 저장하면 메인 화면의 최근 작성중 목록에서 다시 열 수 있도록 localStorage 저장/복원 흐름을 추가했습니다.
-- 제출용 문서 형태를 따로 확인해야 하는 번거로움을 줄이기 위해 입력 화면 안에서 미리보기를 함께 제공했습니다.
-- 드롭다운 안에서 confirm dialog를 직접 여는 구조를 정리해 닫힘 후 포커스가 사라지는 문제를 줄였습니다.
-- 샘플 데이터를 별도 모델 파일로 분리해 예시 불러오기 기능을 유지보수하기 쉽게 구성했습니다.
-- 이력서 기본 정보와 선택 섹션 검증 로직을 순수 함수로 분리하고, 빈 값, 공백 값, 잘못된 URL, 휴대폰/이메일 형식, 현재 재직 중 종료일 예외 같은 케이스를 단위 테스트로 확인했습니다.
-- 이미지 캡처 기반 PDF 저장은 텍스트 선택과 검색이 불가능하다는 한계가 있어, 브라우저 인쇄 기능과 `@media print` 스타일을 활용하는 방식으로 정리했습니다. 이를 통해 사용자가 저장한 PDF에서도 텍스트 선택, 복사, 검색이 가능하도록 했습니다.
-- Safari에서 table `rowSpan` 높이가 섹션 추가/삭제 후 즉시 재계산되지 않는 이슈를 확인하고, 미리보기 table을 재마운트해 레이아웃 깨짐을 방지했습니다. preview 영역은 읽기 전용으로 구성했으며, 추후 CSS grid 기반 레이아웃으로 개선할 예정입니다.
+## 기술 스택과 선택 이유
 
-## Folder Structure
+- **React 19 + TypeScript**: 섹션 반복 추가/삭제, 실시간 미리보기 동기화에 컴포넌트 모델이 적합
+- **Context API (no 상태관리 라이브러리)**: 이력서 단일 문서 기준으로 전역 상태 복잡도가 낮아 Redux/Zustand 없이 Context로 충분
+- **Radix UI**: AlertDialog, Tabs, Tooltip 등 키보드 접근성이 중요한 UI를 안정적으로 구성
+- **Vite + Cloudflare Workers**: 빌드 속도와 무료 정적 배포 + SPA 라우팅 지원
+- **localStorage**: 백엔드 없이 MVP 검증. `meta.version` 필드로 추후 스키마 마이그레이션 대비
+
+---
+
+## 설계 결정
+
+### 검증 로직을 직접 구현한 이유
+
+react-hook-form은 비제어 컴포넌트 기반이라 실시간 미리보기 동기화에 불리합니다.
+제어 컴포넌트로 입력값을 관리하면서, 검증 로직을 순수 함수로 분리해
+UI와 독립적으로 Vitest 단위 테스트를 적용했습니다.
+
+### PDF 저장 방식
+
+canvas 기반 이미지 캡처는 텍스트 선택이 불가능합니다.
+브라우저 인쇄(`window.print`) + `@media print` 스타일로 텍스트 선택 가능한 PDF를 구현했습니다.
+
+---
+
+## 해결한 문제
+
+**상태 구조 설계**: 기본 정보·학력·경력 등 여러 섹션을 단일 `Resume` 타입으로 관리해
+폼과 미리보기가 같은 데이터를 참조하도록 구성했습니다.
+
+**검증 정책**: "하나라도 입력되었으면 나머지 필수값을 검증"이라는 정책을 구현해
+빈 항목을 남겨둔 상태에서 저장하는 오탐을 방지했습니다.
+
+**접근성**: `aria-invalid`, `aria-describedby`, 탭 전환 시 첫 오류 필드 자동 포커스,
+AlertDialog 닫힘 후 포커스 복귀, `prefers-reduced-motion` 대응을 적용했습니다.
+
+---
+
+## 폴더 구조
 
 ```text
-src
-├── components
-│   ├── layout
-│   └── ui
-├── features
-│   ├── documents
-│   └── resume
-│       ├── context
-│       ├── model
-│       └── ui
-├── layout
-├── pages
-└── utils
+src/
+├── components/          # 공통 레이아웃, UI 컴포넌트
+├── features/
+│   ├── documents/       # 문서 저장, 내보내기, 공통 작성 레이아웃
+│   ├── resume/          # 이력서 타입, 검증, 폼, 미리보기
+│   └── coverLetter/     # 자기소개서 작성 기능 확장 영역
+├── layout/              # 기본/에디터 레이아웃
+├── pages/               # 라우트 단위 페이지
+├── router.tsx           # React Router 설정
+└── utils/               # 공통 유틸과 단위 테스트
 ```
 
-## Installation
+---
+
+## 테스트
+
+```bash
+npm run test:run
+```
+
+순수 함수 단위 테스트 (Vitest):
+
+- `validateBasics`: 이름·연락처·이메일 필수값/형식 검증 (공백, 형식 오류 포함)
+- `validateOptionalSections`: "일부 입력 시 나머지 필수값 검증" 정책 케이스
+- `formatRelativeTime`: 초/분/시간/일 단위 경계값
+
+---
+
+## 설치 및 실행
 
 ```bash
 npm install
@@ -89,78 +111,50 @@ npm run dev
 
 개발 서버 실행 후 브라우저에서 `http://localhost:5173`으로 확인할 수 있습니다.
 
-## Build
+빌드 확인:
 
 ```bash
 npm run build
 ```
 
-## Test
-
-```bash
-npm run test:run
-```
-
-Vitest를 사용해 순수 유틸 함수와 이력서 검증 로직을 테스트합니다.
-
-- `formatRelativeTime`: 초, 분, 시간, 24시간 이후 일 단위 표시
-- `validateBasics`: 이름, 연락처, 이메일, 지원부문 필수값과 형식 검증
-- `validateOptionalSections`: 학력, 자격증, 경력, 프로젝트, 링크 섹션의 선택 입력 검증
-
-## Cloudflare Deployment
-
-이 프로젝트는 Vite 빌드 결과물인 `dist` 폴더를 Cloudflare Workers Assets로 배포합니다.
-
-배포 설정은 `wrangler.jsonc`에서 관리합니다.
-
-```jsonc
-{
-  "name": "dockit",
-  "assets": {
-    "directory": "./dist",
-    "not_found_handling": "single-page-application"
-  }
-}
-```
-
-배포 전 빌드와 Cloudflare 배포를 한 번에 실행합니다.
-
-```bash
-npm run deploy
-```
-
-`npm run deploy`는 내부적으로 `npm run build`를 실행한 뒤 `wrangler deploy`로 `dist` 폴더를 Cloudflare Workers Assets에 배포합니다.
-
-처음 배포하거나 새 환경에서 배포할 때는 Cloudflare 로그인이 필요합니다.
-
-```bash
-npx wrangler login
-```
-
-React Router를 사용하는 SPA이므로 `not_found_handling`을 `single-page-application`으로 설정해 새로고침이나 직접 URL 접근 시에도 앱이 정상적으로 열리도록 했습니다.
-
-## Local Commands
+린트 확인:
 
 ```bash
 npm run lint
+```
+
+테스트 실행:
+
+```bash
 npm run test:run
-npm run build
+```
+
+---
+
+## 배포
+
+이 프로젝트는 Vite 빌드 결과물인 `dist` 폴더를 Cloudflare Workers Assets로 배포합니다.
+React Router를 사용하는 SPA이므로 `wrangler.jsonc`에서 직접 URL 접근과 새로고침을 처리하도록 설정했습니다.
+
+```bash
 npm run deploy
 ```
 
-## What I Learned
+`npm run deploy`는 내부적으로 `npm run build`를 실행한 뒤 `wrangler deploy`로 배포합니다.
 
-- 반복 가능한 이력서 섹션을 타입과 컴포넌트로 관리하는 방법
-- localStorage를 사용해 작성중 문서 목록과 개별 문서 데이터를 관리하는 방법
-- 폼 label, input type, 포커스 이동, dialog focus, 반응형 grid 등 기본적인 접근성/퍼블리싱 품질이 포트폴리오 완성도에 미치는 영향
-- 입력값 검증 로직을 순수 함수로 분리하면 UI와 별개로 빈 값, 공백, 잘못된 형식, 경계값을 단위 테스트하기 쉽다는 점
-- 문서형 서비스에서는 이미지 캡처 방식보다 print CSS 기반 출력이 텍스트 검색과 복사 가능성 측면에서 더 적합할 수 있다는 점
-- Vite 정적 빌드 결과물을 Cloudflare Workers Assets로 배포하는 흐름
+---
 
-## Future Improvements
+## 배운 점
 
-- 초기 번들 최적화
-- 인쇄 전 안내 문구와 브라우저별 PDF 저장 UX 개선
-- 자기소개서, 경력기술서, 프로젝트 보고서 양식 추가
-- 미리보기 문서 레이아웃을 table 기반 구조에서 CSS grid 기반 구조로 개선
+- 한국식 이력서처럼 표 형태가 중요한 화면은 컴포넌트 분리뿐 아니라 인쇄 스타일, 셀 너비, 긴 텍스트 줄바꿈까지 함께 설계해야 완성도가 올라간다는 것을 확인했습니다.
+- 실시간 미리보기 화면에서는 폼 상태와 출력 상태가 분리되면 버그를 추적하기 어려워, 하나의 문서 타입을 기준으로 폼과 미리보기를 함께 관리하는 구조가 중요했습니다.
+- 선택 입력 섹션은 단순 필수값 검증보다 "일부 입력 시 나머지 항목을 검증"하는 정책이 실제 사용자 입력 흐름에 더 적합했습니다.
 
+---
+
+## 앞으로 개선할 점
+
+- README 상단 이미지를 실제 작성 흐름을 보여주는 GIF 또는 스크린샷으로 교체
+- 자기소개서 작성 화면의 저장, 미리보기, 검증 흐름 완성
+- 출력 레이아웃을 다양한 화면 크기와 인쇄 환경에서 더 안정적으로 조정
+- 저장 데이터 스키마 변경에 대비한 마이그레이션 로직 보강
