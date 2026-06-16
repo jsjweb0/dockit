@@ -15,12 +15,9 @@ import { Textarea } from '@/components/ui/textarea';
 import { Checkbox } from '@/components/ui/checkbox';
 import { Plus } from 'lucide-react';
 import { useResumeEditor } from '../../context/resumeEditor.context';
+import { createId } from '@/lib/utils';
 
 type Props = { value: Resume; onChange: (next: Resume) => void };
-
-function uid() {
-  return Math.random().toString(36).slice(2, 10);
-}
 
 export function ExperienceSection({ value, onChange }: Props) {
   const { sectionErrors, touchSectionField, revalidateSectionField } =
@@ -51,7 +48,7 @@ export function ExperienceSection({ value, onChange }: Props) {
       ...value,
       experience: [
         {
-          id: uid(),
+          id: createId(),
           company: '',
           role: '',
           start: '',

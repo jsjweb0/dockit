@@ -357,7 +357,7 @@ export const ResumePreview = forwardRef<HTMLElement, Props>(
               </th>
               <td colSpan={9} className="docTable__multiline">
                 <div className="docTable__multilineText">
-                  {value.skills.primary.join(', ') || ''}
+                  {[value.skills.primary, ...value.skills.tools].join(', ') || ''}
                 </div>
               </td>
               <th scope="row" colSpan={4}>

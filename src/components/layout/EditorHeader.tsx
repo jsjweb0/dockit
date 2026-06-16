@@ -36,6 +36,8 @@ export type EditorStatus = {
 
 type Props = {
   title: string;
+  documentLabel?: string;
+  fallbackTitle?: string;
   actions: EditorActions;
   status: EditorStatus;
   isPreviewOpen: boolean;
@@ -44,6 +46,8 @@ type Props = {
 
 export function EditorHeader({
   title,
+  documentLabel = '국문 이력서',
+  fallbackTitle = '새 이력서',
   actions,
   status,
   isPreviewOpen,
@@ -146,10 +150,10 @@ export function EditorHeader({
           )}
           <div className="flex items-center gap-2 min-w-0 md:absolute md:left-1/2 md:-translate-x-1/2 max-md:grow max-md:justify-center">
             <p className="shrink-0 text-xs text-white bg-black rounded-full px-2 py-1">
-              국문 이력서
+              {documentLabel}
             </p>
             <strong className="font-normal truncate">
-              {title || '새 이력서'}
+              {title || fallbackTitle}
             </strong>
           </div>
         </div>

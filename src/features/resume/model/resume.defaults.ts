@@ -1,8 +1,5 @@
+import { createId } from '@/lib/utils';
 import type { Resume } from './resume.types';
-
-function uid() {
-  return Math.random().toString(36).slice(2, 10);
-}
 
 function todayKorea() {
   const formatter = new Intl.DateTimeFormat('sv-SE', {
@@ -29,7 +26,7 @@ export function defaultResume(): Resume {
     },
     education: [
       {
-        id: uid(),
+        id: createId(),
         period: '',
         institution: '',
         major: '',
@@ -37,7 +34,7 @@ export function defaultResume(): Resume {
     ],
     certifications: [
       {
-        id: uid(),
+        id: createId(),
         acquiredAt: '',
         name: '',
         issuer: '',
@@ -45,7 +42,7 @@ export function defaultResume(): Resume {
     ],
     experience: [
       {
-        id: uid(),
+        id: createId(),
         company: '',
         role: '',
         start: '',
@@ -56,7 +53,7 @@ export function defaultResume(): Resume {
     ],
     projects: [
       {
-        id: uid(),
+        id: createId(),
         name: '',
         period: '',
         stack: '',
@@ -64,7 +61,7 @@ export function defaultResume(): Resume {
         link: '',
       },
     ],
-    links: [{ id: uid(), label: '', url: '' }],
+    links: [{ id: createId(), label: '', url: '' }],
     skills: {
       primary: [],
       tools: [],

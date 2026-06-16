@@ -1,8 +1,5 @@
+import { createId } from '@/lib/utils';
 import type { Resume } from './resume.types';
-
-function uid() {
-  return Math.random().toString(36).slice(2, 10);
-}
 
 export function sampleResume(): Resume {
   return {
@@ -22,7 +19,7 @@ export function sampleResume(): Resume {
     },
     education: [
       {
-        id: uid(),
+        id: createId(),
         period: '2012-03 - 2015-02',
         institution: '한국대학교',
         major: '컴퓨터공학과',
@@ -30,13 +27,13 @@ export function sampleResume(): Resume {
     ],
     certifications: [
       {
-        id: uid(),
+        id: createId(),
         acquiredAt: '2017-04-04',
         name: '컴퓨터그래픽스운용기능사',
         issuer: '한국산업인력공단',
       },
       {
-        id: uid(),
+        id: createId(),
         acquiredAt: '2017-03-04',
         name: '웹디자인기능사',
         issuer: '한국산업인력공단',
@@ -44,7 +41,7 @@ export function sampleResume(): Resume {
     ],
     experience: [
       {
-        id: uid(),
+        id: createId(),
         company: '프론트엔드 스튜디오',
         role: '과장',
         start: '2018-01',
@@ -58,7 +55,7 @@ export function sampleResume(): Resume {
     ],
     projects: [
       {
-        id: uid(),
+        id: createId(),
         name: 'Dockit',
         period: '2026-04 ~ 진행중',
         stack: 'React, TypeScript, Vite',
@@ -67,7 +64,7 @@ export function sampleResume(): Resume {
         link: 'https://dockit.jsjweb0.workers.dev/',
       },
       {
-        id: uid(),
+        id: createId(),
         name: 'NEWTRONOME',
         period: '2025-09 ~ 2026-04',
         stack: 'React, Vite, Firebase Authentication',
@@ -78,12 +75,12 @@ export function sampleResume(): Resume {
     ],
     links: [
       {
-        id: uid(),
+        id: createId(),
         label: 'Portfolio',
         url: 'https://github.com/jsjweb0/',
       },
       {
-        id: uid(),
+        id: createId(),
         label: 'Github',
         url: 'https://jsjweb0.github.io/Portfoliopage/',
       },

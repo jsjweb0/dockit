@@ -13,12 +13,9 @@ import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Plus } from 'lucide-react';
 import { useResumeEditor } from '../../context/resumeEditor.context';
+import { createId } from '@/lib/utils';
 
 type Props = { value: Resume; onChange: (next: Resume) => void };
-
-function uid() {
-  return Math.random().toString(36).slice(2, 10);
-}
 
 export function CertificationSection({ value, onChange }: Props) {
   const { sectionErrors, touchSectionField, revalidateSectionField } =
@@ -48,7 +45,7 @@ export function CertificationSection({ value, onChange }: Props) {
     onChange({
       ...value,
       certifications: [
-        { id: uid(), acquiredAt: '', name: '', issuer: '' },
+        { id: createId(), acquiredAt: '', name: '', issuer: '' },
         ...list,
       ],
     });

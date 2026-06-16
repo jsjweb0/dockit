@@ -65,7 +65,7 @@ export function ResumeForm({ value, onChange }: Props) {
       </div>
 
       <Tabs value={activeTab} onValueChange={setActiveTab} className="w-full">
-        <TabsList className="flex h-auto w-full justify-start overflow-x-auto p-1 sm:grid sm:grid-cols-7">
+        <TabsList className="flex h-auto w-full justify-start overflow-x-auto p-1 sm:grid sm:grid-cols-7" aria-label="이력서 작성 항목">
           {tabs.map((tab) => (
             <TabsTrigger
               key={tab.value}

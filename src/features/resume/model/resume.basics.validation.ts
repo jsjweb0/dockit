@@ -12,7 +12,7 @@ export const BASICS_VALIDATED_FIELDS: BasicsValidatedField[] = [
 export type BasicsFieldErrors = Partial<Record<BasicsValidatedField, string>>;
 
 const EMAIL_REGEX = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
-const KOREAN_MOBILE_REGEX = /^01[016789]-\d{3,4}-\d{4}$/;
+const KOREAN_MOBILE_REGEX = /^010-\d{4}-\d{4}$/;
 
 export function validateBasicsField(
   field: BasicsValidatedField,
@@ -31,7 +31,7 @@ export function validateBasicsField(
       const phone = basics.phone.trim();
       if (!phone) return '연락처를 입력해 주세요.';
       if (!KOREAN_MOBILE_REGEX.test(phone)) {
-        return '올바른 휴대폰 번호 형식이 아닙니다.';
+        return '010-0000-0000 형식으로 입력해 주세요.';
       }
       return undefined;
     }

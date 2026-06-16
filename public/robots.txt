@@ -1,0 +1,4 @@
+User-agent: *
+Allow: /
+
+Sitemap: https://dockit.jsjweb0.workers.dev/sitemap.xml
