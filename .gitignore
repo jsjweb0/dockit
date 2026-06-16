@@ -4,6 +4,7 @@ node_modules
 # Production build
 dist
 build
+docs/readme/frames/
 
 # Local environment
 .env
@@ -25,4 +26,3 @@ pnpm-debug.log*
 
 # Test and coverage output
 coverage
-
