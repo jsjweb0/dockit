@@ -11,9 +11,21 @@ const EditorLayout = lazy(() =>
     })),
 );
 
+const CoverLetterEditorLayout = lazy(() =>
+    import('@/layout/EditorLayout').then((module) => ({
+        default: module.CoverLetterEditorLayout,
+    })),
+);
+
 const ResumeBuilderPage = lazy(() =>
     import('@/pages/ResumeBuilderPage').then((module) => ({
         default: module.ResumeBuilderPage,
+    })),
+);
+
+const CoverLetterBuilderPage = lazy(() =>
+    import('@/pages/CoverLetterBuilderPage').then((module) => ({
+        default: module.CoverLetterBuilderPage,
     })),
 );
 
@@ -42,7 +54,15 @@ export const router = createBrowserRouter([
         errorElement: <ErrorFallback />,
         children: [
             { path: "/resume", element: withSuspense(<ResumeBuilderPage />) },
-            { path: "/resume/:id", element: withSuspense(<ResumeBuilderPage />) }
+            { path: "/resume/:id", element: withSuspense(<ResumeBuilderPage />) },
+        ],
+    },
+    {
+        element: withSuspense(<CoverLetterEditorLayout />),
+        errorElement: <ErrorFallback />,
+        children: [
+            { path: "/cover-letter", element: withSuspense(<CoverLetterBuilderPage />) },
+            { path: "/cover-letter/:id", element: withSuspense(<CoverLetterBuilderPage />) }
         ],
     },
 
