@@ -1,6 +1,4 @@
 import type { Resume } from './resume.types';
-import { documentTemplates } from '../../documents/model/documentTemplates';
-import type { DocumentTemplate } from '../../documents/model/documentTemplates';
 import { defaultResume } from './resume.defaults';
 import {
   createDocumentStorage,
@@ -9,12 +7,11 @@ import {
 
 export type ResumeDraftSummary = DocumentDraftSummary;
 
-function getDraftTitle(
-  resume: Resume,
-  template: DocumentTemplate = documentTemplates[0],
-) {
+const RESUME_DOCUMENT_TITLE = '국문 이력서';
+
+function getDraftTitle(resume: Resume) {
   const name = resume.basics.name.trim();
-  return name ? `${name} ${template.title}` : template.title;
+  return name ? `${name} ${RESUME_DOCUMENT_TITLE}` : RESUME_DOCUMENT_TITLE;
 }
 
 function getDraftDescription(resume: Resume) {

@@ -19,7 +19,7 @@ import {
   AlertDialogHeader,
   AlertDialogTitle,
 } from '@/components/ui/alert-dialog';
-import { MoreVertical, ImageDownIcon, RefreshCcw, FileInput, FilePenLine } from 'lucide-react';
+import { MoreVertical, RefreshCcw, FileInput, FilePenLine } from 'lucide-react';
 import type {
   EditorActions,
   EditorStatus,
@@ -31,7 +31,7 @@ type Props = {
 };
 
 export function MobileEditorActions({ actions, status }: Props) {
-  const { onReset, onLoadSample, onExportImage, onPrintResume } = actions;
+  const { onReset, onLoadSample, onPrintResume } = actions;
   const { isDirty, isSaving, isExporting } = status;
   const menuButtonRef = useRef<HTMLButtonElement>(null);
   const [isResetDialogOpen, setIsResetDialogOpen] = useState(false);
@@ -88,11 +88,6 @@ export function MobileEditorActions({ actions, status }: Props) {
               <FileInput className="size-4" />
               {isExporting ? 'PDF 저장 중' : 'PDF로 저장'}
             </DropdownMenuItem>
-            <DropdownMenuItem onSelect={onExportImage} disabled={isExporting}>
-              <ImageDownIcon className="size-4" />
-              {isExporting ? '이미지 저장 중' : '이미지 저장'}
-            </DropdownMenuItem>
-
             <DropdownMenuSeparator />
 
             <DropdownMenuItem

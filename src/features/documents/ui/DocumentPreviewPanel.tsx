@@ -1,4 +1,11 @@
-import { useCallback, useEffect, useRef, useState, type ReactNode } from 'react';
+import {
+  forwardRef,
+  useCallback,
+  useEffect,
+  useRef,
+  useState,
+  type ReactNode,
+} from 'react';
 import { Card, CardContent } from '@/components/ui/card.tsx';
 import {
   Tooltip,
@@ -22,14 +29,20 @@ type DocumentPreviewPanelProps = {
 const A4_PREVIEW_WIDTH = 794;
 const A4_PREVIEW_HEIGHT = 1123;
 
-export function DocumentPreviewPanel({
-  children,
-  isPreviewOpen,
-  isPreviewClosing,
-  shouldAnimatePreviewOpen,
-  onTogglePreview,
-  onPreviewAnimationEnd,
-}: DocumentPreviewPanelProps) {
+export const DocumentPreviewPanel = forwardRef<
+  HTMLElement,
+  DocumentPreviewPanelProps
+>(function DocumentPreviewPanel(
+  {
+    children,
+    isPreviewOpen,
+    isPreviewClosing,
+    shouldAnimatePreviewOpen,
+    onTogglePreview,
+    onPreviewAnimationEnd,
+  },
+  ref,
+) {
   const previewViewportRef = useRef<HTMLDivElement | null>(null);
   const [previewScale, setPreviewScale] = useState(1);
 
@@ -108,7 +121,7 @@ export function DocumentPreviewPanel({
         )}
         aria-labelledby="document-preview-panel-title"
       >
-        <div className="resumePreview__title mb-2 flex items-center justify-between gap-4">
+        <div className="documentPreview__title mb-2 flex items-center justify-between gap-4">
           <div className="flex items-center gap-1.5 mb-4 lg:pt-4.5">
             <h2
               id="document-preview-panel-title"
@@ -135,21 +148,23 @@ export function DocumentPreviewPanel({
 
         <Card className="border-0 py-0 shadow-none">
           <CardContent className="overflow-x-auto p-4 md:p-6">
-            <div ref={previewViewportRef} className="resumePreviewViewport">
+            <div ref={previewViewportRef} className="documentPreviewViewport">
               <div
-                className="resumePreviewFrame"
+                className="documentPreviewFrame"
                 style={{
                   width: A4_PREVIEW_WIDTH * previewScale,
                   height: A4_PREVIEW_HEIGHT * previewScale,
                 }}
               >
                 <div
-                  className="resumePreviewScaler"
+                  className="documentPreviewScaler"
                   style={{
                     transform: `scale(${previewScale})`,
                   }}
                 >
-                  {children}
+                  <section ref={ref} className="documentPreview" aria-hidden="true">
+                    {children}
+                  </section>
                 </div>
               </div>
             </div>
@@ -158,4 +173,4 @@ export function DocumentPreviewPanel({
       </section>
     </>
   );
-}
+});

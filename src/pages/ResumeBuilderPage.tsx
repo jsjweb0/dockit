@@ -18,7 +18,8 @@ export function ResumeBuilderPage() {
   return (
     <DocumentBuilderLayout
       form={<ResumeForm value={resume} onChange={setResume} />}
-      preview={<ResumePreview ref={previewRef} value={resume} />}
+      preview={<ResumePreview value={resume} />}
+      previewRef={previewRef}
       previewControls={previewControls}
     />
   );

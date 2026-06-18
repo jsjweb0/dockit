@@ -2,20 +2,14 @@ import React, {
   createContext,
   useCallback,
   useContext,
-  useEffect,
   useMemo,
-  useRef,
   useState,
 } from 'react';
 import type { Resume } from '../model/resume.types';
 import { defaultResume } from '../model/resume.defaults';
 import { loadResume, saveResume } from '../model/resume.storage';
 import { toast } from 'sonner';
-import {
-  exportDocumentImage,
-  exportDocumentPdf,
-} from '@/features/documents/model/document.export';
-import { useDocumentEditorStatus } from '@/features/documents/hooks/useDocumentEditorStatus';
+import { useDocumentEditorCore } from '@/features/documents/hooks/useDocumentEditorCore';
 import {
   BASICS_VALIDATED_FIELDS,
   validateBasics,
@@ -60,11 +54,13 @@ export type ValidationErrorTarget = {
 
 type ResumeEditorState = {
   resumeId: string;
+  document: Resume;
   resume: Resume;
+  setDocument: (next: Resume) => void;
   setResume: (next: Resume) => void;
   save: (opts?: { silent?: boolean }) => Promise<void>;
   reset: () => void;
-  exportImage: () => Promise<void>;
+  printDocument: () => Promise<void>;
   printResume: () => Promise<void>;
   previewRef: React.RefObject<HTMLElement | null>;
   basicsErrors: BasicsFieldErrors;
@@ -162,36 +158,23 @@ const getSectionInputId = (
 };
 
 export function ResumeEditorProvider({
-  resumeId,
+  documentId,
   children,
 }: {
-  resumeId: string;
+  documentId: string;
   children: React.ReactNode;
 }) {
-  const [resume, setResume] = useState<Resume>(() => loadResume(resumeId));
-  const {
-    isDirty,
-    setIsDirty,
-    isSaving,
-    setIsSaving,
-    isExporting,
-    setIsExporting,
-    lastSavedAt,
-    setLastSavedAt,
-  } = useDocumentEditorStatus();
+  const resumeId = documentId;
   const [basicsErrors, setBasicsErrors] = useState<BasicsFieldErrors>({});
   const [sectionErrors, setSectionErrors] = useState<ResumeSectionErrors>(
     emptyResumeSectionErrors,
   );
-  const [resetVersion, setResetVersion] = useState(0);
   const [touchedBasicsFields, setTouchedBasicsFields] = useState(
     emptyTouchedBasicsFields,
   );
   const [touchedSectionFields, setTouchedSectionFields] = useState(
     emptyTouchedSectionFields,
   );
-
-  const previewRef = useRef<HTMLElement | null>(null);
 
   const clearBasicsValidation = useCallback(() => {
     setBasicsErrors({});
@@ -203,20 +186,37 @@ export function ResumeEditorProvider({
     setTouchedSectionFields(emptyTouchedSectionFields());
   }, []);
 
-  useEffect(() => {
-    setResume(loadResume(resumeId));
-    setIsDirty(false);
+  const handleEditorReset = useCallback(() => {
     clearBasicsValidation();
     clearSectionValidation();
-  }, [resumeId, setIsDirty, clearBasicsValidation, clearSectionValidation]);
+  }, [clearBasicsValidation, clearSectionValidation]);
 
-  const setResumeSafe = useCallback(
-    (next: Resume) => {
-      setResume(next);
-      setIsDirty(true);
-    },
-    [setIsDirty],
-  );
+  const getResumePrintFileName = useCallback((resume: Resume) => {
+    const name = resume.basics.name.trim() || 'resume';
+    return `${name}-${resume.basics.title}.pdf`;
+  }, []);
+
+  const {
+    document: resume,
+    setDocument: setResumeSafe,
+    save: persist,
+    reset,
+    printDocument: printDocumentCore,
+    previewRef,
+    resetVersion,
+    isDirty,
+    isExporting,
+    isSaving,
+    lastSavedAt,
+  } = useDocumentEditorCore({
+    documentId: resumeId,
+    loadDocument: loadResume,
+    saveDocument: saveResume,
+    createDefaultDocument: defaultResume,
+    getPrintFileName: getResumePrintFileName,
+    onDocumentLoaded: handleEditorReset,
+    onReset: handleEditorReset,
+  });
 
   const touchBasicsField = useCallback(
     (field: BasicsValidatedField, basics = resume.basics) => {
@@ -364,103 +364,10 @@ export function ResumeEditorProvider({
     return false;
   }, [validateAllBasics, validateAllOptionalSections]);
 
-  const persist = useCallback(
-    async (opts?: { silent?: boolean }) => {
-      setIsSaving(true);
-      try {
-        saveResume(resumeId, resume);
-        setIsDirty(false);
-        setLastSavedAt(Date.now());
-        if (!opts?.silent) toast.success('저장 완료');
-      } catch {
-        toast.error('저장에 실패했습니다.');
-      } finally {
-        setIsSaving(false);
-      }
-    },
-    [resume, resumeId, setIsDirty, setIsSaving, setLastSavedAt],
+  const printResume = useCallback(
+    () => printDocumentCore(validateResumeBeforeExport),
+    [printDocumentCore, validateResumeBeforeExport],
   );
-
-  const reset = useCallback(() => {
-    setResume(defaultResume());
-    setResetVersion((version) => version + 1);
-    setIsDirty(true);
-    setLastSavedAt(null);
-    clearBasicsValidation();
-    clearSectionValidation();
-  }, [
-    setIsDirty,
-    setLastSavedAt,
-    clearBasicsValidation,
-    clearSectionValidation,
-  ]);
-
-  const exportImage = useCallback(async () => {
-    if (!validateResumeBeforeExport()) return;
-
-    if (!previewRef.current) {
-      toast.error('보낼 미리보기를 찾지 못했습니다.');
-      return;
-    }
-
-    setIsExporting(true);
-    try {
-      const name = resume.basics.name.trim() || 'resume';
-      await exportDocumentImage({
-        fileName: `${name}-${resume.basics.title}.png`,
-        target: previewRef.current,
-      });
-      toast.success('이미지 저장 완료');
-    } catch (error) {
-      toast.error(
-        error instanceof Error ? error.message : '이미지 저장에 실패했습니다.',
-      );
-    } finally {
-      setIsExporting(false);
-    }
-  }, [
-    resume.basics.name,
-    resume.basics.title,
-    setIsExporting,
-    validateResumeBeforeExport,
-  ]);
-
-  const printResume = useCallback(async () => {
-    if (!validateResumeBeforeExport()) return;
-
-    if (!previewRef.current) {
-      toast.error('보낼 미리보기를 찾지 못했습니다.');
-      return;
-    }
-
-    const name = resume.basics.name.trim() || 'resume';
-
-    setIsExporting(true);
-    try {
-      exportDocumentPdf({
-        fileName: `${name}-${resume.basics.title}.pdf`,
-      });
-    } catch (error) {
-      toast.error(
-        error instanceof Error ? error.message : 'PDF 저장에 실패했습니다.',
-      );
-    } finally {
-      setIsExporting(false);
-    }
-  }, [
-    resume.basics.name,
-    resume.basics.title,
-    setIsExporting,
-    validateResumeBeforeExport,
-  ]);
-
-  useEffect(() => {
-    if (!isDirty || isSaving) return;
-
-    const AUTO_SAVE_DELAY = 60_000;
-    const timer = setTimeout(() => persist({ silent: true }), AUTO_SAVE_DELAY);
-    return () => clearTimeout(timer);
-  }, [persist, resume, isDirty, isSaving]);
 
   const validationErrorCounts = useMemo(
     () => ({
@@ -533,11 +440,13 @@ export function ResumeEditorProvider({
   const value = useMemo(
     () => ({
       resumeId,
+      document: resume,
       resume,
+      setDocument: setResumeSafe,
       setResume: setResumeSafe,
       save: persist,
       reset,
-      exportImage,
+      printDocument: printResume,
       printResume,
       previewRef,
       basicsErrors,
@@ -561,8 +470,8 @@ export function ResumeEditorProvider({
       setResumeSafe,
       persist,
       reset,
-      exportImage,
       printResume,
+      previewRef,
       basicsErrors,
       sectionErrors,
       resetVersion,

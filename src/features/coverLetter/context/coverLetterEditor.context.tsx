@@ -2,28 +2,22 @@ import React, {
   createContext,
   useCallback,
   useContext,
-  useEffect,
   useMemo,
-  useRef,
-  useState,
 } from 'react';
 import type { CoverLetter } from '../model/coverLetter.types';
 import { defaultCoverLetter } from '../model/coverLetter.defaults';
 import { loadCoverLetter, saveCoverLetter } from '../model/coverLetter.storage';
-import { toast } from 'sonner';
-import {
-    exportDocumentImage,
-    exportDocumentPdf,
-} from '@/features/documents/model/document.export';
-import { useDocumentEditorStatus } from '@/features/documents/hooks/useDocumentEditorStatus';
+import { useDocumentEditorCore } from '@/features/documents/hooks/useDocumentEditorCore';
 
 type CoverLetterEditorState = {
   coverLetterId: string;
+  document: CoverLetter;
   coverLetter: CoverLetter;
+  setDocument: (next: CoverLetter) => void;
   setCoverLetter: (next: CoverLetter) => void;
   save: (opts?: { silent?: boolean }) => Promise<void>;
   reset: () => void;
-  exportImage: () => Promise<void>;
+  printDocument: () => Promise<void>;
   printCoverLetter: () => Promise<void>;
   previewRef: React.RefObject<HTMLElement | null>;
   resetVersion: number;
@@ -38,138 +32,49 @@ const CoverLetterEditorContext =
   createContext<CoverLetterEditorState | null>(null);
 
 export function CoverLetterEditorProvider({
-  coverLetterId,
+  documentId,
   children,
 }: {
-  coverLetterId: string;
+  documentId: string;
   children: React.ReactNode;
 }) {
-  const [coverLetter, setCoverLetter] = useState<CoverLetter>(() =>
-    loadCoverLetter(coverLetterId),
-  );
+  const coverLetterId = documentId;
+  const getCoverLetterPrintFileName = useCallback((coverLetter: CoverLetter) => {
+    const title = coverLetter.title.trim() || 'cover-letter';
+    return `${title}.pdf`;
+  }, []);
+
   const {
+    document: coverLetter,
+    setDocument: setCoverLetter,
+    save,
+    reset,
+    printDocument,
+    previewRef,
+    resetVersion,
     isDirty,
-    setIsDirty,
-    isSaving,
-    setIsSaving,
     isExporting,
-    setIsExporting,
+    isSaving,
     lastSavedAt,
-    setLastSavedAt,
-  } = useDocumentEditorStatus();
-  const [resetVersion, setResetVersion] = useState(0);
-
-  const previewRef = useRef<HTMLElement | null>(null);
-
-  useEffect(() => {
-    setCoverLetter(loadCoverLetter(coverLetterId));
-    setIsDirty(false);
-    setLastSavedAt(null);
-  }, [coverLetterId, setIsDirty, setLastSavedAt]);
-
-  const setCoverLetterSafe = useCallback(
-    (next: CoverLetter) => {
-      setCoverLetter(next);
-      setIsDirty(true);
-    },
-    [setIsDirty],
-  );
-
-  const persist = useCallback(
-    async (opts?: { silent?: boolean }) => {
-      setIsSaving(true);
-      try {
-        saveCoverLetter(coverLetterId, coverLetter);
-        setIsDirty(false);
-        setLastSavedAt(Date.now());
-        if (!opts?.silent) toast.success('저장 완료');
-      } catch {
-        toast.error('저장에 실패했습니다.');
-      } finally {
-        setIsSaving(false);
-      }
-    },
-    [
-      coverLetter,
-      coverLetterId,
-      setIsDirty,
-      setIsSaving,
-      setLastSavedAt,
-    ],
-  );
-
-  const reset = useCallback(() => {
-    setCoverLetter(defaultCoverLetter());
-    setResetVersion((version) => version + 1);
-    setIsDirty(true);
-    setLastSavedAt(null);
-  }, [setIsDirty, setLastSavedAt]);
-
-  const getExportFileName = useCallback(
-    (extension: 'png' | 'pdf') => {
-      const title = coverLetter.title.trim() || 'cover-letter';
-      return `${title}.${extension}`;
-    },
-    [coverLetter.title],
-  );
-
-  const exportImage = useCallback(async () => {
-    if (!previewRef.current) {
-      toast.error('보낼 미리보기를 찾지 못했습니다.');
-      return;
-    }
-
-    setIsExporting(true);
-    try {
-      await exportDocumentImage({
-        fileName: getExportFileName('png'),
-        target: previewRef.current,
-      });
-      toast.success('이미지 저장 완료');
-    } catch (error) {
-      toast.error(
-        error instanceof Error ? error.message : '이미지 저장에 실패했습니다.',
-      );
-    } finally {
-      setIsExporting(false);
-    }
-  }, [getExportFileName, setIsExporting]);
-
-  const printCoverLetter = useCallback(async () => {
-    if (!previewRef.current) {
-      toast.error('보낼 미리보기를 찾지 못했습니다.');
-      return;
-    }
-
-    setIsExporting(true);
-    try {
-      exportDocumentPdf({ fileName: getExportFileName('pdf') });
-    } catch (error) {
-      toast.error(
-        error instanceof Error ? error.message : 'PDF 저장에 실패했습니다.',
-      );
-    } finally {
-      setIsExporting(false);
-    }
-  }, [getExportFileName, setIsExporting]);
-
-  useEffect(() => {
-    if (!isDirty || isSaving) return;
-
-    const AUTO_SAVE_DELAY = 60_000;
-    const timer = setTimeout(() => persist({ silent: true }), AUTO_SAVE_DELAY);
-    return () => clearTimeout(timer);
-  }, [persist, isDirty, isSaving]);
+  } = useDocumentEditorCore({
+    documentId: coverLetterId,
+    loadDocument: loadCoverLetter,
+    saveDocument: saveCoverLetter,
+    createDefaultDocument: defaultCoverLetter,
+    getPrintFileName: getCoverLetterPrintFileName,
+  });
 
   const value = useMemo(
     () => ({
       coverLetterId,
+      document: coverLetter,
       coverLetter,
-      setCoverLetter: setCoverLetterSafe,
-      save: persist,
+      setDocument: setCoverLetter,
+      setCoverLetter,
+      save,
       reset,
-      exportImage,
-      printCoverLetter,
+      printDocument,
+      printCoverLetter: printDocument,
       previewRef,
       resetVersion,
       totalValidationErrorCount: 0,
@@ -181,11 +86,11 @@ export function CoverLetterEditorProvider({
     [
       coverLetter,
       coverLetterId,
-      setCoverLetterSafe,
-      persist,
+      setCoverLetter,
+      save,
       reset,
-      exportImage,
-      printCoverLetter,
+      printDocument,
+      previewRef,
       resetVersion,
       isDirty,
       isExporting,

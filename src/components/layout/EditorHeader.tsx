@@ -22,7 +22,6 @@ export type EditorActions = {
   onSave: () => void;
   onReset: () => void;
   onLoadSample: () => void;
-  onExportImage: () => void;
   onPrintResume: () => void;
   onExitHome: () => void;
 };

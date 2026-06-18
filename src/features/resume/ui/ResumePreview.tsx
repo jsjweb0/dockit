@@ -1,4 +1,3 @@
-import { forwardRef } from 'react';
 import type { Resume } from '../model/resume.types';
 import { formatApplicationType } from '../model/resume.types';
 
@@ -54,61 +53,60 @@ function KoreanDate({ value }: { value?: string }) {
   );
 }
 
-export const ResumePreview = forwardRef<HTMLElement, Props>(
-  function ResumePreview({ value }, ref) {
-    const b = value.basics;
-    const educationRows = fillRows(
-      toPreviewOrder(value.education).filter((row) =>
-        hasAnyValue(row, ['period', 'institution', 'major']),
-      ),
-      (index) => ({
-        id: `empty-education-${index}`,
-        period: '',
-        institution: '',
-        major: '',
-      }),
-    );
-    const certificationRows = fillRows(
-      toPreviewOrder(value.certifications).filter((row) =>
-        hasAnyValue(row, ['acquiredAt', 'name', 'issuer'])
-      ),
-      (index) => ({
-        id: `empty-certification-${index}`,
-        acquiredAt: '',
-        name: '',
-        issuer: '',
-      })
-    );
-    const experienceRows = fillRows(
-      toPreviewOrder(value.experience).filter((row) =>
-        hasAnyValue(row, ['company', 'role', 'start', 'end', 'description'])
-      ),
-      (index) => ({
-        id: `empty-experience-${index}`,
-        company: '',
-        role: '',
-        start: '',
-        isCurrent: false,
-        end: '',
-        description: '',
-      })
-    );
-    const projectRows = fillRows(
-      toPreviewOrder(value.projects).filter((row) =>
-        hasAnyValue(row, ['name', 'period', 'stack', 'description', 'link']),
-      ),
-      (index) => ({
-        id: `empty-project-${index}`,
-        name: '',
-        period: '',
-        stack: '',
-        description: '',
-        link: '',
-      })
-    );
+export function ResumePreview({ value }: Props) {
+  const b = value.basics;
+  const educationRows = fillRows(
+    toPreviewOrder(value.education).filter((row) =>
+      hasAnyValue(row, ['period', 'institution', 'major']),
+    ),
+    (index) => ({
+      id: `empty-education-${index}`,
+      period: '',
+      institution: '',
+      major: '',
+    }),
+  );
+  const certificationRows = fillRows(
+    toPreviewOrder(value.certifications).filter((row) =>
+      hasAnyValue(row, ['acquiredAt', 'name', 'issuer']),
+    ),
+    (index) => ({
+      id: `empty-certification-${index}`,
+      acquiredAt: '',
+      name: '',
+      issuer: '',
+    }),
+  );
+  const experienceRows = fillRows(
+    toPreviewOrder(value.experience).filter((row) =>
+      hasAnyValue(row, ['company', 'role', 'start', 'end', 'description']),
+    ),
+    (index) => ({
+      id: `empty-experience-${index}`,
+      company: '',
+      role: '',
+      start: '',
+      isCurrent: false,
+      end: '',
+      description: '',
+    }),
+  );
+  const projectRows = fillRows(
+    toPreviewOrder(value.projects).filter((row) =>
+      hasAnyValue(row, ['name', 'period', 'stack', 'description', 'link']),
+    ),
+    (index) => ({
+      id: `empty-project-${index}`,
+      name: '',
+      period: '',
+      stack: '',
+      description: '',
+      link: '',
+    }),
+  );
 
-    return (
-      <section ref={ref} className="resumeDocument" aria-hidden="true">
+  return (
+    <div className="resumeDocument">
         <div className="resumeDocument__header">
           <h2 className="resumeDocument__title">
             <span>이</span>
@@ -398,7 +396,6 @@ export const ResumePreview = forwardRef<HTMLElement, Props>(
             작성자 : <span>{b.name || ''}</span> (인)
           </p>
         </div>
-      </section>
-    );
-  },
-);
+    </div>
+  );
+}
