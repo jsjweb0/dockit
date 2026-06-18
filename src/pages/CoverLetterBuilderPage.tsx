@@ -18,7 +18,8 @@ export function CoverLetterBuilderPage() {
   return (
     <DocumentBuilderLayout
       form={<CoverLetterForm value={coverLetter} onChange={setCoverLetter} />}
-      preview={<CoverLetterPreview ref={previewRef} value={coverLetter} />}
+      preview={<CoverLetterPreview value={coverLetter} />}
+      previewRef={previewRef}
       previewControls={previewControls}
     />
   );

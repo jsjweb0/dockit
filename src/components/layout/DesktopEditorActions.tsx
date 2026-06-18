@@ -16,7 +16,7 @@ import {
   AlertDialogTitle,
   AlertDialogTrigger,
 } from '@/components/ui/alert-dialog';
-import { ImageDownIcon, RefreshCcw, FileInput, FilePenLine } from 'lucide-react';
+import { RefreshCcw, FileInput, FilePenLine } from 'lucide-react';
 import type {
   EditorActions,
   EditorStatus,
@@ -28,7 +28,7 @@ type Props = {
 };
 
 export function DesktopEditorActions({ actions, status }: Props) {
-  const { onReset, onLoadSample, onExportImage, onPrintResume } = actions;
+  const { onReset, onLoadSample, onPrintResume } = actions;
   const { isDirty, isExporting } = status;
 
   return (
@@ -70,26 +70,6 @@ export function DesktopEditorActions({ actions, status }: Props) {
           </p>
         </TooltipContent>
       </Tooltip>
-      <Tooltip>
-        <TooltipTrigger asChild>
-          <Button
-            variant="outline"
-            size="icon"
-            className="rounded-full"
-            aria-label="이미지 저장"
-            onClick={onExportImage}
-            disabled={isExporting}
-          >
-            <ImageDownIcon className="size-5" aria-hidden="true" />
-          </Button>
-        </TooltipTrigger>
-        <TooltipContent>
-          <p className="text-sm">
-            {isExporting ? '이미지 저장 중' : '이미지 저장'}
-          </p>
-        </TooltipContent>
-      </Tooltip>
-
       <Tooltip>
         <AlertDialog>
           <AlertDialogTrigger asChild>

@@ -1,5 +1,3 @@
-import { documentTemplates } from '@/features/documents/model/documentTemplates';
-import type { DocumentTemplate } from '@/features/documents/model/documentTemplates';
 import {
   createDocumentStorage,
   type DocumentDraftSummary,
@@ -9,12 +7,11 @@ import type { CoverLetter } from './coverLetter.types';
 
 export type CoverLetterDraftSummary = DocumentDraftSummary;
 
-function getDraftTitle(
-  coverLetter: CoverLetter,
-  template: DocumentTemplate = documentTemplates[1],
-) {
+const COVER_LETTER_DOCUMENT_TITLE = '자기소개서';
+
+function getDraftTitle(coverLetter: CoverLetter) {
   const title = coverLetter.title.trim();
-  return title || template.title;
+  return title || COVER_LETTER_DOCUMENT_TITLE;
 }
 
 function getDraftDescription(coverLetter: CoverLetter) {

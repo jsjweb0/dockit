@@ -11,12 +11,6 @@ const EditorLayout = lazy(() =>
     })),
 );
 
-const CoverLetterEditorLayout = lazy(() =>
-    import('@/layout/EditorLayout').then((module) => ({
-        default: module.CoverLetterEditorLayout,
-    })),
-);
-
 const ResumeBuilderPage = lazy(() =>
     import('@/pages/ResumeBuilderPage').then((module) => ({
         default: module.ResumeBuilderPage,
@@ -58,7 +52,7 @@ export const router = createBrowserRouter([
         ],
     },
     {
-        element: withSuspense(<CoverLetterEditorLayout />),
+        element: withSuspense(<EditorLayout />),
         errorElement: <ErrorFallback />,
         children: [
             { path: "/cover-letter", element: withSuspense(<CoverLetterBuilderPage />) },

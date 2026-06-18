@@ -3,12 +3,11 @@ import { useState } from 'react';
 import { ArrowRight, Clock3, Trash2, Info as InfoIcon, RefreshCcw, Hash as HashIcon } from 'lucide-react';
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
-import { documentTemplates } from '@/features/documents/model/documentTemplates';
+import { documentTemplates } from '@/layout/editor.config';
 import {
-  listRecentResumeDrafts,
-  type ResumeDraftSummary,
-  deleteResumeDraft
-} from '@/features/resume/model/resume.storage';
+  listRecentDocumentDrafts,
+  type RecentDocumentDraft,
+} from '@/features/documents/model/document.recent';
 import {
   AlertDialog,
   AlertDialogAction,
@@ -27,8 +26,8 @@ import { usePageTitle } from '@/hooks/usePageTitle';
 export function HomePage() {
   usePageTitle();
 
-  const [recentDrafts, setRecentDrafts] = useState<ResumeDraftSummary[]>(() =>
-    listRecentResumeDrafts(3),
+  const [recentDrafts, setRecentDrafts] = useState<RecentDocumentDraft[]>(() =>
+    listRecentDocumentDrafts(3),
   );
 
   const [searchParams, setSearchParams] = useSearchParams();
@@ -100,13 +99,16 @@ export function HomePage() {
                 'group grid grid-cols-[1fr_auto] h-full gap-3 rounded-lg border bg-card p-5',
                 'transition-colors has-[a:hover]:border-ring has-[a:focus-visible]:ring-ring/50 has-[a:focus-visible]:ring-2',
               )}>
-                <Link to={`/resume/${draft.id}`}
-                  className="grid gap-3 pt-1 focus-visible:outline-none"
+                <Link to={draft.href}
+                  className="grid pt-1 focus-visible:outline-none"
                 >
+                  <Badge variant="secondary" className="w-fit mb-2">
+                    {draft.documentLabel}
+                  </Badge>
                   <h3 className="line-clamp-2 text-lg font-semibold group-hover:text-primary">
                     {draft.title}
                   </h3>
-                  <p className="line-clamp-2 text-sm leading-6 text-muted-foreground">
+                  <p className="mt-3 line-clamp-2 text-sm leading-6 text-muted-foreground">
                     {draft.description}
                   </p>
                 </Link>
@@ -126,8 +128,8 @@ export function HomePage() {
                     <AlertDialogFooter>
                       <AlertDialogCancel>닫기</AlertDialogCancel>
                       <AlertDialogAction aria-label={`${draft.title} 삭제`} onClick={() => {
-                        deleteResumeDraft(draft.id);
-                        setRecentDrafts(listRecentResumeDrafts(3));
+                        draft.deleteDraft(draft.id);
+                        setRecentDrafts(listRecentDocumentDrafts(3));
                       }}>
                         삭제
                       </AlertDialogAction>
@@ -174,7 +176,7 @@ export function HomePage() {
         </div>
       ) : (
         <section className="grid gap-4 my-12 md:my-14 " aria-labelledby="template-heading">
-          <div>
+          <div className={cn(keyword && 'mb-3 text-center')}>
             <h2 id="template-heading" className="text-2xl font-semibold">
               {keyword ? '문서 양식 검색 결과' : '문서 양식'}
             </h2>

@@ -59,68 +59,62 @@ export function ResumeForm({ value, onChange }: Props) {
   };
 
   return (
-    <section className="resumeEditorPane lg:px-10 lg:pt-9 lg:pb-15">
-      <div className="flex justify-between items-center mb-4">
-        <h2 className="text-xl md:text-2xl font-semibold">문서작성</h2>
-      </div>
+    <Tabs value={activeTab} onValueChange={setActiveTab} className="w-full">
+      <TabsList className="flex h-auto w-full justify-start overflow-x-auto p-1 sm:grid sm:grid-cols-7" aria-label="이력서 작성 항목">
+        {tabs.map((tab) => (
+          <TabsTrigger
+            key={tab.value}
+            value={tab.value}
+            className="gap-0.5"
+            onClick={() => focusFirstError(tab.value)}
+          >
+            <span>{tab.label}</span>
+            {tab.count > 0 && (
+              <>
+                <span
+                  className="inline-flex min-w-4 items-center justify-center rounded-full bg-red-500 px-0.5 text-[10px] font-semibold leading-4 text-white"
+                  aria-hidden="true"
+                >
+                  {tab.count}
+                </span>
+                <span className="sr-only">오류 {tab.count}개</span>
+              </>
+            )}
+          </TabsTrigger>
+        ))}
+      </TabsList>
 
-      <Tabs value={activeTab} onValueChange={setActiveTab} className="w-full">
-        <TabsList className="flex h-auto w-full justify-start overflow-x-auto p-1 sm:grid sm:grid-cols-7" aria-label="이력서 작성 항목">
-          {tabs.map((tab) => (
-            <TabsTrigger
-              key={tab.value}
-              value={tab.value}
-              className="gap-0.5"
-              onClick={() => focusFirstError(tab.value)}
-            >
-              <span>{tab.label}</span>
-              {tab.count > 0 && (
-                <>
-                  <span
-                    className="inline-flex min-w-4 items-center justify-center rounded-full bg-red-500 px-0.5 text-[10px] font-semibold leading-4 text-white"
-                    aria-hidden="true"
-                  >
-                    {tab.count}
-                  </span>
-                  <span className="sr-only">오류 {tab.count}개</span>
-                </>
-              )}
-            </TabsTrigger>
-          ))}
-        </TabsList>
+      <TabsContent value="basics" className="mt-4">
+        <BasicsSection value={value} onChange={onChange} />
+      </TabsContent>
 
-        <TabsContent value="basics" className="mt-4">
-          <BasicsSection value={value} onChange={onChange} />
-        </TabsContent>
+      <TabsContent value="edu" className="mt-4 min-h-0 min-w-0 w-full">
+        <EducationSection value={value} onChange={onChange} />
+      </TabsContent>
 
-        <TabsContent value="edu" className="mt-4 min-h-0 min-w-0 w-full">
-          <EducationSection value={value} onChange={onChange} />
-        </TabsContent>
+      <TabsContent value="cer" className="mt-4">
+        <CertificationSection value={value} onChange={onChange} />
+      </TabsContent>
 
-        <TabsContent value="cer" className="mt-4">
-          <CertificationSection value={value} onChange={onChange} />
-        </TabsContent>
+      <TabsContent value="exp" className="mt-4">
+        <ExperienceSection value={value} onChange={onChange} />
+      </TabsContent>
 
-        <TabsContent value="exp" className="mt-4">
-          <ExperienceSection value={value} onChange={onChange} />
-        </TabsContent>
+      <TabsContent value="proj" className="mt-4">
+        <ProjectsSection value={value} onChange={onChange} />
+      </TabsContent>
 
-        <TabsContent value="proj" className="mt-4">
-          <ProjectsSection value={value} onChange={onChange} />
-        </TabsContent>
+      <TabsContent value="link" className="mt-4">
+        <LinkItemSection value={value} onChange={onChange} />
+      </TabsContent>
 
-        <TabsContent value="link" className="mt-4">
-          <LinkItemSection value={value} onChange={onChange} />
-        </TabsContent>
-
-        <TabsContent value="skills" className="mt-4">
-          <SkillsSection
-            key={resetVersion}
-            value={value}
-            onChange={onChange}
-          />
-        </TabsContent>
-      </Tabs>
-    </section>
+      <TabsContent value="skills" className="mt-4">
+        <SkillsSection
+          key={resetVersion}
+          value={value}
+          onChange={onChange}
+        />
+      </TabsContent>
+    </Tabs>
   );
 }
