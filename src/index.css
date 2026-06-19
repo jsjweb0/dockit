@@ -167,13 +167,11 @@
 @layer components {
   .documentPreviewViewport {
     width: 100%;
-    overflow: hidden;
     text-align: center;
   }
 
   .documentPreviewFrame {
     display: inline-block;
-    overflow: hidden;
     vertical-align: top;
   }
 

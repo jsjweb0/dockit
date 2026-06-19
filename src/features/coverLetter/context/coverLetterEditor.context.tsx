@@ -3,11 +3,18 @@ import React, {
   useCallback,
   useContext,
   useMemo,
+  useState,
 } from 'react';
 import type { CoverLetter } from '../model/coverLetter.types';
 import { defaultCoverLetter } from '../model/coverLetter.defaults';
 import { loadCoverLetter, saveCoverLetter } from '../model/coverLetter.storage';
 import { useDocumentEditorCore } from '@/features/documents/hooks/useDocumentEditorCore';
+import type { CoverLetterFieldErrors } from '../model/coverLetter.validation';
+import {
+  validateCoverLetter,
+  validateCoverLetterSection,
+} from '../model/coverLetter.validation';
+import { toast } from 'sonner';
 
 type CoverLetterEditorState = {
   coverLetterId: string;
@@ -26,10 +33,15 @@ type CoverLetterEditorState = {
   isExporting: boolean;
   isSaving: boolean;
   lastSavedAt: number | null;
+  coverLetterErrors: CoverLetterFieldErrors;
+  touchCoverLetterSection: (sectionId: string) => void;
+  revalidateCoverLetterSection: (
+    sectionId: string,
+    nextCoverLetter: CoverLetter,
+  ) => void;
 };
 
-const CoverLetterEditorContext =
-  createContext<CoverLetterEditorState | null>(null);
+const CoverLetterEditorContext = createContext<CoverLetterEditorState | null>(null);
 
 export function CoverLetterEditorProvider({
   documentId,
@@ -64,6 +76,85 @@ export function CoverLetterEditorProvider({
     getPrintFileName: getCoverLetterPrintFileName,
   });
 
+  const [coverLetterErrors, setCoverLetterErrors] =
+    useState<CoverLetterFieldErrors>({ sections: {} });
+  const [touchedSectionIds, setTouchedSectionIds] = useState<Set<string>>(
+    () => new Set(),
+  );
+
+  const setSectionError = useCallback((sectionId: string, message?: string) => {
+    setCoverLetterErrors((prev) => {
+      const nextSections = { ...prev.sections };
+
+      if (message) {
+        nextSections[sectionId] = message;
+      } else {
+        delete nextSections[sectionId];
+      }
+
+      return { sections: nextSections };
+    });
+  }, []);
+
+  const touchCoverLetterSection = useCallback(
+    (sectionId: string, nextCoverLetter = coverLetter) => {
+      setTouchedSectionIds((prev) => new Set(prev).add(sectionId));
+
+      const section = nextCoverLetter.sections.find(
+        (item) => item.id === sectionId,
+      );
+      setSectionError(
+        sectionId,
+        section ? validateCoverLetterSection(section) : undefined,
+      );
+    },
+    [coverLetter, setSectionError],
+  );
+
+  const revalidateCoverLetterSection = useCallback(
+    (sectionId: string, nextCoverLetter: CoverLetter) => {
+      if (!touchedSectionIds.has(sectionId)) return;
+      touchCoverLetterSection(sectionId, nextCoverLetter);
+    },
+    [touchedSectionIds, touchCoverLetterSection],
+  );
+
+  const validateCoverLetterBeforeExport = useCallback(() => {
+    const result = validateCoverLetter(coverLetter);
+    setCoverLetterErrors(result.errors);
+    setTouchedSectionIds(
+      new Set(coverLetter.sections.map((section) => section.id)),
+    );
+
+    if (!result.isValid) {
+      toast.error(
+        Object.values(result.errors.sections)[0] ?? '입력 정보를 확인해 주세요.',
+      );
+      return false;
+    }
+
+    return true;
+  }, [coverLetter]);
+
+  const resetCoverLetter = useCallback(() => {
+    reset();
+    setCoverLetterErrors({ sections: {} });
+    setTouchedSectionIds(new Set());
+  }, [reset]);
+
+  const saveCoverLetterWithValidation = useCallback(
+    async (opts?: { silent?: boolean }) => {
+      if (!validateCoverLetterBeforeExport()) return;
+      await save(opts);
+    },
+    [save, validateCoverLetterBeforeExport],
+  );
+
+  const printCoverLetter = useCallback(
+    () => printDocument(validateCoverLetterBeforeExport),
+    [printDocument, validateCoverLetterBeforeExport],
+  );
+
   const value = useMemo(
     () => ({
       coverLetterId,
@@ -71,13 +162,16 @@ export function CoverLetterEditorProvider({
       coverLetter,
       setDocument: setCoverLetter,
       setCoverLetter,
-      save,
-      reset,
-      printDocument,
-      printCoverLetter: printDocument,
+      save: saveCoverLetterWithValidation,
+      reset: resetCoverLetter,
+      printDocument: printCoverLetter,
+      printCoverLetter,
       previewRef,
       resetVersion,
-      totalValidationErrorCount: 0,
+      coverLetterErrors,
+      touchCoverLetterSection,
+      revalidateCoverLetterSection,
+      totalValidationErrorCount: Object.keys(coverLetterErrors.sections).length,
       isDirty,
       isExporting,
       isSaving,
@@ -87,9 +181,12 @@ export function CoverLetterEditorProvider({
       coverLetter,
       coverLetterId,
       setCoverLetter,
-      save,
-      reset,
-      printDocument,
+      saveCoverLetterWithValidation,
+      resetCoverLetter,
+      printCoverLetter,
+      coverLetterErrors,
+      touchCoverLetterSection,
+      revalidateCoverLetterSection,
       previewRef,
       resetVersion,
       isDirty,

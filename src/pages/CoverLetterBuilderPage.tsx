@@ -13,11 +13,26 @@ type CoverLetterBuilderOutletContext = {
 
 export function CoverLetterBuilderPage() {
   const { previewControls } = useOutletContext<CoverLetterBuilderOutletContext>();
-  const { coverLetter, setCoverLetter, previewRef } = useCoverLetterEditor();
+  const {
+    coverLetter,
+    setCoverLetter,
+    previewRef,
+    coverLetterErrors,
+    touchCoverLetterSection,
+    revalidateCoverLetterSection,
+  } = useCoverLetterEditor();
 
   return (
     <DocumentBuilderLayout
-      form={<CoverLetterForm value={coverLetter} onChange={setCoverLetter} />}
+      form={
+        <CoverLetterForm
+          value={coverLetter}
+          onChange={setCoverLetter}
+          errors={coverLetterErrors}
+          onSectionBlur={touchCoverLetterSection}
+          onSectionChange={revalidateCoverLetterSection}
+        />
+      }
       preview={<CoverLetterPreview value={coverLetter} />}
       previewRef={previewRef}
       previewControls={previewControls}

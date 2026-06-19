@@ -4,7 +4,7 @@
 
 [데모 보기](https://dockit.jsjweb0.workers.dev/) · [GitHub](https://github.com/jsjweb0/dockit)
 
-![DocKit 예시 불러오기와 PDF 저장 흐름](./docs/readme/dockit-demo.gif)
+DocKit 예시 불러오기와 PDF 저장 흐름
 
 ---
 
@@ -154,8 +154,6 @@ npm run deploy
 
 ## 앞으로 개선할 점
 
-- README 상단 이미지를 실제 작성 흐름을 보여주는 GIF 또는 스크린샷으로 교체
 - 자기소개서 작성 화면의 저장, 미리보기, 검증 흐름 완성
-- 결과물 이미지 저장 기능 추가 예정
 - 출력 레이아웃을 다양한 화면 크기와 인쇄 환경에서 더 안정적으로 조정
 - 저장 데이터 스키마 변경에 대비한 마이그레이션 로직 보강
