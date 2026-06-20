@@ -147,7 +147,7 @@ export const DocumentPreviewPanel = forwardRef<
         </p>
 
         <Card className="border-0 py-0 shadow-none">
-          <CardContent className="overflow-x-auto p-4 md:p-6">
+          <CardContent className="overflow-y-auto p-4 md:p-6">
             <div ref={previewViewportRef} className="documentPreviewViewport">
               <div
                 className="documentPreviewFrame"
