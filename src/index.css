@@ -373,6 +373,7 @@
     .documentEditorPane,
     .previewToggleButton,
     .documentPreview__title,
+    .sr-only,
     .docTable caption {
       display: none;
     }
@@ -393,11 +394,13 @@
       padding: 15mm 20mm;
       background: #fff;
       box-shadow: none;
+      break-after: auto;
     }
 
     #preview-panel {
       display: block !important;
-      position: static;
+      position: static !important;
+      inset: auto;
       padding: 0;
       background: #fff;
       border: none;
@@ -409,7 +412,8 @@
       padding: 0;
     }
 
-    .documentPreviewScaler {
+    .documentPreviewScaler,
+    .documentPreviewFrame {
       width: auto !important;
       height: auto !important;
       transform: none !important;
