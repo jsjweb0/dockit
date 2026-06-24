@@ -63,12 +63,11 @@ export function HomePage() {
           </Badge>
           <div className="grid gap-4">
             <h2 className="text-3xl font-bold leading-tight text-foreground sm:text-4xl break-keep">
-              입력 폼으로 작성하고, <br />
-              제출용 문서 레이아웃으로 바로 확인합니다.
+              입력하면서,<br />
+              제출될 문서 형태를 바로 확인합니다.
             </h2>
             <p className="text-base leading-7 text-muted-foreground">
-              이력서부터 자기소개서, 경력기술서, 프로젝트 보고서까지 <br />
-              포트폴리오와 취업 준비에 필요한 문서를 한 곳에서 작성하는 React 문서 작성 도구입니다.
+              최종 제출 형태를 보면서 이력서와 자기소개서를 작성할 수 있는 React 문서 작성 도구입니다.
             </p>
           </div>
           <div className="flex flex-wrap">
@@ -86,7 +85,7 @@ export function HomePage() {
         <section className="my-12 md:my-18 grid gap-4" aria-labelledby="recent-drafts-heading">
           <div>
             <h2 id="recent-drafts-heading" className="text-2xl font-semibold">
-              최근 작성중
+              최근 작성
             </h2>
             <p className="mt-1 text-muted-foreground">
               저장한 문서를 다시 열어 이어서 작성할 수 있습니다.
@@ -102,7 +101,7 @@ export function HomePage() {
                 <Link to={draft.href}
                   className="grid pt-1 focus-visible:outline-none"
                 >
-                  <Badge variant="secondary" className="w-fit mb-2">
+                  <Badge variant="secondary" className="w-fit mb-2.5">
                     {draft.documentLabel}
                   </Badge>
                   <h3 className="line-clamp-2 text-lg font-semibold group-hover:text-primary">
@@ -178,7 +177,7 @@ export function HomePage() {
         <section className="grid gap-4 my-12 md:my-14 " aria-labelledby="template-heading">
           <div className={cn(keyword && 'mb-3 text-center')}>
             <h2 id="template-heading" className="text-2xl font-semibold">
-              {keyword ? '문서 양식 검색 결과' : '문서 양식'}
+              {keyword ? '문서 양식 검색 결과' : '새 문서 만들기'}
             </h2>
             {keyword ? (
               <p className="mt-1 text-muted-foreground"
@@ -190,7 +189,7 @@ export function HomePage() {
                 {filteredTemplates.length}개입니다.
               </p>
             ) : (
-              <p className="mt-1 text-muted-foreground">먼저 이력서를 완성하고, 같은 구조로 양식을 확장할 예정입니다.</p>
+              <p className="mt-1 text-muted-foreground">현재는 국문 이력서와 자기소개서를 지원합니다.</p>
             )}
 
           </div>
@@ -209,7 +208,7 @@ export function HomePage() {
                         template.status === 'available' ? 'default' : 'outline'
                       }
                     >
-                      {template.status === 'available' ? '작성 가능' : '준비 중'}
+                      {template.status === 'available' ? 'Beta' : 'Coming Soon'}
                     </Badge>
                   </div>
                   <div className="grid gap-2">
