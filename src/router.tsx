@@ -23,6 +23,13 @@ const CoverLetterBuilderPage = lazy(() =>
     })),
 );
 
+const CareerSummaryBuilderPage = lazy(() =>
+    import('@/pages/CareerSummaryBuilderPage').then((module) => ({
+        default: module.CareerSummaryBuilderPage,
+    })),
+);
+
+
 function RouteLoadingFallback() {
     return (
         <main className="mx-auto flex max-w-7xl justify-center items-center gap-2 px-4 py-8 text-sm text-muted-foreground">
@@ -57,6 +64,14 @@ export const router = createBrowserRouter([
         children: [
             { path: "/cover-letter", element: withSuspense(<CoverLetterBuilderPage />) },
             { path: "/cover-letter/:id", element: withSuspense(<CoverLetterBuilderPage />) }
+        ],
+    },
+    {
+        element: withSuspense(<EditorLayout />),
+        errorElement: <ErrorFallback />,
+        children: [
+            { path: "/career-summary", element: withSuspense(<CareerSummaryBuilderPage />) },
+            { path: "/career-summary/:id", element: withSuspense(<CareerSummaryBuilderPage />) }
         ],
     },
 
