@@ -148,10 +148,20 @@ export function ExperienceSection({ value, onChange }: Props) {
                   checked={e.isCurrent}
                   onCheckedChange={(checked) => {
                     const isCurrent = checked === true;
-                    const nextResume = update(e.id, {
-                      isCurrent,
-                      end: isCurrent ? '' : e.end,
+                    const nextExperience = list.map((item) => {
+                      if (item.id === e.id) {
+                        return {
+                          ...item,
+                          isCurrent,
+                          end: isCurrent ? '' : item.end,
+                        };
+                      }
+
+                      return isCurrent ? { ...item, isCurrent: false } : item;
                     });
+                    const nextResume = { ...value, experience: nextExperience };
+
+                    onChange(nextResume);
                     revalidate(e.id, 'end', nextResume);
                   }}
                   className="peer"

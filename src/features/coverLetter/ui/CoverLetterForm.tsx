@@ -92,23 +92,25 @@ export function CoverLetterForm({
                     className="resize-none h-52 pb-6"
                     autoComplete="off"
                   />
-                  <p
-                    id={`${section.id}-count`}
-                    className="mt-1 mr-1 text-right text-sm tracking-tight text-gray-500"
-                  >
-                    <span className={cn(section.content.length >= 600 && 'font-bold')}>
-                      {section.content.length}
-                    </span>{' '}
-                    / {sectionLimit}
-                  </p>
-                  <p id={`${section.id}-prompt`} className="sr-only">
-                    {section.prompt}
-                  </p>
-                  {errorMessage && (
-                    <FieldError id={`${section.id}-error`}>
-                      {errorMessage}
-                    </FieldError>
-                  )}
+                  <div className="flex justify-between mt-2 px-1">
+                    <p id={`${section.id}-prompt`} className="sr-only">
+                      {section.prompt}
+                    </p>
+                    {errorMessage && (
+                      <FieldError id={`${section.id}-error`}>
+                        {errorMessage}
+                      </FieldError>
+                    )}
+                    <p
+                      id={`${section.id}-count`}
+                      className="text-right text-sm tracking-tight text-gray-500"
+                    >
+                      <span className={cn(section.content.length >= 600 && 'font-bold')}>
+                        {section.content.length}
+                      </span>{' '}
+                      / {sectionLimit}
+                    </p>
+                  </div>
                 </div>
 
               </Field>

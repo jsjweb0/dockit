@@ -22,7 +22,7 @@ export function DefaultFooter() {
             <Mail className="size-4" aria-hidden="true" />
           </a>
           <a
-            href="https://jsjweb0.github.io/dockit/"
+            href="https://github.com/jsjweb0/dockit"
             target="_blank"
             rel="noopener noreferrer"
             aria-label="GitHub 저장소 새 창에서 열기"
