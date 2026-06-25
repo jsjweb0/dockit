@@ -28,6 +28,16 @@ import {
 import { sampleResume } from '@/features/resume/model/resume.sample';
 import { sampleCoverLetter } from '@/features/coverLetter/model/coverLetter.sample';
 import type { DocumentDraftSummary } from '@/features/documents/model/document.storage';
+import {
+  CareerSummaryEditorProvider,
+  useCareerSummaryEditor,
+} from '@/features/careerSummary/context/careerSummaryEditor.context';
+import { sampleCareerSummary } from '@/features/careerSummary/model/careerSummary.sample';
+import {
+  deleteCareerSummaryDraft,
+  listRecentCareerSummaryDrafts,
+} from '@/features/careerSummary/model/careerSummary.storage';
+import type { CareerSummary } from '@/features/careerSummary/model/careerSummary.types';
 
 export type DocumentTemplateStatus = 'available' | 'planned';
 
@@ -101,7 +111,8 @@ export const documentTemplates: DocumentTemplate[] = [
     description:
       '회사, 역할, 주요 업무, 성과를 항목별로 정리해 경력 중심 문서로 보여줍니다.',
     purpose: '경력/실무 경험 정리',
-    status: 'planned',
+    status: 'available',
+    href: '/career-summary',
     icon: ListChecks,
   },
   {
@@ -129,12 +140,13 @@ const getDocumentTemplate = (id: string) => {
   return template;
 };
 
-const createDocumentEditorConfig = <TDocument,>(
+const createDocumentEditorConfig = <TDocument>(
   config: DocumentEditorConfig<TDocument>,
 ): AnyDocumentEditorConfig => config as unknown as AnyDocumentEditorConfig;
 
 const resumeTemplate = getDocumentTemplate('resume');
 const coverLetterTemplate = getDocumentTemplate('cover-letter');
+const careerSummaryTemplate = getDocumentTemplate('career-summary');
 
 const resumeEditorConfig = createDocumentEditorConfig<Resume>({
   template: resumeTemplate,
@@ -168,12 +180,34 @@ const coverLetterEditorConfig = createDocumentEditorConfig<CoverLetter>({
   },
 });
 
-export const editorConfigs = [resumeEditorConfig, coverLetterEditorConfig];
+const careerSummaryEditorConfig = createDocumentEditorConfig<CareerSummary>({
+  template: careerSummaryTemplate,
+  Provider: CareerSummaryEditorProvider,
+  useEditor: useCareerSummaryEditor,
+  getTitle: (careerSummary) => careerSummary.title.trim(),
+  getPageTitle: (careerSummary, template) => {
+    const title = careerSummary.title.trim();
+    return title || `새 ${template.title}`;
+  },
+  createSample: sampleCareerSummary,
+  recent: {
+    listDrafts: listRecentCareerSummaryDrafts,
+    deleteDraft: deleteCareerSummaryDraft,
+  },
+});
+
+export const editorConfigs = [
+  resumeEditorConfig,
+  coverLetterEditorConfig,
+  careerSummaryEditorConfig,
+];
 
 export const getEditorConfigByPathname = (pathname: string) => {
   const config = editorConfigs.find(({ template }) => {
     if (!template.href) return false;
-    return pathname === template.href || pathname.startsWith(`${template.href}/`);
+    return (
+      pathname === template.href || pathname.startsWith(`${template.href}/`)
+    );
   });
 
   if (!config) throw new Error(`Unknown editor route: ${pathname}`);
