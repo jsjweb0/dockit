@@ -18,6 +18,7 @@ import type {
 import { Fragment } from 'react/jsx-runtime';
 import { Plus } from 'lucide-react';
 import { createId } from '@/lib/utils';
+import { Checkbox } from '@/components/ui/checkbox';
 
 type Props = {
     value: CareerSummary;
@@ -61,7 +62,9 @@ export function CareerSummaryForm({
                     company: '',
                     team: '',
                     role: '',
-                    period: '',
+                    startDate: '',
+                    endDate: '',
+                    isCurrent: false,
                     responsibilities: '',
                     achievements: [createEmptyAchievement()],
                 },
@@ -167,7 +170,7 @@ export function CareerSummaryForm({
 
                 <div className="flex items-center justify-between gap-3">
                     <FieldDescription>
-                        가장 최근 경력부터 추가하면 미리보기에서 읽기 쉽습니다.
+                        경력을 추가하면 새 항목이 위에 배치됩니다.
                     </FieldDescription>
                     <Button
                         type="button"
@@ -183,7 +186,8 @@ export function CareerSummaryForm({
                     const companyId = `career-summary-company-${section.id}`;
                     const teamId = `career-summary-team-${section.id}`;
                     const roleId = `career-summary-role-${section.id}`;
-                    const periodId = `career-summary-period-${section.id}`;
+                    const startDateId = `career-summary-startDate-${section.id}`;
+                    const endDateId = `career-summary-endDate-${section.id}`;
                     const responsibilitiesId = `career-summary-responsibilities-${section.id}`;
 
                     return (
@@ -203,22 +207,78 @@ export function CareerSummaryForm({
                                         삭제
                                     </Button>
                                 </div>
-                                <div className="grid gap-3 sm:grid-cols-2">
+                                <Field>
+                                    <FieldLabel htmlFor={companyId}>회사명</FieldLabel>
+                                    <Input
+                                        id={companyId}
+                                        value={section.company}
+                                        onChange={(event) =>
+                                            updateExperience(section.id, {
+                                                company: event.target.value,
+                                            })
+                                        }
+                                        onBlur={() => onSectionBlur?.(section.id)}
+                                        placeholder="회사명"
+                                        autoComplete="organization"
+                                    />
+                                </Field>
+                                <div className="grid gap-3 grid-cols-[auto_auto_70px]">
                                     <Field>
-                                        <FieldLabel htmlFor={companyId}>회사명</FieldLabel>
+                                        <FieldLabel htmlFor={startDateId}>시작일</FieldLabel>
                                         <Input
-                                            id={companyId}
-                                            value={section.company}
+                                            id={startDateId}
+                                            type="month"
+                                            name="startDate"
+                                            value={section.startDate}
                                             onChange={(event) =>
                                                 updateExperience(section.id, {
-                                                    company: event.target.value,
+                                                    startDate: event.target.value,
                                                 })
                                             }
-                                            onBlur={() => onSectionBlur?.(section.id)}
-                                            placeholder="예: 독킷스튜디오"
-                                            autoComplete="organization"
+                                            placeholder="2026.01"
+                                            autoComplete="off"
                                         />
                                     </Field>
+                                    <Field>
+                                        <FieldLabel htmlFor={endDateId}>종료일</FieldLabel>
+                                        <Input
+                                            id={endDateId}
+                                            type="month"
+                                            name="endDate"
+                                            value={section.endDate ?? ''}
+                                            disabled={section.isCurrent}
+                                            onChange={(event) =>
+                                                updateExperience(section.id, {
+                                                    endDate: event.target.value,
+                                                })
+                                            }
+                                            placeholder="2026.01"
+                                            autoComplete="off"
+                                        />
+                                    </Field>
+                                    <Field orientation="horizontal" className="mt-8">
+                                        <Checkbox
+                                            id={`isCurrent-${section.id}`}
+                                            checked={section.isCurrent}
+                                            onCheckedChange={(checked) => {
+                                                const isCurrent = checked === true;
+
+                                                updateExperience(section.id, {
+                                                    isCurrent,
+                                                    endDate: isCurrent ? '' : section.endDate,
+                                                });
+                                            }}
+                                            className="peer"
+                                        />
+                                        <FieldLabel
+                                            htmlFor={`isCurrent-${section.id}`}
+                                            className="text-sm text-muted-foreground peer-data-[state=checked]:text-black"
+                                        >
+                                            재직 중
+                                        </FieldLabel>
+                                    </Field>
+                                </div>
+                                <div className="grid grid-cols-2 gap-3">
                                     <Field>
                                         <FieldLabel htmlFor={teamId}>소속/팀</FieldLabel>
                                         <Input
@@ -229,12 +289,12 @@ export function CareerSummaryForm({
                                                     team: event.target.value,
                                                 })
                                             }
-                                            placeholder="예: 프로덕트팀"
+                                            placeholder="소속/팀"
                                             autoComplete="off"
                                         />
                                     </Field>
                                     <Field>
-                                        <FieldLabel htmlFor={roleId}>직무/직책</FieldLabel>
+                                        <FieldLabel htmlFor={roleId}>직책</FieldLabel>
                                         <Input
                                             id={roleId}
                                             value={section.role}
@@ -243,27 +303,13 @@ export function CareerSummaryForm({
                                                     role: event.target.value,
                                                 })
                                             }
-                                            placeholder="예: 프론트엔드 개발자"
+                                            placeholder="직책"
                                             autoComplete="organization-title"
-                                        />
-                                    </Field>
-                                    <Field>
-                                        <FieldLabel htmlFor={periodId}>근무 기간</FieldLabel>
-                                        <Input
-                                            id={periodId}
-                                            value={section.period}
-                                            onChange={(event) =>
-                                                updateExperience(section.id, {
-                                                    period: event.target.value,
-                                                })
-                                            }
-                                            placeholder="예: 2023.01 - 2024.12"
-                                            autoComplete="off"
                                         />
                                     </Field>
                                 </div>
                                 <Field>
-                                    <FieldLabel htmlFor={responsibilitiesId}>주요 업무</FieldLabel>
+                                    <FieldLabel htmlFor={responsibilitiesId}>직무</FieldLabel>
                                     <Input
                                         id={responsibilitiesId}
                                         value={section.responsibilities}
@@ -323,7 +369,7 @@ export function CareerSummaryForm({
                                                 </div>
                                                 <Field>
                                                     <FieldLabel htmlFor={achievementTitleId}>
-                                                        성과 제목
+                                                        주요성과 {achievementNumber}
                                                     </FieldLabel>
                                                     <Input
                                                         id={achievementTitleId}
@@ -341,7 +387,7 @@ export function CareerSummaryForm({
                                                 </Field>
                                                 <Field>
                                                     <FieldLabel htmlFor={achievementDescriptionId}>
-                                                        성과 설명
+                                                        주요성과 설명
                                                     </FieldLabel>
                                                     <Textarea
                                                         id={achievementDescriptionId}

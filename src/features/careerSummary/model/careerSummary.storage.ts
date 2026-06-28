@@ -19,14 +19,13 @@ function getDraftTitle(careersummary: CareerSummary) {
 }
 
 function getDraftDescription(careersummary: CareerSummary) {
-  const title = careersummary.title.trim();
-  const company = careersummary.experiences.filter((section) =>
+  const companySectionCount = careersummary.experiences.filter((section) =>
     section.company.trim(),
   ).length;
 
-  if (title && company > 0) return `${title} · ${company}`;
+  if (companySectionCount > 0) return `${companySectionCount}개 문항 작성 중`;
 
-  return title || '작성 중인 문서';
+  return '작성 중인 문서';
 }
 
 function normalizeCareerSummary(
@@ -65,9 +64,11 @@ function normalizeCareerSummary(
 
     const item = experience as Partial<CareerExperience> & {
       description?: unknown;
+      period?: unknown;
     };
     const fallbackDescription =
       typeof item.description === 'string' ? item.description : '';
+    const fallbackPeriod = typeof item.period === 'string' ? item.period : '';
 
     return {
       ...fallback,
@@ -76,11 +77,12 @@ function normalizeCareerSummary(
       company: typeof item.company === 'string' ? item.company : '',
       team: typeof item.team === 'string' ? item.team : '',
       role: typeof item.role === 'string' ? item.role : '',
-      period: typeof item.period === 'string' ? item.period : '',
+      startDate:
+        typeof item.startDate === 'string' ? item.startDate : fallbackPeriod,
+      endDate: typeof item.endDate === 'string' ? item.endDate : '',
+      isCurrent: typeof item.isCurrent === 'boolean' ? item.isCurrent : false,
       responsibilities:
-        typeof item.responsibilities === 'string'
-          ? item.responsibilities
-          : '',
+        typeof item.responsibilities === 'string' ? item.responsibilities : '',
       achievements: Array.isArray(item.achievements)
         ? item.achievements.map((achievement) =>
             normalizeAchievement(achievement),

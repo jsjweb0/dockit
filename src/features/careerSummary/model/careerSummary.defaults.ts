@@ -11,7 +11,9 @@ export function defaultCareerSummary(): CareerSummary {
         company: '',
         team: '',
         role: '',
-        period: '',
+        startDate: '',
+        endDate: '',
+        isCurrent: false,
         responsibilities: '',
         achievements: [
           {

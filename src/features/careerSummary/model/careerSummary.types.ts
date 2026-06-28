@@ -1,6 +1,6 @@
 export type Achievement = {
   title: string;
-  description: string; // 성과 설명
+  description?: string; // 성과 설명
 };
 
 export type CareerExperience = {
@@ -8,7 +8,9 @@ export type CareerExperience = {
   company: string;
   team: string;
   role: string;
-  period: string;
+  startDate: string;
+  endDate?: string;
+  isCurrent: boolean;
   responsibilities: string; // 주요 업무
   achievements: Achievement[]; // 주요 성과
 };
