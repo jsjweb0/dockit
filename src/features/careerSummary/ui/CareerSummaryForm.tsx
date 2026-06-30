@@ -19,6 +19,7 @@ import { Fragment } from 'react/jsx-runtime';
 import { Plus } from 'lucide-react';
 import { createId } from '@/lib/utils';
 import { Checkbox } from '@/components/ui/checkbox';
+import { SkillTagEditor } from '@/features/shared/ui/SkillTagEditor';
 
 type Props = {
     value: CareerSummary;
@@ -67,6 +68,7 @@ export function CareerSummaryForm({
                     isCurrent: false,
                     responsibilities: '',
                     achievements: [createEmptyAchievement()],
+                    techStack: [],
                 },
                 ...value.experiences,
             ],
@@ -150,21 +152,6 @@ export function CareerSummaryForm({
                             onChange({ ...value, title: event.target.value })
                         }
                         placeholder="예: 프론트엔드 경력기술서"
-                    />
-                </Field>
-                <Field>
-                    <FieldLabel htmlFor="career-summary-tech-stack" className="font-bold">
-                        보유 기술
-                    </FieldLabel>
-                    <Textarea
-                        id="career-summary-tech-stack"
-                        value={value.techStack}
-                        onChange={(event) =>
-                            onChange({ ...value, techStack: event.target.value })
-                        }
-                        placeholder="예: React, TypeScript, JavaScript, HTML, CSS, Git"
-                        className="min-h-24 resize-none"
-                        autoComplete="off"
                     />
                 </Field>
 
@@ -263,10 +250,23 @@ export function CareerSummaryForm({
                                             onCheckedChange={(checked) => {
                                                 const isCurrent = checked === true;
 
-                                                updateExperience(section.id, {
-                                                    isCurrent,
-                                                    endDate: isCurrent ? '' : section.endDate,
-                                                });
+                                                const nextValue = {
+                                                    ...value,
+                                                    experiences: value.experiences.map((item) => {
+                                                        if (item.id === section.id) {
+                                                            return {
+                                                                ...item,
+                                                                isCurrent,
+                                                                endDate: isCurrent ? '' : item.endDate,
+                                                            };
+                                                        }
+
+                                                        return isCurrent ? { ...item, isCurrent: false } : item;
+                                                    }),
+                                                };
+
+                                                onChange(nextValue);
+                                                onSectionChange?.(section.id, nextValue);
                                             }}
                                             className="peer"
                                         />
@@ -408,6 +408,18 @@ export function CareerSummaryForm({
                                         );
                                     })}
                                 </div>
+                                <SkillTagEditor
+                                    inputId={`career-summary-tech-stack-${section.id}`}
+                                    label="보유 기술"
+                                    listLabel={`${section.company || "경력"}에 등록된 보유 기술`}
+                                    placeholder="예: React"
+                                    skills={section.techStack}
+                                    onChange={(nextSkills) =>
+                                        updateExperience(section.id, {
+                                            techStack: nextSkills,
+                                        })
+                                    }
+                                />
                             </FieldGroup>
                             <FieldSeparator />
                         </Fragment>

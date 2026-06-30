@@ -56,6 +56,21 @@ function normalizeCareerSummary(
     return { title: '', description: fallbackDescription };
   };
 
+  const normalizeTechStack = (techStack: unknown): string[] => {
+    if (Array.isArray(techStack)) {
+      return techStack.filter((tech): tech is string => typeof tech === 'string');
+    }
+
+    if (typeof techStack === 'string') {
+      return techStack
+        .split(/[\n,]/)
+        .map((tech) => tech.trim())
+        .filter(Boolean);
+    }
+
+    return [];
+  };
+
   const normalizeExperience = (
     experience: unknown,
     fallback: CareerExperience,
@@ -88,6 +103,7 @@ function normalizeCareerSummary(
             normalizeAchievement(achievement),
           )
         : [normalizeAchievement(item.achievements, fallbackDescription)],
+      techStack: normalizeTechStack(item.techStack),
     };
   };
 
@@ -104,10 +120,6 @@ function normalizeCareerSummary(
           ),
         )
       : defaults.experiences,
-    techStack:
-      typeof parsed.techStack === 'string'
-        ? parsed.techStack
-        : defaults.techStack,
   };
 }
 

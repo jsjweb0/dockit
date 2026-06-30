@@ -21,8 +21,8 @@ export function defaultCareerSummary(): CareerSummary {
             description: '- 담당하신 업무와 성과 1',
           },
         ],
+        techStack: [],
       },
     ],
-    techStack: '',
   };
 }

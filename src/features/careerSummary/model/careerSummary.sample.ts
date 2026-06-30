@@ -30,6 +30,7 @@ export function sampleCareerSummary(): CareerSummary {
             description: '',
           },
         ],
+        techStack: ['React', 'TypeScript', 'JavaScript', 'Git'],
       },
       {
         id: createId(),
@@ -57,8 +58,8 @@ export function sampleCareerSummary(): CareerSummary {
               '- 크로스 브라우징 및 에러율 감소',
           },
         ],
+        techStack: ['React', 'TypeScript', 'JavaScript', 'Git'],
       },
     ],
-    techStack: 'React, TypeScript, JavaScript, Git',
   };
 }
