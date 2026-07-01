@@ -62,7 +62,7 @@ export function SkillTagEditor({
                     <Plus aria-hidden="true" /> 추가
                 </Button>
             </form>
-            <ul className="flex flex-wrap gap-2" aria-label={listLabel}>
+            <ul className="flex flex-wrap gap-1" aria-label={listLabel}>
                 {skills.map((skill) => (
                     <li key={skill}>
                         <Badge variant="secondary" className="gap-1 pr-1">

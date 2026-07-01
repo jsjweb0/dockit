@@ -40,14 +40,15 @@ export function CareerSummaryPreview({ value }: Props) {
                     {value.title || '경력 기술서'}
                 </h2>
             </div>
-
+            <p className="mb-2 text-base font-medium">총 경력 8년 2개월</p>
             <div className="careerSummaryDocument__body border-t-2 border-t-black">
                 {value.experiences.map((section) => {
                     const durationEndDate = section.isCurrent ? getCurrentYearMonth() : section.endDate;
                     const duration = getCareerDuration(section.startDate, durationEndDate);
+                    const visibleTechStack = section.techStack.filter((tech) => tech.trim())
 
                     return (
-                        <article key={section.id} className="grid grid-cols-[170px_auto] gap-6 py-5 border-b border-b-black">
+                        <article key={section.id} className="grid grid-cols-[170px_auto] gap-6 py-5 border-b border-b-black break-inside-avoid">
                             <div className="flex flex-col items-end gap-2 text-base">
                                 <div className="flex gap-1">
                                     <p className="">{section.startDate}</p>
@@ -94,18 +95,22 @@ export function CareerSummaryPreview({ value }: Props) {
                                     ))}
                                 </div>
 
-                                <p className="flex">
-                                    <IconDot className="-mt-0.5 size-6" /> Skills Keyword
-                                </p>
-                                <ul className="flex flex-wrap gap-1.5 ml-5 mt-0.5">
-                                    {section.techStack.map((tech) => (
-                                        <li key={tech}>
-                                            <Badge variant="secondary" className="gap-1 pr-1">
-                                                {tech}
-                                            </Badge>
-                                        </li>
-                                    ))}
-                                </ul>
+                                {visibleTechStack.length > 0 && (
+                                    <div>
+                                        <p className="flex">
+                                            <IconDot className="-mt-0.5 size-6" /> Skill Keywords
+                                        </p>
+                                        <ul className="flex flex-wrap gap-1.5 ml-5 mt-0.5">
+                                            {visibleTechStack.map((tech) => (
+                                                <li key={tech}>
+                                                    <Badge variant="secondary" className="gap-1 pr-1">
+                                                        {tech}
+                                                    </Badge>
+                                                </li>
+                                            ))}
+                                        </ul>
+                                    </div>
+                                )}
                             </div>
                         </article>
                     );

@@ -13,11 +13,26 @@ type CareerSummaryBuilderOutletContext = {
 
 export function CareerSummaryBuilderPage() {
     const { previewControls } = useOutletContext<CareerSummaryBuilderOutletContext>();
-    const { careerSummary, setCareerSummary, previewRef } = useCareerSummaryEditor();
+    const {
+        careerSummary,
+        setCareerSummary,
+        previewRef,
+        experienceErrors,
+        revalidateExperience,
+        touchCareerSummary,
+    } = useCareerSummaryEditor();
 
     return (
         <DocumentBuilderLayout
-            form={<CareerSummaryForm value={careerSummary} onChange={setCareerSummary} />}
+            form={
+                <CareerSummaryForm
+                    value={careerSummary}
+                    onChange={setCareerSummary}
+                    errors={experienceErrors}
+                    onSectionBlur={touchCareerSummary}
+                    onSectionChange={revalidateExperience}
+                />
+            }
             preview={<CareerSummaryPreview value={careerSummary} />}
             previewRef={previewRef}
             previewControls={previewControls}

@@ -3,11 +3,20 @@ import React, {
     useCallback,
     useContext,
     useMemo,
+    useState,
 } from 'react';
 import type { CareerSummary } from '../model/careerSummary.types';
 import { defaultCareerSummary } from '../model/careerSummary.defaults';
 import { loadCareerSummary, saveCareerSummary } from '../model/careerSummary.storage';
 import { useDocumentEditorCore } from '@/features/documents/hooks/useDocumentEditorCore';
+import {
+    CAREER_SUMMARY_EXPERIENCE_FIELDS,
+    validateCareerSummary,
+    validateCareerSummaryExperience,
+    type CareerSummaryExperienceField,
+    type CareerSummaryExperienceErrorMap,
+} from '../model/careerSummary.validation';
+import { toast } from 'sonner';
 
 type CareerSummaryEditorState = {
     careerSummaryId: string;
@@ -26,9 +35,25 @@ type CareerSummaryEditorState = {
     isExporting: boolean;
     isSaving: boolean;
     lastSavedAt: number | null;
+    experienceErrors: CareerSummaryExperienceErrorMap;
+    touchCareerSummary: (
+        sectionId: string,
+        field: CareerSummaryExperienceField,
+        nextSummary?: CareerSummary,
+    ) => void;
+    revalidateExperience: (
+        sectionId: string,
+        field: CareerSummaryExperienceField,
+        nextSummary?: CareerSummary,
+    ) => void;
 };
 
 const CareerSummaryEditorContext = createContext<CareerSummaryEditorState | null>(null);
+
+const getExperienceFieldKey = (
+    sectionId: string,
+    field: CareerSummaryExperienceField,
+) => `${sectionId}:${field}`;
 
 export function CareerSummaryEditorProvider({
     documentId,
@@ -63,20 +88,141 @@ export function CareerSummaryEditorProvider({
         getPrintFileName: getCareerSummaryPrintFileName,
     });
 
+    const [experienceErrors, setExperienceErrors] = useState<CareerSummaryExperienceErrorMap>({});
+    const [touchedExperienceFields, setTouchedExperienceFields] = useState<Set<string>>(
+        () => new Set(),
+    );
+
+    const setExperienceFieldError = useCallback(
+        (
+            sectionId: string,
+            field: CareerSummaryExperienceField,
+            message?: string,
+        ) => {
+            setExperienceErrors((prev) => ({
+                ...prev,
+                [sectionId]: {
+                    ...(prev[sectionId] ?? {}),
+                    ...(message ? { [field]: message } : {}),
+                },
+            }));
+
+            if (!message) {
+                setExperienceErrors((prev) => {
+                    const sectionErrors = { ...(prev[sectionId] ?? {}) };
+                    delete sectionErrors[field];
+
+                    if (Object.keys(sectionErrors).length === 0) {
+                        const nextErrors = { ...prev };
+                        delete nextErrors[sectionId];
+                        return nextErrors;
+                    }
+
+                    return { ...prev, [sectionId]: sectionErrors };
+                });
+            }
+        },
+        [],
+    );
+
+    const touchCareerSummary = useCallback(
+        (
+            sectionId: string,
+            field: CareerSummaryExperienceField,
+            nextSummary = careerSummary,
+        ) => {
+            setTouchedExperienceFields((prev) =>
+                new Set(prev).add(getExperienceFieldKey(sectionId, field)),
+            );
+
+            const experience = nextSummary.experiences.find(
+                (item) => item.id === sectionId,
+            );
+
+            const message = experience
+                ? validateCareerSummaryExperience(experience)[field]
+                : undefined;
+
+            setExperienceFieldError(sectionId, field, message);
+        },
+        [careerSummary, setExperienceFieldError],
+    );
+
+    const revalidateExperience = useCallback(
+        (
+            sectionId: string,
+            field: CareerSummaryExperienceField,
+            nextSummary = careerSummary,
+        ) => {
+            if (!touchedExperienceFields.has(getExperienceFieldKey(sectionId, field))) {
+                return;
+            }
+
+            const experience = nextSummary.experiences.find(
+                (item) => item.id === sectionId,
+            );
+
+            const message = experience
+                ? validateCareerSummaryExperience(experience)[field]
+                : undefined;
+
+            setExperienceFieldError(sectionId, field, message);
+        },
+        [careerSummary, setExperienceFieldError, touchedExperienceFields],
+    );
+
+    const validateCareerSummaryBeforeExport = useCallback(() => {
+        const result = validateCareerSummary(careerSummary);
+        setExperienceErrors(result.errors);
+        setTouchedExperienceFields(
+            new Set(
+                careerSummary.experiences.flatMap((experience) =>
+                    CAREER_SUMMARY_EXPERIENCE_FIELDS.map((field) =>
+                        getExperienceFieldKey(experience.id, field),
+                    ),
+                ),
+            ),
+        );
+
+        if (!result.isValid) {
+            const firstMessage =
+                Object.values(result.errors)
+                    .flatMap((errors) => Object.values(errors))
+                    .find(Boolean) ?? '입력 정보를 확인해 주세요.';
+
+            toast.error(firstMessage);
+            return false;
+        }
+
+        return true;
+    }, [careerSummary]);
+
     const resetCareerSummary = useCallback(() => {
         reset();
+        setExperienceErrors({});
+        setTouchedExperienceFields(new Set());
     }, [reset]);
 
     const saveCareerSummaryWithValidation = useCallback(
         async (opts?: { silent?: boolean }) => {
+            if (!validateCareerSummaryBeforeExport()) return;
             await save(opts);
         },
-        [save],
+        [save, validateCareerSummaryBeforeExport],
     );
 
     const printCareerSummary = useCallback(
-        () => printDocument(),
-        [printDocument],
+        () => printDocument(validateCareerSummaryBeforeExport),
+        [printDocument, validateCareerSummaryBeforeExport],
+    );
+
+    const totalValidationErrorCount = useMemo(
+        () =>
+            Object.values(experienceErrors).reduce(
+                (total, errors) => total + Object.keys(errors).length,
+                0,
+            ),
+        [experienceErrors],
     );
 
     const value = useMemo(
@@ -92,7 +238,10 @@ export function CareerSummaryEditorProvider({
             printCareerSummary,
             previewRef,
             resetVersion,
-            totalValidationErrorCount: 0,
+            totalValidationErrorCount,
+            experienceErrors,
+            touchCareerSummary,
+            revalidateExperience,
             isDirty,
             isExporting,
             isSaving,
@@ -107,6 +256,10 @@ export function CareerSummaryEditorProvider({
             printCareerSummary,
             previewRef,
             resetVersion,
+            totalValidationErrorCount,
+            experienceErrors,
+            touchCareerSummary,
+            revalidateExperience,
             isDirty,
             isExporting,
             isSaving,
