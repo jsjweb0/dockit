@@ -192,42 +192,6 @@
   }
 
   /* 이력서 */
-  .resumeDocument__header {
-    display: grid;
-    grid-template-columns: 1fr 1fr;
-    align-items: center;
-    gap: 24px;
-    margin-bottom: 12px;
-  }
-
-  .resumeDocument__title {
-    display: flex;
-    justify-content: center;
-    gap: 24px;
-    font-size: 28px;
-    font-weight: 800;
-    line-height: 1;
-  }
-
-  .resumeDocument__sign {
-    display: flex;
-    flex-direction: column;
-    gap: 18px;
-    margin-top: 30px;
-    text-align: center;
-    font-size: 14px;
-  }
-
-  .resumeDocument__writer {
-    text-align: right;
-  }
-
-  .resumeDocument__writer span {
-    display: inline-block;
-    min-width: 80px;
-    text-align: center;
-  }
-
   .docTable {
     width: 100%;
     table-layout: fixed;
@@ -235,10 +199,6 @@
     border-collapse: separate;
     border-spacing: 0;
     border: 2px solid #000;
-  }
-
-  .docTable--meta {
-    margin-bottom: 0;
   }
 
   .docTable th,
@@ -441,8 +401,8 @@
     }
 
     .resumeDocument__sign {
-      gap: 24px;
-      font-size: 12px;
+      gap: 24px !important;
+      font-size: 12px !important;
       break-inside: avoid;
       page-break-inside: avoid;
     }

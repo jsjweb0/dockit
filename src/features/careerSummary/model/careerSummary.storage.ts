@@ -1,0 +1,142 @@
+import {
+  createDocumentStorage,
+  type DocumentDraftSummary,
+} from '@/features/documents/model/document.storage';
+import { defaultCareerSummary } from './careerSummary.defaults';
+import type {
+  Achievement,
+  CareerExperience,
+  CareerSummary,
+} from './careerSummary.types';
+
+export type CareerSummaryDraftSummary = DocumentDraftSummary;
+
+const CAREER_SUMMARY_DOCUMENT_TITLE = '경력기술서';
+
+function getDraftTitle(careersummary: CareerSummary) {
+  const title = careersummary.title.trim();
+  return title || CAREER_SUMMARY_DOCUMENT_TITLE;
+}
+
+function getDraftDescription(careersummary: CareerSummary) {
+  const companySectionCount = careersummary.experiences.filter((section) =>
+    section.company.trim(),
+  ).length;
+
+  if (companySectionCount > 0) return `${companySectionCount}개 문항 작성 중`;
+
+  return '작성 중인 문서';
+}
+
+function normalizeCareerSummary(
+  parsed: Partial<CareerSummary>,
+  defaults: CareerSummary,
+): CareerSummary {
+  const normalizeAchievement = (
+    achievement: unknown,
+    fallbackDescription = '',
+  ): Achievement => {
+    if (typeof achievement === 'string') {
+      return {
+        title: achievement,
+        description: fallbackDescription,
+      };
+    }
+
+    if (achievement && typeof achievement === 'object') {
+      const item = achievement as Partial<Achievement>;
+
+      return {
+        title: typeof item.title === 'string' ? item.title : '',
+        description:
+          typeof item.description === 'string' ? item.description : '',
+      };
+    }
+
+    return { title: '', description: fallbackDescription };
+  };
+
+  const normalizeTechStack = (techStack: unknown): string[] => {
+    if (Array.isArray(techStack)) {
+      return techStack.filter((tech): tech is string => typeof tech === 'string');
+    }
+
+    if (typeof techStack === 'string') {
+      return techStack
+        .split(/[\n,]/)
+        .map((tech) => tech.trim())
+        .filter(Boolean);
+    }
+
+    return [];
+  };
+
+  const normalizeExperience = (
+    experience: unknown,
+    fallback: CareerExperience,
+  ): CareerExperience => {
+    if (!experience || typeof experience !== 'object') return fallback;
+
+    const item = experience as Partial<CareerExperience> & {
+      description?: unknown;
+      period?: unknown;
+    };
+    const fallbackDescription =
+      typeof item.description === 'string' ? item.description : '';
+    const fallbackPeriod = typeof item.period === 'string' ? item.period : '';
+
+    return {
+      ...fallback,
+      ...item,
+      id: typeof item.id === 'string' ? item.id : fallback.id,
+      company: typeof item.company === 'string' ? item.company : '',
+      team: typeof item.team === 'string' ? item.team : '',
+      role: typeof item.role === 'string' ? item.role : '',
+      startDate:
+        typeof item.startDate === 'string' ? item.startDate : fallbackPeriod,
+      endDate: typeof item.endDate === 'string' ? item.endDate : '',
+      isCurrent: typeof item.isCurrent === 'boolean' ? item.isCurrent : false,
+      responsibilities:
+        typeof item.responsibilities === 'string' ? item.responsibilities : '',
+      achievements: Array.isArray(item.achievements)
+        ? item.achievements.map((achievement) =>
+            normalizeAchievement(achievement),
+          )
+        : [normalizeAchievement(item.achievements, fallbackDescription)],
+      techStack: normalizeTechStack(item.techStack),
+    };
+  };
+
+  return {
+    ...defaults,
+    ...parsed,
+    meta: { ...defaults.meta, ...parsed.meta },
+    title: typeof parsed.title === 'string' ? parsed.title : defaults.title,
+    experiences: Array.isArray(parsed.experiences)
+      ? parsed.experiences.map((experience, index) =>
+          normalizeExperience(
+            experience,
+            defaults.experiences[index] ?? defaults.experiences[0],
+          ),
+        )
+      : defaults.experiences,
+  };
+}
+
+const careersummaryStorage = createDocumentStorage<CareerSummary>({
+  documentType: 'career-summary',
+  storageKeyPrefix: 'career-summary',
+  draftsKey: 'career-summary:drafts',
+  createDefault: defaultCareerSummary,
+  normalize: normalizeCareerSummary,
+  getDraftContent: (careersummary) => ({
+    title: getDraftTitle(careersummary),
+    description: getDraftDescription(careersummary),
+  }),
+});
+
+export const loadCareerSummary = careersummaryStorage.load;
+export const saveCareerSummary = careersummaryStorage.save;
+export const deleteCareerSummaryDraft = careersummaryStorage.deleteDraft;
+export const listRecentCareerSummaryDrafts =
+  careersummaryStorage.listRecentDrafts;
