@@ -1,3 +1,5 @@
+import { isValidDate, isValidYearMonth } from '@/utils/date';
+
 import type {
   Certification,
   Education,
@@ -97,10 +99,18 @@ export function validateCertificationItem(
   item: Certification,
 ): SectionFieldErrors {
   const errors: SectionFieldErrors = {};
+  const acquiredAt = item.acquiredAt.trim();
+
   if (!hasCertificationInput(item)) return errors;
 
   if (!item.name.trim()) errors.name = '자격증명을 입력해 주세요.';
-  if (!item.acquiredAt.trim()) errors.acquiredAt = '취득일을 입력해 주세요.';
+
+  if (!acquiredAt) {
+    errors.acquiredAt = '취득일을 입력해 주세요.';
+  } else if (!isValidDate(acquiredAt)) {
+    errors.acquiredAt =
+      '취득일은 YYYY-MM-DD 형식으로 입력해 주세요. 예: 2026-03-07';
+  }
   if (!item.issuer.trim()) errors.issuer = '발행처를 입력해 주세요.';
 
   return errors;
@@ -108,15 +118,38 @@ export function validateCertificationItem(
 
 export function validateExperienceItem(item: Experience): SectionFieldErrors {
   const errors: SectionFieldErrors = {};
+  const startDate = item.start.trim();
+  const endDate = item.end?.trim() ?? '';
+
   if (!hasExperienceInput(item)) return errors;
 
   if (!item.company.trim()) errors.company = '회사명을 입력해 주세요.';
-  if (!item.start.trim()) errors.start = '시작일을 입력해 주세요.';
-  if (!item.isCurrent && !item.end?.trim())
-    errors.end = '종료일을 입력해 주세요.';
-  if (item.start && item.end && !item.isCurrent && item.end < item.start) {
+
+  if (!startDate) {
+    errors.start = '시작일을 입력해 주세요.';
+  } else if (!isValidYearMonth(startDate)) {
+    errors.start = '시작일은 YYYY-MM 형식으로 입력해 주세요. 예: 2024-03';
+  }
+
+  if (!item.isCurrent) {
+    if (!endDate) {
+      errors.end = '종료일을 입력해 주세요.';
+    } else if (!isValidYearMonth(endDate)) {
+      errors.end = '시작일은 YYYY-MM 형식으로 입력해 주세요. 예: 2024-03';
+    }
+  }
+
+  if (
+    startDate &&
+    endDate &&
+    !item.isCurrent &&
+    isValidYearMonth(startDate) &&
+    isValidYearMonth(endDate) &&
+    endDate < startDate
+  ) {
     errors.end = '종료일은 시작일보다 늦어야 합니다.';
   }
+
   if (!item.role.trim()) errors.role = '직무/직책을 입력해 주세요.';
   if (!item.description.trim()) {
     errors.description = '업무/성과를 입력해 주세요.';
@@ -220,8 +253,7 @@ export function validateOptionalSections(resume: Resume): {
 
   for (const item of resume.links) {
     const itemErrors = validateLinkItem(item);
-    if (Object.keys(itemErrors).length > 0)
-      errors.links[item.id] = itemErrors;
+    if (Object.keys(itemErrors).length > 0) errors.links[item.id] = itemErrors;
   }
 
   return {

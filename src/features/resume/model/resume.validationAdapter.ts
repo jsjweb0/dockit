@@ -94,31 +94,36 @@ const BASICS_FIELD_IDS: Record<BasicsValidatedField, string> = {
   name: 'userName',
   phone: 'phone',
   email: 'email',
+  birth: 'birth',
 };
 
-const SECTION_TABS: Record<ResumeListSection, ResumeValidationTab> = {
-  education: 'edu',
-  certifications: 'cer',
-  experience: 'exp',
-  projects: 'proj',
-  links: 'link',
+type SectionListItem = { id: string };
+
+const SECTION_CONFIG: Record<
+  ResumeListSection,
+  {
+    tab: ResumeValidationTab;
+    getItems: (resume: Resume) => SectionListItem[];
+  }
+> = {
+  education: { tab: 'edu', getItems: (resume) => resume.education },
+  certifications: { tab: 'cer', getItems: (resume) => resume.certifications },
+  experience: { tab: 'exp', getItems: (resume) => resume.experience },
+  projects: { tab: 'proj', getItems: (resume) => resume.projects },
+  links: { tab: 'link', getItems: (resume) => resume.links },
 };
 
-const TAB_SECTIONS: Partial<Record<ResumeValidationTab, ResumeListSection>> = {
-  edu: 'education',
-  cer: 'certifications',
-  exp: 'experience',
-  proj: 'projects',
-  link: 'links',
-};
-
-const SECTION_ITEMS = {
-  education: (resume: Resume) => resume.education,
-  certifications: (resume: Resume) => resume.certifications,
-  experience: (resume: Resume) => resume.experience,
-  projects: (resume: Resume) => resume.projects,
-  links: (resume: Resume) => resume.links,
-};
+const TAB_SECTIONS = (
+  Object.entries(SECTION_CONFIG) as Array<
+    [ResumeListSection, (typeof SECTION_CONFIG)[ResumeListSection]]
+  >
+).reduce<Partial<Record<ResumeValidationTab, ResumeListSection>>>(
+  (acc, [section, config]) => {
+    acc[config.tab] = section;
+    return acc;
+  },
+  {},
+);
 
 const getSectionInputId = (
   section: ResumeListSection,
@@ -203,20 +208,21 @@ export function getFirstResumeValidationErrorTarget({
     ? TAB_SECTIONS[tab]
       ? [TAB_SECTIONS[tab]]
       : []
-    : (Object.keys(SECTION_TABS) as ResumeListSection[]);
+    : (Object.keys(SECTION_CONFIG) as ResumeListSection[]);
 
   for (const section of sections) {
+    const config = SECTION_CONFIG[section];
     const currentSectionErrors = sectionErrors[section];
     const fields = SECTION_VALIDATED_FIELDS[section];
 
-    for (const item of SECTION_ITEMS[section](resume)) {
+    for (const item of config.getItems(resume)) {
       const erroredField = fields.find(
         (field) => currentSectionErrors[item.id]?.[field],
       );
 
       if (erroredField) {
         return {
-          tab: SECTION_TABS[section],
+          tab: config.tab,
           fieldId: getSectionInputId(section, item.id, erroredField),
         };
       }
@@ -232,9 +238,9 @@ export function validateResumeForExport(
   const basicsValidation = validateBasics(resume.basics);
   const sectionValidation = validateOptionalSections(resume);
   const firstMessage =
-    BASICS_VALIDATED_FIELDS.map(
-      (field) => basicsValidation.errors[field],
-    ).find(Boolean) ??
+    BASICS_VALIDATED_FIELDS.map((field) => basicsValidation.errors[field]).find(
+      Boolean,
+    ) ??
     Object.values(sectionValidation.errors)
       .flatMap((itemErrors) =>
         Object.values(itemErrors).flatMap((errors) => Object.values(errors)),
@@ -324,7 +330,5 @@ export const resumeValidationAdapter: DocumentValidationAdapter<
   },
   getAllTouchedFields: getAllTouchedResumeFields,
   getErrorCount: (errors) =>
-    getTotalResumeValidationErrorCount(
-      getResumeValidationErrorCounts(errors),
-    ),
+    getTotalResumeValidationErrorCount(getResumeValidationErrorCounts(errors)),
 };

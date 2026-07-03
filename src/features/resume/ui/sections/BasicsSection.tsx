@@ -39,6 +39,7 @@ export function BasicsSection({ value, onChange }: Props) {
   const phoneField = bindValidatedField('phone');
   const emailField = bindValidatedField('email');
   const workerTitleField = bindValidatedField('workerTitle');
+  const birthField = bindValidatedField('birth');
 
   const summaryLength = b.summary.length;
   const summaryLimit = 100;
@@ -145,7 +146,7 @@ export function BasicsSection({ value, onChange }: Props) {
             autoCapitalize="words"
           />
         </Field>
-        <Field>
+        <Field data-invalid={!!birthField.error}>
           <FieldLabel htmlFor="birth" className="font-bold">
             생년월일
           </FieldLabel>
@@ -153,9 +154,19 @@ export function BasicsSection({ value, onChange }: Props) {
             id="birth"
             type="date"
             value={b.birth}
-            onChange={(e) => set('birth', e.target.value)}
+            onChange={(e) => {
+              const nextBasics = { ...b, birth: e.target.value };
+              onChange({ ...value, basics: nextBasics });
+              birthField.onChangeAfter(nextBasics);
+            }}
+            onBlur={() => birthField.onBlur(b)}
             autoComplete="bday"
+            aria-invalid={!!birthField.error}
+            aria-describedby={birthField.error ? birthField.errorId : undefined}
           />
+          {birthField.error && (
+            <FieldError id={birthField.errorId}>{birthField.error}</FieldError>
+          )}
         </Field>
         <Field data-invalid={!!phoneField.error}>
           <FieldLabel htmlFor="phone" className="font-bold">

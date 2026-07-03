@@ -206,13 +206,18 @@ export function CareerSummaryForm({
                 const startDateId = `career-summary-startDate-${section.id}`;
                 const endDateId = `career-summary-endDate-${section.id}`;
                 const responsibilitiesId = `career-summary-responsibilities-${section.id}`;
+                const groupTitleId = `career-summary-experience-${section.id}-title`;
                 const sectionErrors = errors?.[section.id] ?? {}
 
                 return (
                     <Fragment key={section.id}>
-                        <FieldGroup className="rounded-lg border p-4">
+                        <FieldGroup
+                            role="group"
+                            aria-labelledby={groupTitleId}
+                            className="rounded-lg border p-4 gap-6 has-focus-visible:border-gray-300 has-focus-visible:shadow-sm"
+                        >
                             <div className="flex items-center justify-between gap-3">
-                                <div className="font-medium">
+                                <div id={groupTitleId} className="font-medium">
                                     경력 {value.experiences.length - index}
                                 </div>
                                 <Button
@@ -439,8 +444,8 @@ export function CareerSummaryForm({
                                                 </Button>
                                             </CollapsibleTrigger>
                                             <CollapsibleContent className="mt-2">
-                                                <FieldGroup className="rounded-md border bg-muted/40 p-3">
-                                                    <Field data-invalid={!!sectionErrors.achievements}>
+                                                <FieldGroup className="gap-5 rounded-md border bg-muted/40 p-3">
+                                                    <Field data-invalid={!!sectionErrors.achievements} className="gap-1">
                                                         <div className="flex items-center justify-between gap-3">
                                                             <FieldLabel htmlFor={achievementTitleId}>
                                                                 주요성과 {achievementNumber}
@@ -500,7 +505,7 @@ export function CareerSummaryForm({
                                                                 )
                                                             }
                                                             placeholder="성과의 배경, 맡은 역할, 개선 결과를 작성해 주세요."
-                                                            className="min-h-32 resize-none bg-background"
+                                                            className="min-h-24 resize-none bg-background"
                                                             autoComplete="off"
                                                         />
                                                     </Field>

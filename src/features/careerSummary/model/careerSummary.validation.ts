@@ -1,4 +1,5 @@
 import type { CareerSummary, CareerExperience } from './careerSummary.types';
+import { isValidYearMonth } from '@/utils/date';
 
 export type CareerSummaryExperienceField =
   | 'company'
@@ -23,24 +24,30 @@ export function validateCareerSummaryExperience(
   experience: CareerExperience,
 ): CareerSummaryExperienceErrors {
   const errors: CareerSummaryExperienceErrors = {};
+  const startDate = experience.startDate.trim();
+  const endDate = experience.endDate?.trim() ?? '';
 
-  if (!experience.company.trim()) {
-    errors.company = '회사명을 입력해 주세요.';
-  }
-
-  if (!experience.startDate.trim()) {
+  if (!startDate) {
     errors.startDate = '시작일을 입력해 주세요.';
+  } else if (!isValidYearMonth(startDate)) {
+    errors.startDate = '시작일은 YYYY-MM 형식으로 입력해 주세요. 예: 2024-03';
   }
 
-  if (!experience.isCurrent && !experience.endDate?.trim()) {
-    errors.endDate = '종료일을 입력해 주세요.';
+  if (!experience.isCurrent) {
+    if (!endDate) {
+      errors.endDate = '종료일을 입력해 주세요.';
+    } else if (!isValidYearMonth(endDate)) {
+      errors.endDate = '종료일은 YYYY-MM 형식으로 입력해 주세요. 예: 2025-08';
+    }
   }
 
   if (
-    experience.startDate &&
-    experience.endDate &&
+    startDate &&
+    endDate &&
     !experience.isCurrent &&
-    experience.endDate < experience.startDate
+    isValidYearMonth(startDate) &&
+    isValidYearMonth(endDate) &&
+    endDate < startDate
   ) {
     errors.endDate = '종료일은 시작일보다 늦어야 합니다.';
   }

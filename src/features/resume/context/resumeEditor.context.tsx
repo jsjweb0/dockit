@@ -35,13 +35,10 @@ export type { ResumeValidationTab } from '../model/resume.validationAdapter';
 
 type ResumeEditorState = {
   resumeId: string;
-  document: Resume;
   resume: Resume;
-  setDocument: (next: Resume) => void;
   setResume: (next: Resume) => void;
   save: (opts?: { silent?: boolean }) => Promise<void>;
   reset: () => void;
-  printDocument: () => Promise<void>;
   printResume: () => Promise<void>;
   previewRef: React.RefObject<HTMLElement | null>;
   basicsErrors: BasicsFieldErrors;
@@ -225,13 +222,10 @@ export function ResumeEditorProvider({
   const value = useMemo(
     () => ({
       resumeId,
-      document: resume,
       resume,
-      setDocument: setResumeSafe,
       setResume: setResumeSafe,
       save: persist,
       reset,
-      printDocument: printResume,
       printResume,
       previewRef,
       basicsErrors,

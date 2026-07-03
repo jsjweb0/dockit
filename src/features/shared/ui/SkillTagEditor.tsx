@@ -26,19 +26,27 @@ export function SkillTagEditor({
     onChange,
 }: SkillTagEditorProps) {
     const [inputValue, setInputValue] = useState("");
+    const [liveMessage, setLiveMessage] = useState("");
 
     const handleSubmit = (event: FormEvent<HTMLFormElement>) => {
         event.preventDefault();
 
         const nextSkill = inputValue.trim();
-        if (!nextSkill || skills.includes(nextSkill)) return;
+        if (!nextSkill) return;
+
+        if (skills.includes(nextSkill)) {
+            setLiveMessage(`${nextSkill}은 이미 등록된 기술입니다.`);
+            return;
+        }
 
         onChange([...skills, nextSkill]);
         setInputValue("");
+        setLiveMessage(`${nextSkill} 기술이 추가되었습니다.`);
     };
 
     const handleRemove = (skill: string) => {
         onChange(skills.filter((item) => item !== skill));
+        setLiveMessage(`${skill} 기술이 삭제되었습니다.`);
     };
 
     return (
@@ -63,24 +71,31 @@ export function SkillTagEditor({
                 </Button>
             </form>
             <ul className="flex flex-wrap gap-1" aria-label={listLabel}>
-                {skills.map((skill) => (
-                    <li key={skill}>
-                        <Badge variant="secondary" className="gap-1 pr-1">
-                            {skill}
-                            <Button
-                                type="button"
-                                variant="ghost"
-                                size="icon-xs"
-                                className="size-5 rounded-full"
-                                onClick={() => handleRemove(skill)}
-                                aria-label={`${skill} 삭제`}
-                            >
-                                <IconX aria-hidden="true" />
-                            </Button>
-                        </Badge>
-                    </li>
-                ))}
+                {skills.length === 0 ? (
+                    <li className="sr-only">등록된 기술이 없습니다.</li>
+                ) : (
+                    skills.map((skill) => (
+                        <li key={skill}>
+                            <Badge variant="secondary" className="gap-1 pr-1">
+                                {skill}
+                                <Button
+                                    type="button"
+                                    variant="ghost"
+                                    size="icon-xs"
+                                    className="size-5 rounded-full"
+                                    onClick={() => handleRemove(skill)}
+                                    aria-label={`${skill} 삭제`}
+                                >
+                                    <IconX aria-hidden="true" />
+                                </Button>
+                            </Badge>
+                        </li>
+                    ))
+                )}
             </ul>
+            <p className="sr-only" role="status" aria-live="polite" aria-atomic="true">
+                {liveMessage}
+            </p>
         </Field>
     );
 }

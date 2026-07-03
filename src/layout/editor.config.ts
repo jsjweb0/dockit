@@ -148,10 +148,27 @@ const resumeTemplate = getDocumentTemplate('resume');
 const coverLetterTemplate = getDocumentTemplate('cover-letter');
 const careerSummaryTemplate = getDocumentTemplate('career-summary');
 
+function useResumeEditorAsDocument(): CommonDocumentEditorState<Resume> {
+  const editor = useResumeEditor();
+
+  return {
+    document: editor.resume,
+    setDocument: editor.setResume,
+    save: editor.save,
+    reset: editor.reset,
+    printDocument: editor.printResume,
+    isDirty: editor.isDirty,
+    isSaving: editor.isSaving,
+    isExporting: editor.isExporting,
+    lastSavedAt: editor.lastSavedAt,
+    totalValidationErrorCount: editor.totalValidationErrorCount,
+  };
+}
+
 const resumeEditorConfig = createDocumentEditorConfig<Resume>({
   template: resumeTemplate,
   Provider: ResumeEditorProvider,
-  useEditor: useResumeEditor,
+  useEditor: useResumeEditorAsDocument,
   getTitle: (resume) => resume.basics?.name?.trim() ?? '',
   getPageTitle: (resume, template) => {
     const name = resume.basics?.name?.trim();

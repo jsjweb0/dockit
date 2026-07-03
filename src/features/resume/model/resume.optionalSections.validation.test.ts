@@ -33,7 +33,7 @@ const validEducation: Education = {
 const validCertification: Certification = {
   id: 'cert-1',
   name: '정보처리기사',
-  acquiredAt: '2025.06',
+  acquiredAt: '2025-06-01',
   issuer: '한국산업인력공단',
 };
 

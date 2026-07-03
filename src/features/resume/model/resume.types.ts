@@ -61,7 +61,7 @@ export type LinkItem = {
 
 export type Certification = {
   id: string;
-  acquiredAt: string; // 취득일 (예: "2023.11")
+  acquiredAt: string; // YYYY-MM-DD
   name: string; // 자격증명
   issuer: string; // 발행처
 };

@@ -1,12 +1,19 @@
 import type { ResumeBasics } from './resume.types';
+import { isValidDate } from '@/utils/date';
 
-export type BasicsValidatedField = 'name' | 'email' | 'phone' | 'workerTitle';
+export type BasicsValidatedField =
+  | 'name'
+  | 'email'
+  | 'phone'
+  | 'workerTitle'
+  | 'birth';
 
 export const BASICS_VALIDATED_FIELDS: BasicsValidatedField[] = [
   'workerTitle',
   'name',
   'phone',
   'email',
+  'birth',
 ];
 
 export type BasicsFieldErrors = Partial<Record<BasicsValidatedField, string>>;
@@ -39,6 +46,16 @@ export function validateBasicsField(
       const email = basics.email.trim();
       if (!email) return '이메일을 입력해 주세요.';
       if (!EMAIL_REGEX.test(email)) return '올바른 이메일 형식이 아닙니다.';
+      return undefined;
+    }
+    case 'birth': {
+      const birthDate = basics.birth?.trim() ?? '';
+
+      if (!birthDate) return undefined;
+
+      if (!isValidDate(birthDate))
+        return '생년월일은 YYYY-MM-DD 형식으로 입력해 주세요. 예: 1998-03-07';
+
       return undefined;
     }
   }
