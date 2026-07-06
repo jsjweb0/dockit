@@ -36,7 +36,7 @@ export function DefaultHeader() {
       <div className="mx-auto flex items-center max-w-7xl gap-5 md:gap-8 py-3 px-4 md:px-8">
         <h1 className="shrink-0">
           <a href="/" className="inline-flex md:min-h-10 items-center">
-            <img src="/logo.svg" className="h-3.5 md:h-5 w-auto" alt="DocKit" />
+            <img src="/logo.svg" height="20" className="h-3.5 md:h-5 w-auto" alt="DocKit" />
           </a>
         </h1>
         <div className="grow">
