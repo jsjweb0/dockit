@@ -132,9 +132,11 @@ describe('BasicsSection', () => {
         );
     });
 
-    expect(validateBasicsField('email', {
-        ...defaultResume().basics,
-        email: 'wrong-email',
-    })).toBe('올바른 이메일 형식이 아닙니다.');
+    it('잘못된 이메일 형식이면 오류 메시지를 반환한다', () => {
+        expect(validateBasicsField('email', {
+            ...defaultResume().basics,
+            email: 'wrong-email',
+        })).toBe('올바른 이메일 형식이 아닙니다.');
+    });
 
 });
