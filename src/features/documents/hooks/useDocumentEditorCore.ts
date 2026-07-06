@@ -1,7 +1,6 @@
 import { useCallback, useEffect, useRef, useState } from 'react';
 import { toast } from 'sonner';
 import { exportDocumentPdf } from '@/features/documents/model/document.export';
-import { useDocumentEditorStatus } from '@/features/documents/hooks/useDocumentEditorStatus';
 
 type SaveOptions = {
   silent?: boolean;
@@ -31,16 +30,10 @@ export function useDocumentEditorCore<TDocument>({
   const [document, setDocument] = useState<TDocument>(() =>
     loadDocument(documentId),
   );
-  const {
-    isDirty,
-    setIsDirty,
-    isSaving,
-    setIsSaving,
-    isExporting,
-    setIsExporting,
-    lastSavedAt,
-    setLastSavedAt,
-  } = useDocumentEditorStatus();
+  const [isDirty, setIsDirty] = useState(false);
+  const [isSaving, setIsSaving] = useState(false);
+  const [isExporting, setIsExporting] = useState(false);
+  const [lastSavedAt, setLastSavedAt] = useState<number | null>(null);
   const [resetVersion, setResetVersion] = useState(0);
   const previewRef = useRef<HTMLElement | null>(null);
 
