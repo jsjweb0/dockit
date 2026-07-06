@@ -1,5 +1,6 @@
 import { CareerSummaryForm } from '@/features/careerSummary/ui/CareerSummaryForm';
 import { useCareerSummaryEditor } from '@/features/careerSummary/context/careerSummaryEditor.context';
+import { useCareerSummaryValidation } from '@/features/careerSummary/hooks/useCareerSummaryValidation';
 import { useOutletContext } from 'react-router-dom';
 import { CareerSummaryPreview } from '@/features/careerSummary/ui/CareerSummaryPreview';
 import {
@@ -17,10 +18,12 @@ export function CareerSummaryBuilderPage() {
         careerSummary,
         setCareerSummary,
         previewRef,
+    } = useCareerSummaryEditor();
+    const {
         experienceErrors,
         revalidateExperience,
         touchCareerSummary,
-    } = useCareerSummaryEditor();
+    } = useCareerSummaryValidation();
 
     return (
         <DocumentBuilderLayout

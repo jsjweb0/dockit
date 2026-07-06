@@ -1,27 +1,42 @@
 import { useState } from 'react';
 import { cleanup, render, screen } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
-import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
+import { afterEach, describe, expect, it, vi } from 'vitest';
 import { ExperienceSection } from './ExperienceSection';
 import { defaultResume } from '../../model/resume.defaults';
 import type { Resume } from '../../model/resume.types';
-import { useResumeEditor } from '../../context/resumeEditor.context';
+import type { ResumeValidationState } from '../../hooks/useResumeValidation';
 
-vi.mock('../../context/resumeEditor.context', () => ({
-    useResumeEditor: vi.fn(),
-}));
-
-const mockUseResumeEditor = vi.mocked(useResumeEditor);
-
-beforeEach(() => {
-    mockUseResumeEditor.mockReturnValue({
+const createMockValidation = (
+    overrides: Partial<ResumeValidationState> = {},
+) =>
+    ({
+        basicsErrors: {},
         sectionErrors: {
+            education: {},
+            certifications: {},
             experience: {},
+            projects: {},
+            links: {},
         },
+        validationErrorCounts: {
+            basics: 0,
+            edu: 0,
+            cer: 0,
+            exp: 0,
+            proj: 0,
+            link: 0,
+            skills: 0,
+        },
+        totalValidationErrorCount: 0,
+        getFirstValidationErrorTarget: vi.fn(),
+        touchBasicsField: vi.fn(),
+        revalidateBasicsField: vi.fn(),
         touchSectionField: vi.fn(),
         revalidateSectionField: vi.fn(),
-    } as unknown as ReturnType<typeof useResumeEditor>);
-});
+        validateResumeBeforeExport: vi.fn(),
+        ...overrides,
+    }) as ResumeValidationState;
 
 afterEach(() => {
     cleanup();
@@ -30,9 +45,11 @@ afterEach(() => {
 function TestExperienceSection({
     initialValue = defaultResume(),
     onChange = vi.fn(),
+    validation = createMockValidation(),
 }: {
     initialValue?: Resume;
     onChange?: (next: Resume) => void;
+    validation?: ResumeValidationState;
 }) {
     const [resume, setResume] = useState(initialValue);
 
@@ -43,6 +60,7 @@ function TestExperienceSection({
                 setResume(next);
                 onChange(next);
             }}
+            validation={validation}
         />
     );
 }

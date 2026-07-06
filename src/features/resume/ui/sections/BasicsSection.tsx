@@ -12,15 +12,19 @@ import {
   FieldSeparator,
   FieldSet,
 } from '@/components/ui/field.tsx';
-import { useResumeEditor } from '../../context/resumeEditor.context';
 import type { BasicsValidatedField } from '../../model/resume.basics.validation';
+import type { ResumeValidationState } from '../../hooks/useResumeValidation';
 import { cn } from '@/lib/utils';
 
-type Props = { value: Resume; onChange: (next: Resume) => void };
+type Props = {
+  value: Resume;
+  onChange: (next: Resume) => void;
+  validation: ResumeValidationState;
+};
 
-export function BasicsSection({ value, onChange }: Props) {
+export function BasicsSection({ value, onChange, validation }: Props) {
   const { basicsErrors, touchBasicsField, revalidateBasicsField } =
-    useResumeEditor();
+    validation;
   const b = value.basics;
 
   const set = (key: keyof Resume['basics'], v: string) => {

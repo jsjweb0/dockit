@@ -7,7 +7,6 @@ import { EditorShell } from '@/layout/EditorShell';
 import {
   getEditorConfigByPathname,
   type AnyDocumentEditorConfig,
-  type DocumentEditorConfig,
 } from '@/layout/editor.config';
 
 type DocumentEditorViewState = {
@@ -34,8 +33,8 @@ type DocumentEditorInnerProps = {
   config: AnyDocumentEditorConfig;
 };
 
-function useDocumentEditorViewState<TDocument>(
-  config: DocumentEditorConfig<TDocument>,
+function useDocumentEditorViewState(
+  config: AnyDocumentEditorConfig,
   onExitHome: () => void,
 ): DocumentEditorViewState {
   const editor = config.useEditor();

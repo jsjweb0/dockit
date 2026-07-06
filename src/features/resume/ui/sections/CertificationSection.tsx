@@ -12,14 +12,18 @@ import {
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Plus } from 'lucide-react';
-import { useResumeEditor } from '../../context/resumeEditor.context';
 import { createId } from '@/lib/utils';
+import type { ResumeValidationState } from '../../hooks/useResumeValidation';
 
-type Props = { value: Resume; onChange: (next: Resume) => void };
+type Props = {
+  value: Resume;
+  onChange: (next: Resume) => void;
+  validation: ResumeValidationState;
+};
 
-export function CertificationSection({ value, onChange }: Props) {
+export function CertificationSection({ value, onChange, validation }: Props) {
   const { sectionErrors, touchSectionField, revalidateSectionField } =
-    useResumeEditor();
+    validation;
   const list = value.certifications;
 
   const update = (id: string, patch: Partial<Certification>) => {

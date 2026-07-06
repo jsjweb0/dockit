@@ -10,6 +10,7 @@ import {
   type ResumeValidationTab,
   useResumeEditor,
 } from './resumeEditor.context';
+import { useResumeValidation } from '../hooks/useResumeValidation';
 
 const testResume: Resume = {
   ...defaultResume(),
@@ -37,12 +38,12 @@ afterEach(() => {
 });
 
 function ValidationTargetConsumer({ tab }: { tab?: ResumeValidationTab }) {
+  const { resume } = useResumeEditor();
   const {
-    resume,
     touchBasicsField,
     touchSectionField,
     getFirstValidationErrorTarget,
-  } = useResumeEditor();
+  } = useResumeValidation();
   const [targetText, setTargetText] = useState('');
 
   return (

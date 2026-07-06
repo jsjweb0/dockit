@@ -14,14 +14,18 @@ import { Input } from '@/components/ui/input';
 import { Textarea } from '@/components/ui/textarea';
 import { Checkbox } from '@/components/ui/checkbox';
 import { Plus } from 'lucide-react';
-import { useResumeEditor } from '../../context/resumeEditor.context';
 import { createId } from '@/lib/utils';
+import type { ResumeValidationState } from '../../hooks/useResumeValidation';
 
-type Props = { value: Resume; onChange: (next: Resume) => void };
+type Props = {
+  value: Resume;
+  onChange: (next: Resume) => void;
+  validation: ResumeValidationState;
+};
 
-export function ExperienceSection({ value, onChange }: Props) {
+export function ExperienceSection({ value, onChange, validation }: Props) {
   const { sectionErrors, touchSectionField, revalidateSectionField } =
-    useResumeEditor();
+    validation;
   const list = value.experience;
 
   const update = (id: string, patch: Partial<Experience>) => {

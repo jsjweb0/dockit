@@ -6,6 +6,7 @@ import {
 import { CoverLetterForm } from '@/features/coverLetter/ui/CoverLetterForm';
 import { CoverLetterPreview } from '@/features/coverLetter/ui/CoverLetterPreview';
 import { useCoverLetterEditor } from '@/features/coverLetter/context/coverLetterEditor.context';
+import { useCoverLetterValidation } from '@/features/coverLetter/hooks/useCoverLetterValidation';
 
 type CoverLetterBuilderOutletContext = {
   previewControls: DocumentPreviewControls;
@@ -17,10 +18,12 @@ export function CoverLetterBuilderPage() {
     coverLetter,
     setCoverLetter,
     previewRef,
+  } = useCoverLetterEditor();
+  const {
     coverLetterErrors,
     touchCoverLetterSection,
     revalidateCoverLetterSection,
-  } = useCoverLetterEditor();
+  } = useCoverLetterValidation();
 
   return (
     <DocumentBuilderLayout

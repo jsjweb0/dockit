@@ -2,6 +2,7 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import type { Resume } from '../model/resume.types';
 import { useResumeEditor } from '../context/resumeEditor.context';
 import type { ResumeValidationTab } from '../context/resumeEditor.context';
+import { useResumeValidation } from '../hooks/useResumeValidation';
 import { BasicsSection } from './sections/BasicsSection';
 import { EducationSection } from './sections/EducationSection';
 import { CertificationSection } from './sections/CertificationSection';
@@ -17,8 +18,10 @@ type Props = {
 };
 
 export function ResumeForm({ value, onChange }: Props) {
-  const { validationErrorCounts, getFirstValidationErrorTarget, resetVersion } =
-    useResumeEditor();
+  const { resetVersion } = useResumeEditor();
+  const resumeValidation = useResumeValidation();
+  const { validationErrorCounts, getFirstValidationErrorTarget } =
+    resumeValidation;
   const [activeTab, setActiveTab] = useState('basics');
 
   const tabs = [
@@ -85,27 +88,51 @@ export function ResumeForm({ value, onChange }: Props) {
       </TabsList>
 
       <TabsContent value="basics" className="mt-4">
-        <BasicsSection value={value} onChange={onChange} />
+        <BasicsSection
+          value={value}
+          onChange={onChange}
+          validation={resumeValidation}
+        />
       </TabsContent>
 
       <TabsContent value="edu" className="mt-4 min-h-0 min-w-0 w-full">
-        <EducationSection value={value} onChange={onChange} />
+        <EducationSection
+          value={value}
+          onChange={onChange}
+          validation={resumeValidation}
+        />
       </TabsContent>
 
       <TabsContent value="cer" className="mt-4">
-        <CertificationSection value={value} onChange={onChange} />
+        <CertificationSection
+          value={value}
+          onChange={onChange}
+          validation={resumeValidation}
+        />
       </TabsContent>
 
       <TabsContent value="exp" className="mt-4">
-        <ExperienceSection value={value} onChange={onChange} />
+        <ExperienceSection
+          value={value}
+          onChange={onChange}
+          validation={resumeValidation}
+        />
       </TabsContent>
 
       <TabsContent value="proj" className="mt-4">
-        <ProjectsSection value={value} onChange={onChange} />
+        <ProjectsSection
+          value={value}
+          onChange={onChange}
+          validation={resumeValidation}
+        />
       </TabsContent>
 
       <TabsContent value="link" className="mt-4">
-        <LinkItemSection value={value} onChange={onChange} />
+        <LinkItemSection
+          value={value}
+          onChange={onChange}
+          validation={resumeValidation}
+        />
       </TabsContent>
 
       <TabsContent value="skills" className="mt-4">

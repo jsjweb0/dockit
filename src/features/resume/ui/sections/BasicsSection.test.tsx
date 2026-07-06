@@ -1,33 +1,56 @@
 import { useState } from 'react';
-import { render, screen } from '@testing-library/react';
+import { cleanup, render, screen } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
-import { beforeEach, describe, expect, it, vi } from 'vitest';
+import { afterEach, describe, expect, it, vi } from 'vitest';
 import { BasicsSection } from './BasicsSection';
 import { defaultResume } from '../../model/resume.defaults';
 import type { Resume } from '../../model/resume.types';
-import { useResumeEditor } from '../../context/resumeEditor.context';
 import { validateBasicsField } from '../../model/resume.basics.validation';
+import type { ResumeValidationState } from '../../hooks/useResumeValidation';
 
-vi.mock('../../context/resumeEditor.context', () => ({
-    useResumeEditor: vi.fn(),
-}));
-
-const mockUseResumeEditor = vi.mocked(useResumeEditor);
-
-beforeEach(() => {
-    mockUseResumeEditor.mockReturnValue({
+const createMockValidation = (
+    overrides: Partial<ResumeValidationState> = {},
+) =>
+    ({
         basicsErrors: {},
+        sectionErrors: {
+            education: {},
+            certifications: {},
+            experience: {},
+            projects: {},
+            links: {},
+        },
+        validationErrorCounts: {
+            basics: 0,
+            edu: 0,
+            cer: 0,
+            exp: 0,
+            proj: 0,
+            link: 0,
+            skills: 0,
+        },
+        totalValidationErrorCount: 0,
+        getFirstValidationErrorTarget: vi.fn(),
         touchBasicsField: vi.fn(),
         revalidateBasicsField: vi.fn(),
-    } as unknown as ReturnType<typeof useResumeEditor>);
+        touchSectionField: vi.fn(),
+        revalidateSectionField: vi.fn(),
+        validateResumeBeforeExport: vi.fn(),
+        ...overrides,
+    }) as ResumeValidationState;
+
+afterEach(() => {
+    cleanup();
 });
 
 function TestBasicsSection({
     initialValue = defaultResume(),
     onChange = vi.fn(),
+    validation = createMockValidation(),
 }: {
     initialValue?: Resume;
     onChange?: (next: Resume) => void;
+    validation?: ResumeValidationState;
 }) {
     const [resume, setResume] = useState(initialValue);
 
@@ -38,6 +61,7 @@ function TestBasicsSection({
                 setResume(next);
                 onChange(next);
             }}
+            validation={validation}
         />
     );
 }
@@ -91,13 +115,9 @@ describe('BasicsSection', () => {
         const user = userEvent.setup();
         const revalidateBasicsField = vi.fn();
 
-        mockUseResumeEditor.mockReturnValue({
-            basicsErrors: {},
-            touchBasicsField: vi.fn(),
-            revalidateBasicsField,
-        } as unknown as ReturnType<typeof useResumeEditor>);
+        const validation = createMockValidation({ revalidateBasicsField });
 
-        render(<TestBasicsSection />);
+        render(<TestBasicsSection validation={validation} />);
 
         const emailInput = screen.getByLabelText('이메일');
 

@@ -3,7 +3,7 @@ import { useState } from 'react';
 import { ArrowRight, Clock3, Trash2, Info as InfoIcon, RefreshCcw, Hash as HashIcon } from 'lucide-react';
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
-import { documentTemplates } from '@/layout/editor.config';
+import { documentTemplates } from '@/layout/documentTemplates';
 import {
   listRecentDocumentDrafts,
   type RecentDocumentDraft,

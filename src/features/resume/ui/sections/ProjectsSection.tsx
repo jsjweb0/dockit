@@ -13,14 +13,18 @@ import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Textarea } from '@/components/ui/textarea';
 import { Plus } from 'lucide-react';
-import { useResumeEditor } from '../../context/resumeEditor.context';
 import { createId } from '@/lib/utils';
+import type { ResumeValidationState } from '../../hooks/useResumeValidation';
 
-type Props = { value: Resume; onChange: (next: Resume) => void };
+type Props = {
+  value: Resume;
+  onChange: (next: Resume) => void;
+  validation: ResumeValidationState;
+};
 
-export function ProjectsSection({ value, onChange }: Props) {
+export function ProjectsSection({ value, onChange, validation }: Props) {
   const { sectionErrors, touchSectionField, revalidateSectionField } =
-    useResumeEditor();
+    validation;
   const list = value.projects;
 
   const update = (id: string, patch: Partial<Project>) => {
