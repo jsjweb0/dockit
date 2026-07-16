@@ -138,7 +138,7 @@ type DocumentEditorConfig<TDocument> = {
 
 **localStorage**
 
-- 백엔드 없이도 문서 저장과 복원 흐름을 검증할 수 있도록 localStorage를 사용했습니다. 저장 데이터에는 `meta.version`을 함께 기록해 향후 데이터 구조 변경 시 기존 데이터를 안전하게 마이그레이션할 수 있도록 대비했습니다.
+- 백엔드 없이도 문서 저장과 복원 흐름을 검증할 수 있도록 localStorage를 사용했습니다. 저장 데이터에는 `meta.version`을 함께 기록해 향후 마이그레이션을 위한 버전 정보를 기록했다.
 
 ---
 

@@ -1,4 +1,4 @@
-import { useCallback, useEffect, useRef, useState } from 'react';
+import { useCallback, useEffect, useState } from 'react';
 import { toast } from 'sonner';
 import { exportDocumentPdf } from '@/features/documents/model/document.export';
 
@@ -35,21 +35,19 @@ export function useDocumentEditorCore<TDocument>({
   const [isExporting, setIsExporting] = useState(false);
   const [lastSavedAt, setLastSavedAt] = useState<number | null>(null);
   const [resetVersion, setResetVersion] = useState(0);
-  const previewRef = useRef<HTMLElement | null>(null);
-
   useEffect(() => {
     setDocument(loadDocument(documentId));
     setIsDirty(false);
     setLastSavedAt(null);
     onDocumentLoaded?.();
-  }, [documentId, loadDocument, onDocumentLoaded, setIsDirty, setLastSavedAt]);
+  }, [documentId, loadDocument, onDocumentLoaded]);
 
   const setDocumentSafe = useCallback(
     (next: TDocument) => {
       setDocument(next);
       setIsDirty(true);
     },
-    [setIsDirty],
+    [],
   );
 
   const save = useCallback(
@@ -66,14 +64,7 @@ export function useDocumentEditorCore<TDocument>({
         setIsSaving(false);
       }
     },
-    [
-      document,
-      documentId,
-      saveDocument,
-      setIsDirty,
-      setIsSaving,
-      setLastSavedAt,
-    ],
+    [document, documentId, saveDocument],
   );
 
   const reset = useCallback(() => {
@@ -82,16 +73,11 @@ export function useDocumentEditorCore<TDocument>({
     setIsDirty(true);
     setLastSavedAt(null);
     onReset?.();
-  }, [createDefaultDocument, onReset, setIsDirty, setLastSavedAt]);
+  }, [createDefaultDocument, onReset]);
 
   const printDocument = useCallback(async (validate?: () => boolean) => {
     const canPrint = validate ?? validateBeforePrint;
     if (canPrint && !canPrint()) return;
-
-    if (!previewRef.current) {
-      toast.error('보낼 미리보기를 찾지 못했습니다.');
-      return;
-    }
 
     setIsExporting(true);
     try {
@@ -103,7 +89,7 @@ export function useDocumentEditorCore<TDocument>({
     } finally {
       setIsExporting(false);
     }
-  }, [document, getPrintFileName, setIsExporting, validateBeforePrint]);
+  }, [document, getPrintFileName, validateBeforePrint]);
 
   useEffect(() => {
     if (!isDirty || isSaving) return;
@@ -119,7 +105,6 @@ export function useDocumentEditorCore<TDocument>({
     save,
     reset,
     printDocument,
-    previewRef,
     resetVersion,
     isDirty,
     isExporting,

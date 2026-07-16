@@ -1,5 +1,4 @@
 import {
-  forwardRef,
   useCallback,
   useEffect,
   useRef,
@@ -29,20 +28,14 @@ type DocumentPreviewPanelProps = {
 const A4_PREVIEW_WIDTH = 794;
 const A4_PREVIEW_HEIGHT = 1123;
 
-export const DocumentPreviewPanel = forwardRef<
-  HTMLElement,
-  DocumentPreviewPanelProps
->(function DocumentPreviewPanel(
-  {
-    children,
-    isPreviewOpen,
-    isPreviewClosing,
-    shouldAnimatePreviewOpen,
-    onTogglePreview,
-    onPreviewAnimationEnd,
-  },
-  ref,
-) {
+export function DocumentPreviewPanel({
+  children,
+  isPreviewOpen,
+  isPreviewClosing,
+  shouldAnimatePreviewOpen,
+  onTogglePreview,
+  onPreviewAnimationEnd,
+}: DocumentPreviewPanelProps) {
   const previewViewportRef = useRef<HTMLDivElement | null>(null);
   const [previewScale, setPreviewScale] = useState(1);
 
@@ -163,7 +156,7 @@ export const DocumentPreviewPanel = forwardRef<
                     transform: `scale(${previewScale})`,
                   }}
                 >
-                  <section ref={ref} className="documentPreview" aria-hidden="true">
+                  <section className="documentPreview" aria-hidden="true">
                     {children}
                   </section>
                 </div>
@@ -174,4 +167,4 @@ export const DocumentPreviewPanel = forwardRef<
       </section>
     </>
   );
-});
+}

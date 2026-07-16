@@ -13,13 +13,12 @@ type ResumeBuilderOutletContext = {
 
 export function ResumeBuilderPage() {
   const { previewControls } = useOutletContext<ResumeBuilderOutletContext>();
-  const { resume, setResume, previewRef } = useResumeEditor();
+  const { resume, setResume } = useResumeEditor();
 
   return (
     <DocumentBuilderLayout
       form={<ResumeForm value={resume} onChange={setResume} />}
       preview={<ResumePreview value={resume} />}
-      previewRef={previewRef}
       previewControls={previewControls}
     />
   );

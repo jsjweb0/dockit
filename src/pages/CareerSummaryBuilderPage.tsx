@@ -14,11 +14,7 @@ type CareerSummaryBuilderOutletContext = {
 
 export function CareerSummaryBuilderPage() {
     const { previewControls } = useOutletContext<CareerSummaryBuilderOutletContext>();
-    const {
-        careerSummary,
-        setCareerSummary,
-        previewRef,
-    } = useCareerSummaryEditor();
+    const { careerSummary, setCareerSummary } = useCareerSummaryEditor();
     const {
         experienceErrors,
         revalidateExperience,
@@ -37,7 +33,6 @@ export function CareerSummaryBuilderPage() {
                 />
             }
             preview={<CareerSummaryPreview value={careerSummary} />}
-            previewRef={previewRef}
             previewControls={previewControls}
         />
     );

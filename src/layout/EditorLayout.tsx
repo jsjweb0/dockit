@@ -105,7 +105,7 @@ function ConfiguredDocumentEditorLayout({ config }: { config: AnyDocumentEditorC
   }, [config.template.href, id, navigate]);
 
   return (
-    <div className="min-h-dvh ">
+    <div className="min-h-dvh">
       <config.Provider documentId={documentId}>
         <DocumentEditorInner previewControls={previewControls} config={config} />
       </config.Provider>

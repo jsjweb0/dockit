@@ -17,7 +17,6 @@ type ResumeEditorState = {
   save: (opts?: { silent?: boolean }) => Promise<void>;
   reset: () => void;
   printResume: () => Promise<void>;
-  previewRef: React.RefObject<HTMLElement | null>;
   resetVersion: number;
   isDirty: boolean;
   isExporting: boolean;
@@ -46,7 +45,6 @@ export function ResumeEditorProvider({
     save: persist,
     reset,
     printDocument: printDocumentCore,
-    previewRef,
     resetVersion,
     isDirty,
     isExporting,
@@ -79,7 +77,6 @@ export function ResumeEditorProvider({
       save: persist,
       reset,
       printResume,
-      previewRef,
       resetVersion,
       isDirty,
       isExporting,
@@ -93,7 +90,6 @@ export function ResumeEditorProvider({
       persist,
       reset,
       printResume,
-      previewRef,
       resetVersion,
       isDirty,
       isExporting,
