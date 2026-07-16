@@ -308,7 +308,7 @@
   @media print {
     @page {
       size: A4;
-      margin: 0;
+      margin: 15mm 20mm;
     }
     html,
     body {
@@ -346,11 +346,11 @@
       top: 0;
       left: 0;
       box-sizing: border-box;
-      width: 210mm;
+      width: auto;
       height: auto;
       min-height: auto;
       margin: 0;
-      padding: 15mm 20mm;
+      padding: 0;
       background: #fff;
       box-shadow: none;
       break-after: auto;

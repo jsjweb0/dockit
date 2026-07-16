@@ -286,7 +286,7 @@ export function ResumePreview({ value }: Props) {
                 {career.role || (index === 0 && '')}
               </td>
               <td colSpan={9} className="docTable__multiline">
-                <div className="docTable__multilineText">
+                <div className="docTable__multilineText" style={{ whiteSpace: 'pre-line' }}>
                   {career.description || ''}
                 </div>
               </td>
