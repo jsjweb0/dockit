@@ -18,7 +18,6 @@ type CareerSummaryEditorState = {
   save: (opts?: { silent?: boolean }) => Promise<void>;
   reset: () => void;
   printCareerSummary: () => Promise<void>;
-  previewRef: React.RefObject<HTMLElement | null>;
   resetVersion: number;
   isDirty: boolean;
   isExporting: boolean;
@@ -51,7 +50,6 @@ export function CareerSummaryEditorProvider({
     save,
     reset,
     printDocument,
-    previewRef,
     resetVersion,
     isDirty,
     isExporting,
@@ -97,7 +95,6 @@ export function CareerSummaryEditorProvider({
       save: saveCareerSummaryWithValidation,
       reset: resetCareerSummary,
       printCareerSummary,
-      previewRef,
       resetVersion,
       isDirty,
       isExporting,
@@ -111,7 +108,6 @@ export function CareerSummaryEditorProvider({
       saveCareerSummaryWithValidation,
       resetCareerSummary,
       printCareerSummary,
-      previewRef,
       resetVersion,
       isDirty,
       isExporting,

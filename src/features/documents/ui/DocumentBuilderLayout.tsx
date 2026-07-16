@@ -1,4 +1,4 @@
-import type { ReactNode, RefObject } from 'react';
+import type { ReactNode } from 'react';
 import { DocumentPreviewPanel } from '@/features/documents/ui/DocumentPreviewPanel';
 
 export type DocumentPreviewControls = {
@@ -12,14 +12,12 @@ export type DocumentPreviewControls = {
 type DocumentBuilderLayoutProps = {
   form: ReactNode;
   preview: ReactNode;
-  previewRef: RefObject<HTMLElement | null>;
   previewControls: DocumentPreviewControls;
 };
 
 export function DocumentBuilderLayout({
   form,
   preview,
-  previewRef,
   previewControls,
 }: DocumentBuilderLayoutProps) {
   return (
@@ -30,7 +28,7 @@ export function DocumentBuilderLayout({
         </div>
         {form}
       </section>
-      <DocumentPreviewPanel ref={previewRef} {...previewControls}>
+      <DocumentPreviewPanel {...previewControls}>
         {preview}
       </DocumentPreviewPanel>
     </>

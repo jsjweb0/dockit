@@ -15,7 +15,6 @@ type CoverLetterEditorState = {
   save: (opts?: { silent?: boolean }) => Promise<void>;
   reset: () => void;
   printCoverLetter: () => Promise<void>;
-  previewRef: React.RefObject<HTMLElement | null>;
   resetVersion: number;
   isDirty: boolean;
   isExporting: boolean;
@@ -44,7 +43,6 @@ export function CoverLetterEditorProvider({
     save,
     reset,
     printDocument,
-    previewRef,
     resetVersion,
     isDirty,
     isExporting,
@@ -89,7 +87,6 @@ export function CoverLetterEditorProvider({
       save: saveCoverLetterWithValidation,
       reset: resetCoverLetter,
       printCoverLetter,
-      previewRef,
       resetVersion,
       isDirty,
       isExporting,
@@ -103,7 +100,6 @@ export function CoverLetterEditorProvider({
       saveCoverLetterWithValidation,
       resetCoverLetter,
       printCoverLetter,
-      previewRef,
       resetVersion,
       isDirty,
       isExporting,
