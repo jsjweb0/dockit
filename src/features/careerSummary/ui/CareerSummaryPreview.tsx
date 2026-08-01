@@ -146,7 +146,7 @@ export function CareerSummaryPreview({ value }: Props) {
                                     {section.achievements.map((achievement, index) => (
                                         <li key={`${section.id}-achievement-${index}`}>
                                             <p className="flex">
-                                                <IconDot aria-hidde="true" className="-mt-0.5 size-6" /> {achievement.title || '주요성과 1'}
+                                                <IconDot aria-hidden="true" className="-mt-0.5 size-6" /> {achievement.title || '주요성과 1'}
                                             </p>
                                             {achievement.description && (
                                                 <div className="mb-4 pl-6 whitespace-pre-line font-light">
@@ -160,7 +160,7 @@ export function CareerSummaryPreview({ value }: Props) {
                                 {visibleTechStack.length > 0 && (
                                     <div>
                                         <p className="flex">
-                                            <IconDot aria-hidde="true" className="-mt-0.5 size-6" /> Skill Keywords
+                                            <IconDot aria-hidden="true" className="-mt-0.5 size-6" /> Skill Keywords
                                         </p>
                                         <ul className="flex flex-wrap gap-1.5 ml-5 mt-0.5">
                                             {visibleTechStack.map((tech) => (
