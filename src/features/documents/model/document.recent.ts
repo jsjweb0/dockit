@@ -1,5 +1,17 @@
 import type { DocumentDraftSummary } from '@/features/documents/model/document.storage';
-import { editorConfigs } from '@/layout/editor.config';
+import {
+  deleteCareerSummaryDraft,
+  listRecentCareerSummaryDrafts,
+} from '@/features/careerSummary/model/careerSummary.storage';
+import {
+  deleteCoverLetterDraft,
+  listRecentCoverLetterDrafts,
+} from '@/features/coverLetter/model/coverLetter.storage';
+import {
+  deleteResumeDraft,
+  listRecentResumeDrafts,
+} from '@/features/resume/model/resume.storage';
+import { getDocumentTemplate } from '@/layout/documentTemplates';
 
 type RecentDocumentDraftSource = {
   documentLabel: string;
@@ -14,16 +26,32 @@ export type RecentDocumentDraft = DocumentDraftSummary & {
   deleteDraft: (id: string) => void;
 };
 
-const recentDocumentDraftSources: RecentDocumentDraftSource[] =
-  editorConfigs.flatMap(({ template, recent }) => {
-    if (template.status !== 'available' || !template.href || !recent) return [];
+const recentDocumentDraftSources: RecentDocumentDraftSource[] = [
+  {
+    template: getDocumentTemplate('resume'),
+    listDrafts: listRecentResumeDrafts,
+    deleteDraft: deleteResumeDraft,
+  },
+  {
+    template: getDocumentTemplate('cover-letter'),
+    listDrafts: listRecentCoverLetterDrafts,
+    deleteDraft: deleteCoverLetterDraft,
+  },
+  {
+    template: getDocumentTemplate('career-summary'),
+    listDrafts: listRecentCareerSummaryDrafts,
+    deleteDraft: deleteCareerSummaryDraft,
+  },
+].flatMap(({ template, listDrafts, deleteDraft }) => {
+  if (template.status !== 'available' || !template.href) return [];
 
-    return {
-      documentLabel: template.title,
-      href: template.href,
-      ...recent,
-    };
-  });
+  return {
+    documentLabel: template.title,
+    href: template.href,
+    listDrafts,
+    deleteDraft,
+  };
+});
 
 export function listRecentDocumentDrafts(limit = 3): RecentDocumentDraft[] {
   return recentDocumentDraftSources
