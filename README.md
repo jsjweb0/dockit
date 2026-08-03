@@ -1,6 +1,6 @@
 # DocKit - 국문 제출 문서 작성 도구
 
-> 이력서, 자기소개서, 경력기술서를 입력하면서 실제 제출 양식으로 미리 보고 PDF로 저장할 수 있는 React 문서 작성 도구입니다.
+> 이력서, 자기소개서, 경력기술서를 입력하면서 A4 제출용 문서 형태로 미리 보고 PDF로 저장할 수 있는 React 문서 작성 도구입니다.
 
 [데모 보기](https://dockit.jsjweb0.workers.dev/) · [GitHub](https://github.com/jsjweb0/dockit)
 
@@ -55,13 +55,9 @@ flowchart LR
 
 ### 문서 종류가 자신의 편집 흐름을 소유하는 구조
 
-초기 구조에서는 `EditorLayout`과 중앙 `editor.config`가 URL을 기준으로 문서 Provider, 저장, 검증, 샘플 데이터, PDF 출력을 연결했습니다.
+각 BuilderPage가 문서별 Provider, 검증 hook, Header action, Form, Preview를 직접 조립합니다. 공통 영역에는 `EditorHeader`, `DocumentBuilderLayout`, `useDocumentEditorCore`, `createDocumentStorage`처럼 세 문서에서 실제로 반복되는 기능만 남겼습니다.
 
-공통 설정을 한곳에서 관리할 수 있다는 장점은 있었지만, 새 문서 화면을 추가하려면 Form과 Preview뿐 아니라 Provider, storage, validation, sample, PDF 기능까지 먼저 구현해야 했습니다. 또한 Router가 이미 문서 종류를 알고 있음에도 Layout에서 pathname을 다시 판별하는 중복 흐름이 생겼습니다.
-
-리팩터링 후에는 각 BuilderPage가 자신의 Provider, 검증 hook, Header action, Form, Preview를 직접 조립합니다. `EditorHeader`, `DocumentBuilderLayout`, `useDocumentEditorCore`, `createDocumentStorage`처럼 실제로 반복되는 기능만 공통으로 유지했습니다.
-
-저장과 검증이 없는 새 문서는 로컬 기본 상태와 Form, Preview만으로 먼저 화면을 구현할 수 있습니다. 이후 필요한 시점에 해당 문서 feature 내부에서 Provider, storage, validation을 연결할 수 있습니다.
+이 구조에서는 기본 상태와 Form, Preview로 편집 화면을 먼저 만든 뒤, 필요한 시점에 해당 문서 feature 내부에서 저장과 검증을 연결할 수 있습니다. 구조를 변경한 이유와 구현 범위는 아래 문제 해결 과정에서 설명합니다.
 
 ---
 
@@ -101,7 +97,7 @@ Header의 저장·초기화·샘플·PDF action은 선택적으로 전달할 수
 
 저장·검증 없는 새 문서 화면은 문서 타입과 기본 상태, Form, Preview, BuilderPage, Router 등록만으로 구현할 수 있게 되었습니다.
 
-기존에는 Router 외에도 중앙 config와 Provider, 저장, 검증, PDF 구현이 필수였지만, 리팩터링 후 화면 표시를 위한 중앙 수정 지점은 Router 한 곳으로 줄었습니다.
+기존에는 Router 외에도 중앙 config와 Provider, 저장, 검증, PDF 구현이 필수였지만, 리팩터링 후 편집 화면을 표시하기 위한 중앙 수정 지점은 Router 한 곳으로 줄었습니다. 홈 화면의 문서 카드와 최근 문서 목록까지 지원할 때는 각각 `documentTemplates.ts`와 `document.recent.ts`에 문서 정보를 추가합니다.
 
 문서별 조립 코드가 일부 반복되지만 각 문서의 저장·검증 정책이 코드에 명시적으로 드러나며, 현재 규모에서는 별도의 범용 factory를 만드는 것보다 이해하기 쉬운 구조를 선택했습니다.
 
@@ -119,39 +115,35 @@ Header의 저장·초기화·샘플·PDF action은 선택적으로 전달할 수
 
 **결과**
 
-복잡한 이력서 검증은 재사용 가능한 구조로 정리하면서도, 단순한 문서에는 과한 추상화를 적용하지 않아 코드 흐름을 읽기 쉽게 유지했습니다.
-문서마다 필요한 검증 수준을 다르게 적용할 수 있어, 기능 확장 시 공통화와 단순성 사이의 균형을 맞출 수 있었습니다.
+복잡한 이력서 검증은 재사용 가능한 구조로 정리하면서도, 단순한 문서에는 같은 adapter 구조를 강제하지 않았습니다. 문서마다 필요한 검증 수준을 선택할 수 있고, 검증 규칙은 각 문서 feature에서 확인할 수 있습니다.
 
-PDF 출력 전 전체 검증으로 생성된 errors와 touched 상태는 문서 초기화뿐 아니라 예시 데이터를 불러올 때도 함께 초기화하도록 연결했습니다. sample 데이터만 교체하면 이전 오류 개수와 메시지가 남는 문제를 `resetVersion` 갱신으로 해결해 문서 값과 검증 상태의 생명주기를 함께 관리했습니다.
+### 3. 문서 데이터 교체와 검증 상태의 생명주기 연결
+
+**문제**
+
+PDF 출력 전 전체 검증으로 오류가 표시된 상태에서 예시 데이터를 불러오면 문서 값만 교체되고 오류 개수, 메시지, touched 상태가 남았습니다. 새 데이터와 이전 데이터의 검증 결과가 한 화면에 함께 표시되는 문제였습니다.
+
+**해결**
+
+초기화와 예시 불러오기에서 문서 데이터와 함께 `resetVersion`을 갱신하고, 문서별 validation hook이 이 값의 변경을 감지해 errors와 touched 상태를 초기화하도록 연결했습니다.
+
+**결과**
+
+문서 값이 교체될 때 이전 오류 개수, 메시지, touched 상태가 함께 초기화됩니다. PDF 검증 후 예시 불러오기 흐름을 BuilderPage 테스트에 추가해 세 문서에서 오류 요약이 0으로 바뀌는 동작을 확인했습니다.
 
 ---
 
-## 기술 스택
+## 기술 선택과 구현 근거
 
-**React 19 + TypeScript**
-
-- 실시간 미리보기, 반복 섹션 추가·삭제, 문서 상태 공유가 많은 프로젝트 특성에 맞춰 컴포넌트 기반으로 UI를 구성했습니다. TypeScript를 적용해 문서 데이터 구조를 명확하게 정의하고, 개발 단계에서 타입 오류를 빠르게 확인할 수 있도록 했습니다.
-
-**Context API**
-
-- 문서 상태가 에디터 내부에서만 사용되고 전역에서 공유해야 하는 범위가 제한적이어서 별도의 상태 관리 라이브러리 대신 Context API를 선택했습니다.
-
-**Radix UI + Tailwind CSS**
-
-- AlertDialog, Tabs, Tooltip 등 키보드 접근성이 중요한 UI를 Radix UI로 구현하고, Tailwind CSS를 활용해 일관된 스타일과 반응형 레이아웃을 구성했습니다.
-
-**Vite + Cloudflare Workers**
-
-- Vite로 빠른 개발 환경과 빌드 속도를 확보하고, Cloudflare Workers Assets를 이용해 정적 사이트를 배포했습니다. React Router 기반 SPA의 새로고침과 직접 URL 접근이 가능하도록 Workers 설정을 적용했습니다.
-
-**Validation**
-
-- 문서마다 다른 검증 규칙과 오류 구조를 유연하게 처리하기 위해 스키마 기반 라이브러리 대신 순수 함수로 구현했습니다. 단순한 유효성 검사뿐 아니라 탭별 오류 개수, 첫 오류 필드 포커스, 반복 섹션의 항목 id 기반 오류 매핑이 필요했기 때문에, 검증 로직을 UI와 분리하고 테스트 가능한 함수 단위로 관리했습니다.
-- 다만 서버 저장이나 API 검증이 추가된다면 Zod 같은 스키마 라이브러리를 도입해 프론트엔드와 백엔드의 검증 규칙을 공유하는 방향을 고려할 수 있습니다.
-
-**localStorage**
-
-- 백엔드 없이도 문서 저장과 복원 흐름을 검증할 수 있도록 localStorage를 사용했습니다. 향후 데이터 마이그레이션에 활용할 수 있도록 `meta.version`을 함께 저장했습니다.
+| 선택 | 적용 범위와 근거 |
+| --- | --- |
+| React 19 + TypeScript | 문서 데이터를 타입으로 정의하고 Form과 Preview가 같은 상태를 사용하도록 구성했습니다. 반복 섹션과 문서별 컴포넌트 사이의 데이터 계약을 타입 검사로 확인합니다. |
+| Context API | 편집 상태가 각 문서의 Provider 하위에서만 필요하므로 별도의 전역 상태 라이브러리를 사용하지 않았습니다. Form, Preview, Header action이 같은 문서 상태를 사용합니다. |
+| 순수 함수 기반 validation | 탭별 오류 개수, 첫 오류 필드, 반복 항목 id를 문서별 오류 구조에 맞게 계산하고 UI와 분리해 단위 테스트합니다. |
+| localStorage | `createDocumentStorage`에서 문서 저장·복원과 최근 문서 요약 갱신을 처리합니다. 저장 데이터에는 `meta.version`을 포함합니다. |
+| `window.print` + print CSS | 문서를 canvas 이미지로 변환하지 않고 브라우저 인쇄 기능으로 출력합니다. A4 여백, 표 경계, 인쇄 시 숨길 UI는 print CSS에서 제어합니다. |
+| Radix UI + Tailwind CSS | AlertDialog, Tabs, Tooltip의 키보드 동작을 사용하고, 모바일 Form·Preview 전환과 데스크톱 분할 배치를 반응형 클래스로 구현했습니다. |
+| Vite + Cloudflare Workers Assets | Vite의 `dist` 결과물을 Workers Assets로 배포하며, `wrangler.jsonc`에서 React Router SPA의 직접 URL 접근과 새로고침을 처리합니다. |
 
 ---
 
@@ -161,7 +153,6 @@ PDF 출력 전 전체 검증으로 생성된 errors와 touched 상태는 문서 
 - 데스크톱에서는 입력 영역과 미리보기 영역을 함께 확인할 수 있도록 배치했습니다.
 - 입력 필드는 label로 접근 가능하게 만들고, 오류 상태는 `aria-invalid`, 오류 설명은 `aria-describedby`로 연결했습니다.
 - 탭 전환 시 첫 오류 필드 포커스, AlertDialog 닫힘 후 포커스 복귀, `prefers-reduced-motion` 대응을 적용했습니다.
-- `openWAX`, `Colour Contrast Analyzer`로 기본 접근성 구조와 색 대비를 점검했습니다.
 
 ---
 
