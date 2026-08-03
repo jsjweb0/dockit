@@ -5,12 +5,6 @@ import { HomePage } from "@/pages/HomePage.tsx";
 import { ErrorFallback } from "@/components/ErrorFallback";
 import { Spinner } from './components/ui/spinner';
 
-const EditorLayout = lazy(() =>
-    import('@/layout/EditorLayout').then((module) => ({
-        default: module.EditorLayout,
-    })),
-);
-
 const ResumeBuilderPage = lazy(() =>
     import('@/pages/ResumeBuilderPage').then((module) => ({
         default: module.ResumeBuilderPage,
@@ -51,27 +45,14 @@ export const router = createBrowserRouter([
         ],
     },
     {
-        element: withSuspense(<EditorLayout />),
         errorElement: <ErrorFallback />,
         children: [
             { path: "/resume", element: withSuspense(<ResumeBuilderPage />) },
             { path: "/resume/:id", element: withSuspense(<ResumeBuilderPage />) },
-        ],
-    },
-    {
-        element: withSuspense(<EditorLayout />),
-        errorElement: <ErrorFallback />,
-        children: [
             { path: "/cover-letter", element: withSuspense(<CoverLetterBuilderPage />) },
-            { path: "/cover-letter/:id", element: withSuspense(<CoverLetterBuilderPage />) }
-        ],
-    },
-    {
-        element: withSuspense(<EditorLayout />),
-        errorElement: <ErrorFallback />,
-        children: [
+            { path: "/cover-letter/:id", element: withSuspense(<CoverLetterBuilderPage />) },
             { path: "/career-summary", element: withSuspense(<CareerSummaryBuilderPage />) },
-            { path: "/career-summary/:id", element: withSuspense(<CareerSummaryBuilderPage />) }
+            { path: "/career-summary/:id", element: withSuspense(<CareerSummaryBuilderPage />) },
         ],
     },
 

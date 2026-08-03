@@ -19,10 +19,10 @@ import { Button } from '@/components/ui/button';
 import { cn } from '@/lib/utils';
 
 export type EditorActions = {
-  onSave: () => void;
-  onReset: () => void;
-  onLoadSample: () => void;
-  onPrintResume: () => void;
+  onSave?: () => void;
+  onReset?: () => void;
+  onLoadSample?: () => void;
+  onExportPdf?: () => void;
   onExitHome: () => void;
 };
 
@@ -35,20 +35,25 @@ export type EditorStatus = {
 
 type Props = {
   title: string;
-  documentLabel?: string;
-  fallbackTitle?: string;
+  documentLabel: string;
+  fallbackTitle: string;
   actions: EditorActions;
-  status: EditorStatus;
+  status?: EditorStatus;
   isPreviewOpen: boolean;
   onTogglePreview: () => void;
 };
 
 export function EditorHeader({
   title,
-  documentLabel = '국문 이력서',
-  fallbackTitle = '새 이력서',
+  documentLabel,
+  fallbackTitle,
   actions,
-  status,
+  status = {
+    isDirty: false,
+    isSaving: false,
+    isExporting: false,
+    lastSavedAt: null,
+  },
   isPreviewOpen,
   onTogglePreview,
 }: Props) {
@@ -71,10 +76,13 @@ export function EditorHeader({
   useEffect(() => {
     if (isSaving) {
       toast.loading('자동 저장중...', { id: 'save-status' });
-      return;
+    } else {
+      toast.dismiss('save-status');
     }
 
-    toast.dismiss('save-status');
+    return () => {
+      toast.dismiss('save-status');
+    };
   }, [isSaving]);
 
   useEffect(() => {
@@ -89,6 +97,9 @@ export function EditorHeader({
     }
 
     wasDirtyRef.current = isDirty;
+    return () => {
+      toast.dismiss('dirty-status');
+    };
   }, [isDirty]);
 
   useEffect(() => {
@@ -218,14 +229,16 @@ export function EditorHeader({
               </Button>
             )}
 
-            <Button
-              type="button"
-              onClick={actions.onSave}
-              disabled={!isDirty || isSaving}
-              className="max-lg:grow"
-            >
-              문서저장
-            </Button>
+            {actions.onSave && (
+              <Button
+                type="button"
+                onClick={actions.onSave}
+                disabled={!isDirty || isSaving}
+                className="max-lg:grow"
+              >
+                문서저장
+              </Button>
+            )}
             <Button
               variant="outline"
               size="icon"

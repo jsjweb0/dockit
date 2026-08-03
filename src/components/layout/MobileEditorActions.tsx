@@ -31,11 +31,14 @@ type Props = {
 };
 
 export function MobileEditorActions({ actions, status }: Props) {
-  const { onReset, onLoadSample, onPrintResume } = actions;
+  const { onReset, onLoadSample, onExportPdf } = actions;
   const { isDirty, isSaving, isExporting } = status;
   const menuButtonRef = useRef<HTMLButtonElement>(null);
   const [isResetDialogOpen, setIsResetDialogOpen] = useState(false);
   const [isLoadSampleDialogOpen, setIsLoadSampleDialogOpen] = useState(false);
+  const hasMenuActions = Boolean(onReset || onLoadSample || onExportPdf);
+
+  if (!hasMenuActions) return null;
 
   const focusMenuButton = () => {
     requestAnimationFrame(() => {
@@ -80,63 +83,73 @@ export function MobileEditorActions({ actions, status }: Props) {
         <DropdownMenuContent align="end">
           <DropdownMenuGroup>
             <DropdownMenuLabel>작업</DropdownMenuLabel>
-            <DropdownMenuItem onSelect={() => setIsLoadSampleDialogOpen(true)}>
-              <FilePenLine className="size-4" />
-              예시 불러오기
-            </DropdownMenuItem>
-            <DropdownMenuItem onSelect={onPrintResume} disabled={isExporting}>
-              <FileInput className="size-4" />
-              {isExporting ? 'PDF 저장 중' : 'PDF로 저장'}
-            </DropdownMenuItem>
-            <DropdownMenuSeparator />
+            {onLoadSample && (
+              <DropdownMenuItem onSelect={() => setIsLoadSampleDialogOpen(true)}>
+                <FilePenLine className="size-4" />
+                예시 불러오기
+              </DropdownMenuItem>
+            )}
+            {onExportPdf && (
+              <DropdownMenuItem onSelect={onExportPdf} disabled={isExporting}>
+                <FileInput className="size-4" />
+                {isExporting ? 'PDF 저장 중' : 'PDF로 저장'}
+              </DropdownMenuItem>
+            )}
+            {(onLoadSample || onExportPdf) && onReset && <DropdownMenuSeparator />}
 
-            <DropdownMenuItem
-              disabled={!isDirty || isSaving || isExporting}
-              onSelect={() => setIsResetDialogOpen(true)}
-            >
-              <RefreshCcw className="size-4" />
-              전체 초기화
-            </DropdownMenuItem>
+            {onReset && (
+              <DropdownMenuItem
+                disabled={!isDirty || isSaving || isExporting}
+                onSelect={() => setIsResetDialogOpen(true)}
+              >
+                <RefreshCcw className="size-4" />
+                전체 초기화
+              </DropdownMenuItem>
+            )}
           </DropdownMenuGroup>
         </DropdownMenuContent>
       </DropdownMenu>
 
-      <AlertDialog
-        open={isLoadSampleDialogOpen}
-        onOpenChange={handleLoadSampleDialogOpenChange}
-      >
-        <AlertDialogContent size="sm">
-          <AlertDialogHeader>
-            <AlertDialogTitle>예시 내용 불러오기</AlertDialogTitle>
-            <AlertDialogDescription>
-              현재 작성 중인 내용이 예시 데이터로 덮어써집니다.
-              계속하시겠습니까?
-            </AlertDialogDescription>
-          </AlertDialogHeader>
-          <AlertDialogFooter>
-            <AlertDialogCancel>취소</AlertDialogCancel>
-            <AlertDialogAction onClick={onLoadSample}>적용</AlertDialogAction>
-          </AlertDialogFooter>
-        </AlertDialogContent>
-      </AlertDialog>
+      {onLoadSample && (
+        <AlertDialog
+          open={isLoadSampleDialogOpen}
+          onOpenChange={handleLoadSampleDialogOpenChange}
+        >
+          <AlertDialogContent size="sm">
+            <AlertDialogHeader>
+              <AlertDialogTitle>예시 내용 불러오기</AlertDialogTitle>
+              <AlertDialogDescription>
+                현재 작성 중인 내용이 예시 데이터로 덮어써집니다.
+                계속하시겠습니까?
+              </AlertDialogDescription>
+            </AlertDialogHeader>
+            <AlertDialogFooter>
+              <AlertDialogCancel>취소</AlertDialogCancel>
+              <AlertDialogAction onClick={onLoadSample}>적용</AlertDialogAction>
+            </AlertDialogFooter>
+          </AlertDialogContent>
+        </AlertDialog>
+      )}
 
-      <AlertDialog
-        open={isResetDialogOpen}
-        onOpenChange={handleResetDialogOpenChange}
-      >
-        <AlertDialogContent size="sm">
-          <AlertDialogHeader>
-            <AlertDialogTitle>전체 초기화할까요?</AlertDialogTitle>
-            <AlertDialogDescription>
-              입력한 내용이 모두 초기화됩니다. 이 작업은 되돌릴 수 없어요.
-            </AlertDialogDescription>
-          </AlertDialogHeader>
-          <AlertDialogFooter>
-            <AlertDialogCancel>취소</AlertDialogCancel>
-            <AlertDialogAction onClick={onReset}>초기화</AlertDialogAction>
-          </AlertDialogFooter>
-        </AlertDialogContent>
-      </AlertDialog>
+      {onReset && (
+        <AlertDialog
+          open={isResetDialogOpen}
+          onOpenChange={handleResetDialogOpenChange}
+        >
+          <AlertDialogContent size="sm">
+            <AlertDialogHeader>
+              <AlertDialogTitle>전체 초기화할까요?</AlertDialogTitle>
+              <AlertDialogDescription>
+                입력한 내용이 모두 초기화됩니다. 이 작업은 되돌릴 수 없어요.
+              </AlertDialogDescription>
+            </AlertDialogHeader>
+            <AlertDialogFooter>
+              <AlertDialogCancel>취소</AlertDialogCancel>
+              <AlertDialogAction onClick={onReset}>초기화</AlertDialogAction>
+            </AlertDialogFooter>
+          </AlertDialogContent>
+        </AlertDialog>
+      )}
     </div>
   );
 }
