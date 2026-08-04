@@ -56,6 +56,10 @@ vi.mock('@/features/documents/hooks/useDocumentPreviewControls', () => ({
   }),
 }));
 
+vi.mock('@/features/documents/ui/UnsavedChangesGuard', () => ({
+  UnsavedChangesGuard: () => null,
+}));
+
 vi.mock('@/features/documents/ui/DocumentBuilderLayout', () => ({
   DocumentBuilderLayout: ({
     form,

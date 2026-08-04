@@ -10,9 +10,9 @@ import { sampleCoverLetter } from '@/features/coverLetter/model/coverLetter.samp
 import { CoverLetterForm } from '@/features/coverLetter/ui/CoverLetterForm';
 import { CoverLetterPreview } from '@/features/coverLetter/ui/CoverLetterPreview';
 import { useDocumentPreviewControls } from '@/features/documents/hooks/useDocumentPreviewControls';
-import { useUnsavedChangesWarning } from '@/features/documents/hooks/useUnsavedChangesWarning';
 import { DocumentBuilderLayout } from '@/features/documents/ui/DocumentBuilderLayout';
 import { DocumentValidationSummary } from '@/features/documents/ui/DocumentValidationSummary';
+import { UnsavedChangesGuard } from '@/features/documents/ui/UnsavedChangesGuard';
 import { usePageTitle } from '@/hooks/usePageTitle';
 import { createId } from '@/lib/utils';
 import { getDocumentTemplate } from '@/layout/documentTemplates';
@@ -26,7 +26,6 @@ function CoverLetterEditorContent() {
   const validation = useCoverLetterValidation();
   const title = editor.coverLetter.title.trim();
 
-  useUnsavedChangesWarning(editor.isDirty);
   usePageTitle(title || `새 ${coverLetterTemplate.title}`);
 
   return (
@@ -55,12 +54,15 @@ function CoverLetterEditorContent() {
         onTogglePreview={previewControls.onTogglePreview}
       />
 
+      <UnsavedChangesGuard isDirty={editor.isDirty} />
+
       <DocumentBuilderLayout
         form={
           <CoverLetterForm
             value={editor.coverLetter}
             onChange={editor.setCoverLetter}
             errors={validation.coverLetterErrors}
+            focusRequestId={validation.focusRequestId}
             onSectionBlur={validation.touchCoverLetterSection}
             onSectionChange={validation.revalidateCoverLetterSection}
           />

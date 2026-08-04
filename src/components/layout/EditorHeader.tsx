@@ -3,17 +3,6 @@ import { DesktopEditorActions } from '@/components/layout/DesktopEditorActions';
 import { MobileEditorActions } from './MobileEditorActions';
 import { PanelRightOpen } from 'lucide-react';
 import { formatRelativeTime } from '@/utils/time.ts';
-import {
-  AlertDialog,
-  AlertDialogAction,
-  AlertDialogCancel,
-  AlertDialogContent,
-  AlertDialogDescription,
-  AlertDialogFooter,
-  AlertDialogHeader,
-  AlertDialogTitle,
-  AlertDialogTrigger,
-} from '@/components/ui/alert-dialog';
 import { toast } from 'sonner';
 import { Button } from '@/components/ui/button';
 import { cn } from '@/lib/utils';
@@ -71,7 +60,13 @@ export function EditorHeader({
     return () => clearInterval(id);
   }, [lastSavedAt]);
 
-  const statusText = lastSavedAt ? formatRelativeTime(lastSavedAt) : null;
+  const statusText = isSaving
+    ? '저장 중...'
+    : isDirty
+      ? '저장되지 않은 변경사항'
+      : lastSavedAt
+        ? formatRelativeTime(lastSavedAt)
+        : null;
 
   useEffect(() => {
     if (isSaving) {
@@ -125,39 +120,14 @@ export function EditorHeader({
     <header className="sticky top-0 z-50 border-b bg-background/95 lg:backdrop-blur px-2 py-2.5 lg:px-6">
       <div className="mx-auto flex lg:flex-wrap items-center justify-between md:gap-3">
         <div className="flex min-w-0 items-center gap-3 max-lg:grow max-lg:pl-2 max-lg:pr-6">
-          {isDirty ? (
-            <AlertDialog>
-              <AlertDialogTrigger asChild>
-                <Button
-                  variant="link"
-                  className="shrink-0 flex min-h-10 items-center p-0"
-                >
-                  <img src="/logo.svg" className="h-3 lg:h-4 w-auto" alt="DocKit" />
-                </Button>
-              </AlertDialogTrigger>
-              <AlertDialogContent size="sm">
-                <AlertDialogHeader>
-                  <AlertDialogTitle>메인으로 나갈까요?</AlertDialogTitle>
-                  <AlertDialogDescription>
-                    메인으로 나가면 편집 중인 내용이 모두 사라집니다. 그래도 나갈까요?
-                  </AlertDialogDescription>
-                </AlertDialogHeader>
-                <AlertDialogFooter>
-                  <AlertDialogCancel>취소</AlertDialogCancel>
-                  <AlertDialogAction onClick={onExitHome}>나가기</AlertDialogAction>
-                </AlertDialogFooter>
-              </AlertDialogContent>
-            </AlertDialog>
-          ) : (
-            <Button
-              variant="link"
-              onClick={onExitHome}
-              className="shrink-0 flex min-h-10 items-center p-0"
-              aria-label="메인으로 나가기"
-            >
-              <img src="/logo.svg" className="h-3 lg:h-4 w-auto" alt="DocKit" />
-            </Button>
-          )}
+          <Button
+            variant="link"
+            onClick={onExitHome}
+            className="shrink-0 flex min-h-10 items-center p-0"
+            aria-label="메인으로 나가기"
+          >
+            <img src="/logo.svg" className="h-3 lg:h-4 w-auto" alt="DocKit" />
+          </Button>
           <div className="flex items-center gap-2 min-w-0 md:absolute md:left-1/2 md:-translate-x-1/2 max-md:grow max-md:justify-center">
             <p className="shrink-0 text-xs text-white bg-black rounded-full px-2 py-1">
               {documentLabel}
@@ -194,40 +164,14 @@ export function EditorHeader({
             aria-hidden={!isMobileActionVisible}
             inert={!isMobileActionVisible}
           >
-            {isDirty ? (
-              <AlertDialog>
-                <AlertDialogTrigger asChild>
-                  <Button
-                    variant="outline"
-                    aria-label="메인으로 나가기"
-                    className="max-lg:w-1/2"
-                  >
-                    나가기
-                  </Button>
-                </AlertDialogTrigger>
-                <AlertDialogContent size="sm">
-                  <AlertDialogHeader>
-                    <AlertDialogTitle>저장되지 않은 변경사항이 있어요</AlertDialogTitle>
-                    <AlertDialogDescription>
-                      저장하지 않은 변경사항은 메인으로 나가면 사라질 수 있어요. 그래도 나갈까요?
-                    </AlertDialogDescription>
-                  </AlertDialogHeader>
-                  <AlertDialogFooter>
-                    <AlertDialogCancel>취소</AlertDialogCancel>
-                    <AlertDialogAction onClick={onExitHome}>나가기</AlertDialogAction>
-                  </AlertDialogFooter>
-                </AlertDialogContent>
-              </AlertDialog>
-            ) : (
-              <Button
-                variant="outline"
-                onClick={onExitHome}
-                aria-label="메인으로 나가기"
-                className="max-lg:grow"
-              >
-                나가기
-              </Button>
-            )}
+            <Button
+              variant="outline"
+              onClick={onExitHome}
+              aria-label="메인으로 나가기"
+              className="max-lg:grow"
+            >
+              나가기
+            </Button>
 
             {actions.onSave && (
               <Button

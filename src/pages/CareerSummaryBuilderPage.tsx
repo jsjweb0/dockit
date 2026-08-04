@@ -10,9 +10,9 @@ import { sampleCareerSummary } from '@/features/careerSummary/model/careerSummar
 import { CareerSummaryForm } from '@/features/careerSummary/ui/CareerSummaryForm';
 import { CareerSummaryPreview } from '@/features/careerSummary/ui/CareerSummaryPreview';
 import { useDocumentPreviewControls } from '@/features/documents/hooks/useDocumentPreviewControls';
-import { useUnsavedChangesWarning } from '@/features/documents/hooks/useUnsavedChangesWarning';
 import { DocumentBuilderLayout } from '@/features/documents/ui/DocumentBuilderLayout';
 import { DocumentValidationSummary } from '@/features/documents/ui/DocumentValidationSummary';
+import { UnsavedChangesGuard } from '@/features/documents/ui/UnsavedChangesGuard';
 import { usePageTitle } from '@/hooks/usePageTitle';
 import { createId } from '@/lib/utils';
 import { getDocumentTemplate } from '@/layout/documentTemplates';
@@ -26,7 +26,6 @@ function CareerSummaryEditorContent() {
   const validation = useCareerSummaryValidation();
   const title = editor.careerSummary.title.trim();
 
-  useUnsavedChangesWarning(editor.isDirty);
   usePageTitle(title || `새 ${careerSummaryTemplate.title}`);
 
   return (
@@ -55,12 +54,15 @@ function CareerSummaryEditorContent() {
         onTogglePreview={previewControls.onTogglePreview}
       />
 
+      <UnsavedChangesGuard isDirty={editor.isDirty} />
+
       <DocumentBuilderLayout
         form={
           <CareerSummaryForm
             value={editor.careerSummary}
             onChange={editor.setCareerSummary}
             errors={validation.experienceErrors}
+            focusRequestId={validation.focusRequestId}
             onSectionBlur={validation.touchCareerSummary}
             onSectionChange={validation.revalidateExperience}
           />

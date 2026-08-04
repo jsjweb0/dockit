@@ -1,5 +1,5 @@
 import { useState } from 'react';
-import { cleanup, render, screen } from '@testing-library/react';
+import { cleanup, render, screen, waitFor } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
 import { afterEach, describe, expect, it, vi } from 'vitest';
 import { CareerSummaryForm } from './CareerSummaryForm';
@@ -124,5 +124,38 @@ describe('CareerSummaryForm', () => {
     expect(screen.getByRole('status')).toHaveTextContent(
       'React 기술이 추가되었습니다.',
     );
+  });
+
+  it('전체 검증 실패 요청이 오면 첫 경력의 첫 오류 필드에 포커스한다', async () => {
+    const careerSummary = defaultCareerSummary();
+    const experienceId = careerSummary.experiences[0].id;
+    const errors = {
+      [experienceId]: {
+        company: '회사명을 입력해 주세요.',
+        startDate: '시작일을 입력해 주세요.',
+      },
+    };
+
+    const { rerender } = render(
+      <CareerSummaryForm
+        value={careerSummary}
+        onChange={vi.fn()}
+        errors={errors}
+        focusRequestId={0}
+      />,
+    );
+
+    rerender(
+      <CareerSummaryForm
+        value={careerSummary}
+        onChange={vi.fn()}
+        errors={errors}
+        focusRequestId={1}
+      />,
+    );
+
+    await waitFor(() => {
+      expect(screen.getByLabelText('회사명')).toHaveFocus();
+    });
   });
 });

@@ -26,11 +26,13 @@ import { Plus, ChevronDown } from 'lucide-react';
 import { cn, createId } from '@/lib/utils';
 import { Checkbox } from '@/components/ui/checkbox';
 import { SkillTagEditor } from '@/features/shared/ui/SkillTagEditor';
-import { useState } from 'react';
-import type {
-    CareerSummaryExperienceErrors,
-    CareerSummaryExperienceField,
+import { useCallback, useState } from 'react';
+import {
+    CAREER_SUMMARY_EXPERIENCE_FIELDS,
+    type CareerSummaryExperienceErrors,
+    type CareerSummaryExperienceField,
 } from '../model/careerSummary.validation';
+import { useValidationErrorFocus } from '@/features/documents/hooks/useValidationErrorFocus';
 
 type Props = {
     value: CareerSummary;
@@ -46,6 +48,18 @@ type Props = {
         field: CareerSummaryExperienceField,
         next: CareerSummary,
     ) => void;
+    focusRequestId?: number;
+};
+
+const getCareerSummaryFieldId = (
+    sectionId: string,
+    field: CareerSummaryExperienceField,
+) => {
+    if (field === 'achievements') {
+        return `career-summary-achievement-title-${sectionId}-0`;
+    }
+
+    return `career-summary-${field}-${sectionId}`;
 };
 
 export function CareerSummaryForm({
@@ -54,7 +68,25 @@ export function CareerSummaryForm({
     errors,
     onSectionBlur,
     onSectionChange,
+    focusRequestId = 0,
 }: Props) {
+    const focusFirstError = useCallback(() => {
+        for (const experience of value.experiences) {
+            const field = CAREER_SUMMARY_EXPERIENCE_FIELDS.find(
+                (candidate) => errors?.[experience.id]?.[candidate],
+            );
+
+            if (field) {
+                document
+                    .getElementById(getCareerSummaryFieldId(experience.id, field))
+                    ?.focus();
+                return;
+            }
+        }
+    }, [errors, value.experiences]);
+
+    useValidationErrorFocus({ focusRequestId, focusFirstError });
+
     const createEmptyAchievement = (): Achievement => ({
         title: '',
         description: '',

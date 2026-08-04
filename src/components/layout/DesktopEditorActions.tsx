@@ -62,7 +62,7 @@ export function DesktopEditorActions({ actions, status }: Props) {
       {onExportPdf && (
         <Tooltip>
           <TooltipTrigger asChild>
-            <Button variant="outline" size="icon" className="rounded-full" aria-label="PDF 다운로드"
+            <Button variant="outline" size="icon" className="rounded-full" aria-label="PDF로 저장"
               onClick={onExportPdf}
               disabled={isExporting}
             >

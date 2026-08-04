@@ -10,7 +10,8 @@ import { ExperienceSection } from './sections/ExperienceSection';
 import { ProjectsSection } from './sections/ProjectsSection';
 import { SkillsSection } from './sections/SkillsSection';
 import { LinkItemSection } from '@/features/resume/ui/sections/LinkItemSection';
-import { useEffect, useRef, useState } from 'react';
+import { useCallback, useEffect, useRef, useState } from 'react';
+import { useValidationErrorFocus } from '@/features/documents/hooks/useValidationErrorFocus';
 
 type Props = {
   value: Resume;
@@ -20,7 +21,11 @@ type Props = {
 export function ResumeForm({ value, onChange }: Props) {
   const { resetVersion } = useResumeEditor();
   const resumeValidation = useResumeValidation();
-  const { validationErrorCounts, getFirstValidationErrorTarget } =
+  const {
+    validationErrorCounts,
+    focusRequestId,
+    getFirstValidationErrorTarget,
+  } =
     resumeValidation;
   const [activeTab, setActiveTab] = useState('basics');
 
@@ -38,14 +43,21 @@ export function ResumeForm({ value, onChange }: Props) {
 
   useEffect(() => {
     if (!pendingFocusId.current) return;
-    const el = document.getElementById(pendingFocusId.current);
-    if (el) {
-      el.focus();
-      pendingFocusId.current = null;
-    }
+
+    const focusTimer = window.setTimeout(() => {
+      if (!pendingFocusId.current) return;
+
+      const el = document.getElementById(pendingFocusId.current);
+      if (el) {
+        el.focus();
+        pendingFocusId.current = null;
+      }
+    }, 0);
+
+    return () => window.clearTimeout(focusTimer);
   }, [activeTab]);
 
-  const focusFirstError = (tab: ResumeValidationTab) => {
+  const focusFirstError = useCallback((tab?: ResumeValidationTab) => {
     const target = getFirstValidationErrorTarget(tab);
 
     if (!target) return;
@@ -59,7 +71,9 @@ export function ResumeForm({ value, onChange }: Props) {
     }
 
     setActiveTab(target.tab);
-  };
+  }, [activeTab, getFirstValidationErrorTarget]);
+
+  useValidationErrorFocus({ focusRequestId, focusFirstError });
 
   return (
     <Tabs value={activeTab} onValueChange={setActiveTab} className="w-full">

@@ -1,6 +1,10 @@
 import { cleanup, render, screen } from '@testing-library/react';
 import { afterEach, describe, expect, it, vi } from 'vitest';
-import { EditorHeader, type EditorStatus } from './EditorHeader';
+import {
+  EditorHeader,
+  type EditorActions,
+  type EditorStatus,
+} from './EditorHeader';
 
 const toastMocks = vi.hoisted(() => ({
   dismiss: vi.fn(),
@@ -24,13 +28,16 @@ const dirtyStatus: EditorStatus = {
   isDirty: true,
 };
 
-function renderHeader(status?: EditorStatus) {
+function renderHeader(
+  status?: EditorStatus,
+  actions: EditorActions = { onExitHome: vi.fn() },
+) {
   return render(
     <EditorHeader
       title=""
       documentLabel="회의록"
       fallbackTitle="새 회의록"
-      actions={{ onExitHome: vi.fn() }}
+      actions={actions}
       status={status}
       isPreviewOpen
       onTogglePreview={vi.fn()}
@@ -87,5 +94,41 @@ describe('EditorHeader', () => {
     unmount();
 
     expect(toastMocks.dismiss).toHaveBeenCalledWith('save-status');
+  });
+
+  it('저장 후 다시 수정하면 이전 저장 시각 대신 미저장 상태를 표시한다', () => {
+    renderHeader({
+      ...dirtyStatus,
+      lastSavedAt: Date.now(),
+    });
+
+    expect(screen.getByRole('status')).toHaveTextContent(
+      '저장되지 않은 변경사항',
+    );
+    expect(screen.queryByText('방금 저장됨')).not.toBeInTheDocument();
+  });
+
+  it('저장 중에는 저장 상태를 가장 먼저 표시한다', () => {
+    renderHeader({
+      ...dirtyStatus,
+      isSaving: true,
+      lastSavedAt: Date.now(),
+    });
+
+    expect(screen.getByRole('status')).toHaveTextContent('저장 중...');
+  });
+
+  it('PDF action의 이름을 실제 인쇄 저장 흐름과 일치시킨다', () => {
+    renderHeader(savedStatus, {
+      onExitHome: vi.fn(),
+      onExportPdf: vi.fn(),
+    });
+
+    expect(
+      screen.getAllByRole('button', { name: 'PDF로 저장' }).length,
+    ).toBeGreaterThan(0);
+    expect(
+      screen.queryByRole('button', { name: 'PDF 다운로드' }),
+    ).not.toBeInTheDocument();
   });
 });

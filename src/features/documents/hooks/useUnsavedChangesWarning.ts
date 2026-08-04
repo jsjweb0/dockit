@@ -1,15 +1,33 @@
-import { useEffect } from 'react';
+import { useCallback } from 'react';
+import { useBeforeUnload, useBlocker } from 'react-router-dom';
 
-export function useUnsavedChangesWarning(isDirty: boolean) {
-  useEffect(() => {
-    const handler = (event: BeforeUnloadEvent) => {
+export type UnsavedChangesWarningControl = {
+  isBlocked: boolean;
+  stayOnPage: () => void;
+  leavePage: () => void;
+};
+
+export function useUnsavedChangesWarning(
+  isDirty: boolean,
+): UnsavedChangesWarningControl {
+  const blocker = useBlocker(isDirty);
+
+  useBeforeUnload(
+    useCallback((event: BeforeUnloadEvent) => {
       if (!isDirty) return;
 
       event.preventDefault();
       event.returnValue = '';
-    };
+    }, [isDirty]),
+  );
 
-    window.addEventListener('beforeunload', handler);
-    return () => window.removeEventListener('beforeunload', handler);
-  }, [isDirty]);
+  return {
+    isBlocked: blocker.state === 'blocked',
+    stayOnPage: () => {
+      if (blocker.state === 'blocked') blocker.reset();
+    },
+    leavePage: () => {
+      if (blocker.state === 'blocked') blocker.proceed();
+    },
+  };
 }

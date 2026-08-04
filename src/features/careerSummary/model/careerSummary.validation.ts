@@ -27,6 +27,10 @@ export function validateCareerSummaryExperience(
   const startDate = experience.startDate.trim();
   const endDate = experience.endDate?.trim() ?? '';
 
+  if (!experience.company.trim()) {
+    errors.company = '회사명을 입력해 주세요.';
+  }
+
   if (!startDate) {
     errors.startDate = '시작일을 입력해 주세요.';
   } else if (!isValidYearMonth(startDate)) {
