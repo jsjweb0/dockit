@@ -17,6 +17,7 @@ import {
 export type CoverLetterValidationState = {
   coverLetterErrors: CoverLetterFieldErrors;
   totalValidationErrorCount: number;
+  focusRequestId: number;
   touchCoverLetterSection: (sectionId: string) => void;
   revalidateCoverLetterSection: (
     sectionId: string,
@@ -43,6 +44,7 @@ export function useCoverLetterValidationController({
   coverLetter: CoverLetter;
   resetVersion: number;
 }): CoverLetterValidationState {
+  const [focusRequestId, setFocusRequestId] = useState(0);
   const scopeKey = `${coverLetterId}:${resetVersion}`;
   const createEmptyValidationData = useCallback(
     (): CoverLetterValidationData => ({
@@ -133,6 +135,7 @@ export function useCoverLetterValidationController({
     });
 
     if (!result.isValid) {
+      setFocusRequestId((current) => current + 1);
       toast.error(
         Object.values(result.errors.sections)[0] ??
           '입력 정보를 확인해 주세요.',
@@ -152,6 +155,7 @@ export function useCoverLetterValidationController({
     () => ({
       coverLetterErrors,
       totalValidationErrorCount,
+      focusRequestId,
       touchCoverLetterSection,
       revalidateCoverLetterSection,
       validateCoverLetterBeforeExport,
@@ -159,6 +163,7 @@ export function useCoverLetterValidationController({
     [
       coverLetterErrors,
       totalValidationErrorCount,
+      focusRequestId,
       touchCoverLetterSection,
       revalidateCoverLetterSection,
       validateCoverLetterBeforeExport,

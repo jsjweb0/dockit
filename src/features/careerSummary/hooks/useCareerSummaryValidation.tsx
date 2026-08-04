@@ -19,6 +19,7 @@ import {
 export type CareerSummaryValidationState = {
   experienceErrors: CareerSummaryExperienceErrorMap;
   totalValidationErrorCount: number;
+  focusRequestId: number;
   touchCareerSummary: (
     sectionId: string,
     field: CareerSummaryExperienceField,
@@ -50,6 +51,7 @@ export function useCareerSummaryValidationController({
   careerSummary: CareerSummary;
   resetVersion: number;
 }): CareerSummaryValidationState {
+  const [focusRequestId, setFocusRequestId] = useState(0);
   const scopeKey = `${careerSummaryId}:${resetVersion}`;
   const createEmptyValidationData = useCallback(
     (): CareerSummaryValidationData => ({
@@ -200,6 +202,7 @@ export function useCareerSummaryValidationController({
     });
 
     if (!result.isValid) {
+      setFocusRequestId((current) => current + 1);
       toast.error(
         Object.values(result.errors)
           .flatMap((sectionErrors) => Object.values(sectionErrors))
@@ -224,6 +227,7 @@ export function useCareerSummaryValidationController({
     () => ({
       experienceErrors,
       totalValidationErrorCount,
+      focusRequestId,
       touchCareerSummary,
       revalidateExperience,
       validateCareerSummaryBeforeExport,
@@ -231,6 +235,7 @@ export function useCareerSummaryValidationController({
     [
       experienceErrors,
       totalValidationErrorCount,
+      focusRequestId,
       touchCareerSummary,
       revalidateExperience,
       validateCareerSummaryBeforeExport,

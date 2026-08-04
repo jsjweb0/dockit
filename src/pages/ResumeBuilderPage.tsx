@@ -2,9 +2,9 @@ import { useEffect } from 'react';
 import { useNavigate, useParams } from 'react-router-dom';
 import { EditorHeader } from '@/components/layout/EditorHeader';
 import { useDocumentPreviewControls } from '@/features/documents/hooks/useDocumentPreviewControls';
-import { useUnsavedChangesWarning } from '@/features/documents/hooks/useUnsavedChangesWarning';
 import { DocumentBuilderLayout } from '@/features/documents/ui/DocumentBuilderLayout';
 import { DocumentValidationSummary } from '@/features/documents/ui/DocumentValidationSummary';
+import { UnsavedChangesGuard } from '@/features/documents/ui/UnsavedChangesGuard';
 import {
   ResumeEditorProvider,
   useResumeEditor,
@@ -26,7 +26,6 @@ function ResumeEditorContent() {
   const validation = useResumeValidation();
   const title = editor.resume.basics.name.trim();
 
-  useUnsavedChangesWarning(editor.isDirty);
   usePageTitle(title ? `${title} 이력서` : `새 ${resumeTemplate.title}`);
 
   return (
@@ -54,6 +53,8 @@ function ResumeEditorContent() {
         isPreviewOpen={previewControls.isPreviewOpen}
         onTogglePreview={previewControls.onTogglePreview}
       />
+
+      <UnsavedChangesGuard isDirty={editor.isDirty} />
 
       <DocumentBuilderLayout
         form={<ResumeForm value={editor.resume} onChange={editor.setResume} />}

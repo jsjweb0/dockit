@@ -7,7 +7,7 @@ export type CoverLetterFieldErrors = {
 export function validateCoverLetterSection(
   section: CoverLetterSection,
 ): string | undefined {
-  if (!section.content.trim()) return `${section.title}을 입력해 주세요.`;
+  if (!section.content.trim()) return `${section.title} 내용을 입력해 주세요.`;
   return undefined;
 }
 

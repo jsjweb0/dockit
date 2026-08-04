@@ -1,5 +1,5 @@
-import { cleanup, render, screen, within } from '@testing-library/react';
-import { afterEach, describe, expect, it, vi } from 'vitest';
+import { cleanup, render, screen, waitFor, within } from '@testing-library/react';
+import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
 import { ResumeForm } from './ResumeForm';
 import { defaultResume } from '../model/resume.defaults';
 
@@ -26,6 +26,7 @@ const mockValidation = {
         skills: 0,
     },
     totalValidationErrorCount: 3,
+    focusRequestId: 0,
     getFirstValidationErrorTarget: vi.fn(),
     touchBasicsField: vi.fn(),
     revalidateBasicsField: vi.fn(),
@@ -45,6 +46,11 @@ vi.mock('../hooks/useResumeValidation', () => ({
 }));
 
 describe('ResumeForm', () => {
+    beforeEach(() => {
+        mockValidation.focusRequestId = 0;
+        mockValidation.getFirstValidationErrorTarget.mockReset();
+    });
+
     it('탭에 검증 오류 개수를 표시한다', () => {
         render(<ResumeForm value={defaultResume()} onChange={vi.fn()} />);
 
@@ -68,5 +74,29 @@ describe('ResumeForm', () => {
 
         expect(within(educationTab).queryByText('0')).not.toBeInTheDocument();
         expect(educationTab).not.toHaveAccessibleName(/오류 0개/);
+    });
+
+    it('전체 검증 실패 요청이 오면 오류 탭을 열고 첫 오류에 포커스한다', async () => {
+        const resume = defaultResume();
+        const educationInputId = `institution-${resume.education[0].id}`;
+        mockValidation.getFirstValidationErrorTarget.mockReturnValue({
+            tab: 'edu',
+            fieldId: educationInputId,
+        });
+
+        const { rerender } = render(
+            <ResumeForm value={resume} onChange={vi.fn()} />,
+        );
+
+        mockValidation.focusRequestId = 1;
+        rerender(<ResumeForm value={resume} onChange={vi.fn()} />);
+
+        await waitFor(() => {
+            expect(document.getElementById(educationInputId)).toHaveFocus();
+        });
+        expect(screen.getByRole('tab', { name: '학력' })).toHaveAttribute(
+            'data-state',
+            'active',
+        );
     });
 });

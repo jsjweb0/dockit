@@ -4,6 +4,7 @@ import {
   useContext,
   useEffect,
   useMemo,
+  useState,
   type ReactNode,
 } from 'react';
 import { toast } from 'sonner';
@@ -34,6 +35,7 @@ export type ResumeValidationState = {
   sectionErrors: ResumeSectionErrors;
   validationErrorCounts: ValidationErrorCounts;
   totalValidationErrorCount: number;
+  focusRequestId: number;
   getFirstValidationErrorTarget: (
     tab?: ResumeValidationTab,
   ) => ValidationErrorTarget | null;
@@ -73,6 +75,7 @@ export function useResumeValidationController({
   resume: Resume;
   resetVersion: number;
 }): ResumeValidationState {
+  const [focusRequestId, setFocusRequestId] = useState(0);
   const {
     errors: validationErrors,
     resetValidation,
@@ -141,6 +144,7 @@ export function useResumeValidationController({
       return true;
     }
 
+    setFocusRequestId((current) => current + 1);
     toast.error(result.firstMessage);
     return false;
   }, [validateBeforeSubmit]);
@@ -176,6 +180,7 @@ export function useResumeValidationController({
       sectionErrors,
       validationErrorCounts,
       totalValidationErrorCount,
+      focusRequestId,
       getFirstValidationErrorTarget,
       touchBasicsField,
       revalidateBasicsField,
@@ -188,6 +193,7 @@ export function useResumeValidationController({
       sectionErrors,
       validationErrorCounts,
       totalValidationErrorCount,
+      focusRequestId,
       getFirstValidationErrorTarget,
       touchBasicsField,
       revalidateBasicsField,

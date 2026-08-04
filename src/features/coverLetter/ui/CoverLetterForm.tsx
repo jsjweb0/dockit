@@ -13,7 +13,9 @@ import { Textarea } from '@/components/ui/textarea';
 import type { CoverLetter } from '../model/coverLetter.types';
 import { cn } from '@/lib/utils';
 import { Fragment } from 'react/jsx-runtime';
+import { useCallback } from 'react';
 import type { CoverLetterFieldErrors } from '../model/coverLetter.validation';
+import { useValidationErrorFocus } from '@/features/documents/hooks/useValidationErrorFocus';
 
 type Props = {
   value: CoverLetter;
@@ -21,6 +23,7 @@ type Props = {
   errors?: CoverLetterFieldErrors;
   onSectionBlur?: (sectionId: string) => void;
   onSectionChange?: (sectionId: string, next: CoverLetter) => void;
+  focusRequestId?: number;
 };
 
 export function CoverLetterForm({
@@ -29,7 +32,21 @@ export function CoverLetterForm({
   errors,
   onSectionBlur,
   onSectionChange,
+  focusRequestId = 0,
 }: Props) {
+  const focusFirstError = useCallback(() => {
+    const firstInvalidSection = value.sections.find(
+      (section) => errors?.sections[section.id],
+    );
+
+    if (!firstInvalidSection) return;
+
+    document
+      .getElementById(`cover-letter-section-${firstInvalidSection.id}`)
+      ?.focus();
+  }, [errors, value.sections]);
+
+  useValidationErrorFocus({ focusRequestId, focusFirstError });
   const updateSectionContent = (sectionId: string, content: string) => {
     const nextValue = {
       ...value,
