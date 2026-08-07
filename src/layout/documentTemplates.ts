@@ -56,7 +56,8 @@ export const documentTemplates: DocumentTemplate[] = [
     description:
       '프로젝트 목적, 역할, 문제 해결, 개선 결과를 포트폴리오 설명용 문서로 만듭니다.',
     purpose: '포트폴리오 프로젝트 정리',
-    status: 'planned',
+    status: 'available',
+    href: '/project-report',
     icon: PanelsTopLeft,
   },
   {
