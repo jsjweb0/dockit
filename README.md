@@ -15,8 +15,8 @@ DocKit은 단순한 입력 폼이 아니라 복잡한 문서 데이터를 Form�
 - 이력서·자기소개서·경력기술서·프로젝트 보고서 4종 지원
 - 수동 저장, 60초 자동 저장, 최근 문서 관리
 - 필수값·형식 검증과 첫 오류 필드 자동 이동
-- Chrome·Safari에서 인쇄 출력 확인
-- 개발자도구와 실제 모바일 기기에서 반응형 화면 확인
+- 브라우저 인쇄와 print CSS 기반 PDF 출력
+- 모바일 패널 전환·데스크톱 분할 화면 반응형 구성
 - 22개 테스트 파일, 136개 테스트 통과
 - Cloudflare Workers 배포
 
@@ -61,7 +61,7 @@ DocKit은 입력 폼과 제출용 미리보기를 한 화면에 연결해 이 �
 | 새 문서를 추가할 때 저장·검증·PDF까지 먼저 필요했던 구조 | 각 BuilderPage가 필요한 편집 기능을 직접 조립하도록 중앙 설정 제거    | 프로젝트 보고서를 기본 상태 → Form/Preview → 저장·검증 순서로 단계적으로 연결         |
 | 문서마다 반복되는 저장 상태 관리                         | 중복 저장·자동 저장 흐름을 공통 hook과 storage 계층으로 분리          | 문서별 데이터 형식은 유지하면서 dirty 상태와 60초 자동 저장을 재사용                  |
 | 입력 오류 위치를 찾기 어려운 긴 문서                     | 문서별 validation과 첫 오류 필드 탐색을 UI 상태와 분리               | 전체 오류 개수 표시, 입력 중 재검증, 첫 오류 필드 포커스 이동을 자동화                |
-| 제출 문서의 PDF 출력                                     | canvas 캡처 대신 `window.print()`와 `@media print` 사용              | 텍스트를 선택할 수 있는 출력 흐름을 구현하고 Chrome·Safari에서 확인                   |
+| 제출 문서의 PDF 출력                                     | canvas 캡처 대신 `window.print()`와 `@media print` 사용              | 이미지로 변환하지 않고 텍스트를 선택할 수 있는 출력 흐름 구현                              |
 
 ---
 
@@ -165,7 +165,7 @@ PDF 실행 전 전체 검증 → 오류 표시 → 예시 적용 흐름에서 �
 | Context API                      | 문서 상태의 사용 범위가 각 BuilderPage 내부라 별도 전역 상태 라이브러리를 추가하지 않았습니다. 독립 Provider는 경계를 명확하게 하지만 문서 종류가 크게 늘어 조립 코드의 반복이 유지보수 비용으로 이어지면 factory나 공통 form 계층을 다시 검토할 계획입니다. |
 | 순수 함수 기반 validation        | 날짜 형식·날짜 역전·필수값·URL 같은 규칙을 UI와 분리해 단위 테스트합니다. 오류 상태의 모양은 문서 복잡도에 맞게 유지합니다.                                                                                                                                   |
 | localStorage                     | `createDocumentStorage`에서 저장·복원과 최근 문서 갱신을 처리합니다. 저장 형식을 식별할 수 있도록 데이터에 `meta.version`을 포함했습니다.                                                                                                                        |
-| `window.print()` + print CSS     | canvas 이미지보다 텍스트 선택과 브라우저 기본 인쇄 기능을 우선했습니다. Chrome과 Safari에서 인쇄 출력과 페이지 구성을 직접 확인했습니다.                                                                                                                     |
+| `window.print()` + print CSS     | canvas 이미지보다 텍스트 선택과 브라우저 기본 인쇄 기능을 우선했습니다. 인쇄 전후 `document.title`과 `body.printing` 상태를 적용·복원하는 흐름은 테스트로 확인합니다.                                                                                                  |
 | Radix UI + Tailwind CSS          | Dialog·Tabs·Tooltip의 키보드 동작을 활용하고, 모바일 전환과 데스크톱 분할 화면을 반응형 클래스로 구성했습니다.                                                                                                                                                |
 | Vite + Cloudflare Workers Assets | Vite의 정적 빌드 결과물을 배포하고 SPA 직접 URL 접근과 새로고침을 `wrangler.jsonc`에서 처리합니다.                                                                                                                                                            |
 
