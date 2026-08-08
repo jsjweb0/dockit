@@ -17,6 +17,7 @@ import { ProjectReportBuilderPage } from './ProjectReportBuilderPage';
 
 afterEach(() => {
   cleanup();
+  vi.restoreAllMocks();
 });
 
 vi.mock('@/components/layout/EditorHeader', () => ({
@@ -67,11 +68,14 @@ vi.mock('@/features/documents/ui/DocumentBuilderLayout', () => ({
   DocumentBuilderLayout: ({
     form,
     preview,
+    validationSummary,
   }: {
     form: ReactNode;
     preview: ReactNode;
+    validationSummary?: ReactNode;
   }) => (
     <main>
+      {validationSummary}
       <section aria-label="작성 폼">{form}</section>
       <section aria-label="문서 미리보기">{preview}</section>
     </main>
@@ -142,6 +146,41 @@ describe('ProjectReportBuilderPage', () => {
     await waitFor(() => {
       expect(localStorage.getItem('project-report:document-1')).not.toBeNull();
     });
+  });
+
+  it('빈 문서의 저장과 PDF 출력을 차단하고 첫 오류로 포커스를 이동한다', async () => {
+    const printSpy = vi.spyOn(window, 'print').mockImplementation(() => {});
+    renderProjectReportPage('document-1');
+
+    fireEvent.click(screen.getByRole('button', { name: '저장' }));
+
+    expect(localStorage.getItem('project-report:document-1')).toBeNull();
+    expect(screen.getByText(/검증 결과/)).toHaveTextContent(
+      '검증 결과 6개의 오류가 있습니다.',
+    );
+    await waitFor(() => {
+      expect(screen.getByLabelText('프로젝트명')).toHaveFocus();
+    });
+
+    fireEvent.click(screen.getByRole('button', { name: 'PDF' }));
+    expect(printSpy).not.toHaveBeenCalled();
+  });
+
+  it('예시 불러오기와 초기화 시 기존 검증 오류를 제거한다', () => {
+    renderProjectReportPage('document-1');
+
+    fireEvent.click(screen.getByRole('button', { name: '저장' }));
+    expect(screen.getByText(/검증 결과/)).toBeInTheDocument();
+
+    fireEvent.click(screen.getByRole('button', { name: '예시' }));
+    expect(screen.queryByText(/검증 결과/)).not.toBeInTheDocument();
+
+    fireEvent.click(screen.getByRole('button', { name: '초기화' }));
+    fireEvent.click(screen.getByRole('button', { name: '저장' }));
+    expect(screen.getByText(/검증 결과/)).toBeInTheDocument();
+
+    fireEvent.click(screen.getByRole('button', { name: '초기화' }));
+    expect(screen.queryByText(/검증 결과/)).not.toBeInTheDocument();
   });
 
   it('주요 기능은 쉼표를 유지하고 줄바꿈만 항목 구분자로 사용한다', () => {

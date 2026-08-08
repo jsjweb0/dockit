@@ -12,6 +12,7 @@ import { ProjectReportEditorProvider, useProjectReportEditor } from '@/features/
 import { sampleProjectReport } from '@/features/projectReport/model/projectReport.sample';
 import { useProjectReportValidation } from '@/features/projectReport/hook/useProjectReportValidation';
 import { createId } from '@/lib/utils';
+import { DocumentValidationSummary } from '@/features/documents/ui/DocumentValidationSummary';
 
 const projectReportTemplate = getDocumentTemplate('project-report');
 
@@ -33,14 +34,34 @@ export function ProjectReportEditorContent() {
         documentLabel={projectReportTemplate.title}
         fallbackTitle={`새 ${projectReportTemplate.title}`}
         actions={{
-          onSave: () => editor.save({ silent: false }),
-          onReset: editor.reset,
+          onSave: async () => {
+            const isValid = projectReportValidation.validateAll();
+
+            if (!isValid) return;
+
+            await editor.save({ silent: false });
+          },
+
+          onReset: () => {
+            editor.reset();
+            projectReportValidation.clearValidation();
+          },
+
           onLoadSample: () => {
             editor.reset();
             editor.setProjectReport(sampleProjectReport());
+            projectReportValidation.clearValidation();
           },
-          onExportPdf: editor.printProjectReport,
-          onExitHome: () => navigate('/')
+
+          onExportPdf: async () => {
+            const isValid = projectReportValidation.validateAll();
+
+            if (!isValid) return;
+
+            await editor.printProjectReport();
+          },
+
+          onExitHome: () => navigate('/'),
         }}
         status={{
           isDirty: editor.isDirty,
@@ -61,10 +82,17 @@ export function ProjectReportEditorContent() {
             onChange={editor.setProjectReport}
             errors={projectReportValidation.errors}
             onFieldBlur={projectReportValidation.validateField}
+            onFieldChange={projectReportValidation.revalidateField}
+            focusRequestId={projectReportValidation.focusRequestId}
           />
         }
         preview={<ProjectReportPreview value={editor.projectReport} />}
         previewControls={previewControls}
+        validationSummary={
+          <DocumentValidationSummary
+            errorCount={projectReportValidation.errorCount}
+          />
+        }
       />
     </>
   );

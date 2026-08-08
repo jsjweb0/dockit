@@ -11,9 +11,12 @@ import {
 import { Input } from '@/components/ui/input';
 import { Textarea } from '@/components/ui/textarea';
 import type { ProjectReport } from '../model/projectReport.types';
-import type {
-  ProjectReportFieldErrors,
-  ProjectReportValidatedField,
+import { useCallback } from 'react';
+import { useValidationErrorFocus } from '@/features/documents/hooks/useValidationErrorFocus';
+import {
+  PROJECT_REPORT_VALIDATED_FIELDS,
+  type ProjectReportFieldErrors,
+  type ProjectReportValidatedField,
 } from '../model/projectReport.validation';
 
 type Props = {
@@ -21,6 +24,23 @@ type Props = {
   onChange: (next: ProjectReport) => void;
   errors?: ProjectReportFieldErrors;
   onFieldBlur?: (field: ProjectReportValidatedField) => void;
+  onFieldChange?: (
+    field: ProjectReportValidatedField,
+    nextProjectReport: ProjectReport,
+  ) => void;
+  focusRequestId?: number;
+};
+
+const PROJECT_REPORT_FIELD_IDS: Record<
+  ProjectReportValidatedField,
+  string
+> = {
+  title: 'project-report-title',
+  summary: 'project-report-summary',
+  role: 'project-report-role',
+  period: 'project-report-period',
+  techStack: 'project-report-tech-stack',
+  keyFeatures: 'project-report-key-features',
 };
 
 export function ProjectReportForm({
@@ -28,7 +48,39 @@ export function ProjectReportForm({
   onChange,
   errors = {},
   onFieldBlur,
+  onFieldChange,
+  focusRequestId = 0,
 }: Props) {
+  const focusFirstError = useCallback(() => {
+    const firstErrorField = PROJECT_REPORT_VALIDATED_FIELDS.find(
+      (field) => errors[field],
+    );
+
+    if (!firstErrorField) return;
+
+    document
+      .getElementById(PROJECT_REPORT_FIELD_IDS[firstErrorField])
+      ?.focus();
+  }, [errors]);
+
+  useValidationErrorFocus({
+    focusRequestId,
+    focusFirstError,
+  });
+
+  const updateValidatedField = (
+    field: ProjectReportValidatedField,
+    nextValue: string,
+  ) => {
+    const nextProjectReport: ProjectReport = {
+      ...value,
+      [field]: nextValue,
+    };
+
+    onChange(nextProjectReport);
+    onFieldChange?.(field, nextProjectReport);
+  };
+
   const updateField = <Key extends keyof ProjectReport>(
     key: Key,
     nextValue: ProjectReport[Key],
@@ -53,7 +105,7 @@ export function ProjectReportForm({
           <Input
             id="project-report-title"
             value={value.title}
-            onChange={(event) => updateField('title', event.target.value)}
+            onChange={(event) => updateValidatedField('title', event.target.value)}
             onBlur={() => onFieldBlur?.('title')}
             aria-invalid={Boolean(errors.title)}
             aria-describedby={
@@ -72,7 +124,7 @@ export function ProjectReportForm({
           <Textarea
             id="project-report-summary"
             value={value.summary}
-            onChange={(event) => updateField('summary', event.target.value)}
+            onChange={(event) => updateValidatedField('summary', event.target.value)}
             onBlur={() => onFieldBlur?.('summary')}
             aria-invalid={Boolean(errors.summary)}
             aria-describedby={
@@ -94,7 +146,7 @@ export function ProjectReportForm({
             <Input
               id="project-report-role"
               value={value.role}
-              onChange={(event) => updateField('role', event.target.value)}
+              onChange={(event) => updateValidatedField('role', event.target.value)}
               onBlur={() => onFieldBlur?.('role')}
               aria-invalid={Boolean(errors.role)}
               aria-describedby={
@@ -113,7 +165,7 @@ export function ProjectReportForm({
             <Input
               id="project-report-period"
               value={value.period}
-              onChange={(event) => updateField('period', event.target.value)}
+              onChange={(event) => updateValidatedField('period', event.target.value)}
               onBlur={() => onFieldBlur?.('period')}
               aria-invalid={Boolean(errors.period)}
               aria-describedby={
@@ -134,7 +186,7 @@ export function ProjectReportForm({
           <Input
             id="project-report-tech-stack"
             value={value.techStack}
-            onChange={(event) => updateField('techStack', event.target.value)}
+            onChange={(event) => updateValidatedField('techStack', event.target.value)}
             onBlur={() => onFieldBlur?.('techStack')}
             aria-invalid={Boolean(errors.techStack)}
             aria-describedby={
@@ -156,7 +208,7 @@ export function ProjectReportForm({
           <Textarea
             id="project-report-key-features"
             value={value.keyFeatures}
-            onChange={(event) => updateField('keyFeatures', event.target.value)}
+            onChange={(event) => updateValidatedField('keyFeatures', event.target.value)}
             onBlur={() => onFieldBlur?.('keyFeatures')}
             aria-invalid={Boolean(errors.keyFeatures)}
             aria-describedby={

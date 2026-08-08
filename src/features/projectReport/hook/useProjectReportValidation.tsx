@@ -12,9 +12,14 @@ export type ProjectReportValidationState = {
   errors: ProjectReportFieldErrors;
   touchedFields: Set<ProjectReportValidatedField>;
   errorCount: number;
+  focusRequestId: number;
   validateField: (
     field: ProjectReportValidatedField,
     nextProjectReport?: ProjectReport,
+  ) => void;
+  revalidateField: (
+    field: ProjectReportValidatedField,
+    nextProjectReport: ProjectReport,
   ) => void;
   validateAll: () => boolean;
   clearValidation: () => void;
@@ -23,6 +28,7 @@ export type ProjectReportValidationState = {
 export function useProjectReportValidation(
   projectReport: ProjectReport,
 ): ProjectReportValidationState {
+  const [focusRequestId, setFocusRequestId] = useState(0);
   const [errors, setErrors] = useState<ProjectReportFieldErrors>({});
   const [touchedFields, setTouchedFields] = useState(
     () => new Set<ProjectReportValidatedField>(),
@@ -51,14 +57,46 @@ export function useProjectReportValidation(
     [projectReport],
   );
 
+  const revalidateField = useCallback(
+    (
+      field: ProjectReportValidatedField,
+      nextProjectReport: ProjectReport,
+    ) => {
+      if (!touchedFields.has(field)) return;
+
+      const message = validateProjectReportField(
+        field,
+        nextProjectReport,
+      );
+
+      setErrors((current) => {
+        const next = { ...current };
+
+        if (message) {
+          next[field] = message;
+        } else {
+          delete next[field];
+        }
+
+        return next;
+      });
+    },
+    [touchedFields],
+  );
+
   const validateAll = useCallback(() => {
     const result = validateProjectReport(projectReport);
 
     setErrors(result.errors);
     setTouchedFields(new Set(PROJECT_REPORT_VALIDATED_FIELDS));
 
+    if (!result.isValid) {
+      setFocusRequestId((current) => current + 1);
+    }
+
     return result.isValid;
   }, [projectReport]);
+
 
   const clearValidation = useCallback(() => {
     setErrors({});
@@ -72,7 +110,9 @@ export function useProjectReportValidation(
       errors,
       touchedFields,
       errorCount,
+      focusRequestId,
       validateField,
+      revalidateField,
       validateAll,
       clearValidation,
     }),
@@ -80,6 +120,8 @@ export function useProjectReportValidation(
       clearValidation,
       errorCount,
       errors,
+      focusRequestId,
+      revalidateField,
       touchedFields,
       validateAll,
       validateField,

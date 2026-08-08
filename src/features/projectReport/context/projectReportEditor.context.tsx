@@ -30,7 +30,7 @@ export function ProjectReportEditorProvider({
 }) {
     const projectReportId = documentId;
     const getProjectReportPrintFileName = useCallback((projectReport: ProjectReport) => {
-        const title = projectReport.title.trim() || 'project-report';
+        const title = projectReport.title.trim() || '프로젝트 보고서';
         return `${title}.pdf`;
     }, []);
 
@@ -59,7 +59,6 @@ export function ProjectReportEditorProvider({
 
     const saveProjectReportWithValidation = useCallback(
         async (opts?: { silent?: boolean }) => {
-
             await save(opts);
         },
         [save],

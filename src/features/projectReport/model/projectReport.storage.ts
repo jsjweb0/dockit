@@ -15,7 +15,7 @@ function getDraftTitle(projectReport: ProjectReport) {
 }
 
 function getDraftDescription(projectReport: ProjectReport) {
-  const title = projectReport.title.trim();
+  const role = projectReport.role.trim();
 
   const completedCount = [
     projectReport.title,
@@ -32,11 +32,11 @@ function getDraftDescription(projectReport: ProjectReport) {
     projectReport.demoUrl,
   ].filter((content) => content.trim()).length;
 
-  if (title && completedCount > 0) {
-    return `${title} · ${completedCount}개 항목 작성 중`;
+  if (role && completedCount > 0) {
+    return `${role} · ${completedCount}개 항목 작성 중`;
   }
 
-  if (title) return title;
+  if (role) return role;
   if (completedCount > 0) return `${completedCount}개 항목 작성 중`;
 
   return '작성 중인 문서';
