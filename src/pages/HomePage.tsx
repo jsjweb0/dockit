@@ -67,7 +67,7 @@ export function HomePage() {
               제출될 문서 형태를 바로 확인합니다.
             </h2>
             <p className="text-base leading-7 text-muted-foreground">
-              최종 제출 형태를 보면서 이력서, 자기소개서, 경력기술서를 작성할 수 있는 React 문서 작성 도구입니다.
+              최종 제출 형태를 보면서 이력서, 자기소개서, 경력기술서, 프로젝트 보고서를 작성할 수 있는 React 문서 작성 도구입니다.
             </p>
           </div>
           <div className="flex flex-wrap">
@@ -190,7 +190,7 @@ export function HomePage() {
               </p>
             ) : (
               <p className="mt-1 text-muted-foreground">
-                국문 이력서, 자기소개서, 경력기술서 3종을 지원합니다.
+                국문 이력서, 자기소개서, 경력기술서, 프로젝트 보고서 4종을 지원합니다.
               </p>
             )}
 

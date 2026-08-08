@@ -23,6 +23,12 @@ const CareerSummaryBuilderPage = lazy(() =>
     })),
 );
 
+const ProjectReportBuilderPage = lazy(() =>
+    import('@/pages/ProjectReportBuilderPage').then((module) => ({
+        default: module.ProjectReportBuilderPage,
+    })),
+);
+
 
 function RouteLoadingFallback() {
     return (
@@ -53,6 +59,8 @@ export const router = createBrowserRouter([
             { path: "/cover-letter/:id", element: withSuspense(<CoverLetterBuilderPage />) },
             { path: "/career-summary", element: withSuspense(<CareerSummaryBuilderPage />) },
             { path: "/career-summary/:id", element: withSuspense(<CareerSummaryBuilderPage />) },
+            { path: "/project-report", element: withSuspense(<ProjectReportBuilderPage />) },
+            { path: "/project-report/:id", element: withSuspense(<ProjectReportBuilderPage />) },
         ],
     },
 

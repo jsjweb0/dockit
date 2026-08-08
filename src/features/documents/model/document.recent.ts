@@ -12,6 +12,10 @@ import {
   listRecentResumeDrafts,
 } from '@/features/resume/model/resume.storage';
 import { getDocumentTemplate } from '@/layout/documentTemplates';
+import {
+  deleteProjectReport,
+  listRecentProjectReportDrafts,
+} from '@/features/projectReport/model/projectReport.storage';
 
 type RecentDocumentDraftSource = {
   documentLabel: string;
@@ -41,6 +45,11 @@ const recentDocumentDraftSources: RecentDocumentDraftSource[] = [
     template: getDocumentTemplate('career-summary'),
     listDrafts: listRecentCareerSummaryDrafts,
     deleteDraft: deleteCareerSummaryDraft,
+  },
+  {
+    template: getDocumentTemplate('project-report'),
+    listDrafts: listRecentProjectReportDrafts,
+    deleteDraft: deleteProjectReport,
   },
 ].flatMap(({ template, listDrafts, deleteDraft }) => {
   if (template.status !== 'available' || !template.href) return [];
