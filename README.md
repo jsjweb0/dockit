@@ -249,3 +249,4 @@ npm run deploy
 ## 앞으로 개선할 점
 
 - 반복 필드가 많은 신규 양식이 추가될 경우 React Hook Form과 Zod를 검토해 폼 상태 관리와 검증 스키마의 중복 줄이기
+- 문서 종류가 늘어 반복 조립 비용이 커질 경우, 공통 `DocumentBuilderPage`와 문서 registry 구조를 도입할 계획입니다. 저장·PDF 출력 등 공통 흐름은 통합하되, 문서별 Form·Preview·validation은 각 feature에 유지하고 디자인만 다른 양식은 template으로 관리합니다.
