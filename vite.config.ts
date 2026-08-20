@@ -11,6 +11,12 @@ export default defineConfig({
     tailwindcss(),
     Sitemap({
       hostname: 'https://dockit.jsjweb0.workers.dev',
+      dynamicRoutes: [
+        '/resume',
+        '/cover-letter',
+        '/career-summary',
+        '/project-report',
+      ],
     }),
   ],
   resolve: {
