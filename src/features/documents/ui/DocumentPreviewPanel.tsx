@@ -37,6 +37,8 @@ export function DocumentPreviewPanel({
   onPreviewAnimationEnd,
 }: DocumentPreviewPanelProps) {
   const previewViewportRef = useRef<HTMLDivElement | null>(null);
+  const previewDocumentRef = useRef<HTMLElement | null>(null);
+  const [previewHeight, setPreviewHeight] = useState(A4_PREVIEW_HEIGHT);
   const [previewScale, setPreviewScale] = useState(1);
 
   const updatePreviewScale = useCallback(() => {
@@ -45,6 +47,7 @@ export function DocumentPreviewPanel({
 
     const nextScale = Math.min(1, viewport.clientWidth / A4_PREVIEW_WIDTH);
     setPreviewScale(Number(nextScale.toFixed(3)));
+    setPreviewHeight(Math.max(A4_PREVIEW_HEIGHT, previewDocumentRef.current?.offsetHeight ?? 0));
   }, []);
 
   useEffect(() => {
@@ -57,6 +60,7 @@ export function DocumentPreviewPanel({
 
     const resizeObserver = new ResizeObserver(updatePreviewScale);
     resizeObserver.observe(viewport);
+    if (previewDocumentRef.current) resizeObserver.observe(previewDocumentRef.current);
 
     return () => {
       resizeObserver.disconnect();
@@ -65,14 +69,18 @@ export function DocumentPreviewPanel({
 
   useEffect(() => {
     const mobileQuery = window.matchMedia(MOBILE_PREVIEW_QUERY);
+    const updateBodyScrollLock = () => {
+      const shouldLockBody =
+        (isPreviewOpen || isPreviewClosing) && mobileQuery.matches;
 
-    if ((isPreviewOpen || isPreviewClosing) && mobileQuery.matches) {
-      document.body.style.overflow = 'hidden';
-    } else {
-      document.body.style.overflow = '';
-    }
+      document.body.style.overflow = shouldLockBody ? 'hidden' : '';
+    };
+
+    updateBodyScrollLock();
+    mobileQuery.addEventListener('change', updateBodyScrollLock);
 
     return () => {
+      mobileQuery.removeEventListener('change', updateBodyScrollLock);
       document.body.style.overflow = '';
     };
   }, [isPreviewOpen, isPreviewClosing]);
@@ -147,7 +155,7 @@ export function DocumentPreviewPanel({
                 className="documentPreviewFrame"
                 style={{
                   width: A4_PREVIEW_WIDTH * previewScale,
-                  height: A4_PREVIEW_HEIGHT * previewScale,
+                  height: previewHeight * previewScale,
                 }}
               >
                 <div
@@ -156,7 +164,7 @@ export function DocumentPreviewPanel({
                     transform: `scale(${previewScale})`,
                   }}
                 >
-                  <section className="documentPreview" aria-hidden="true">
+                  <section ref={previewDocumentRef} className="documentPreview" aria-hidden="true">
                     {children}
                   </section>
                 </div>

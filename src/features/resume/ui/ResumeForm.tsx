@@ -19,7 +19,7 @@ type Props = {
 };
 
 export function ResumeForm({ value, onChange }: Props) {
-  const { resetVersion } = useResumeEditor();
+  const { resumeId, resetVersion } = useResumeEditor();
   const resumeValidation = useResumeValidation();
   const {
     validationErrorCounts,
@@ -151,7 +151,7 @@ export function ResumeForm({ value, onChange }: Props) {
 
       <TabsContent value="skills" className="mt-4">
         <SkillsSection
-          key={resetVersion}
+          key={`${resumeId}-${resetVersion}`}
           value={value}
           onChange={onChange}
         />

@@ -30,18 +30,11 @@ function hasAnyValue<T extends Record<string, unknown>>(
 }
 
 function formatPeriod(start?: string, end?: string, isCurrent?: boolean) {
-  if (!start && !end && !isCurrent) return '-';
-  return `${start || '시작'} - ${isCurrent ? '재직중' : end || '종료'}`;
+  return [start, isCurrent ? '재직중' : end].filter(Boolean).join(' - ');
 }
 
 function KoreanDate({ value }: { value?: string }) {
-  if (!value) {
-    return (
-      <>
-        <span>년</span> <span>월</span> <span>일</span>
-      </>
-    );
-  }
+  if (!value) return null;
 
   const [year, month, day] = value.split('-');
   return (
@@ -51,6 +44,21 @@ function KoreanDate({ value }: { value?: string }) {
       <span>{day}일</span>
     </>
   );
+}
+
+function ResumeLink({ url, label }: { url: string; label?: string }) {
+  const text = label ? `${label}: ${url}` : url;
+  // 편집 중의 잘못된 URL은 텍스트로 보존하되 실행 가능한 링크로 만들지 않습니다.
+  let href: string | undefined;
+  try {
+    const parsed = new URL(url);
+    if (parsed.protocol === 'https:' || parsed.protocol === 'http:') href = url;
+  } catch {
+    // URL 작성이 끝나지 않은 경우에도 입력 내용은 표시합니다.
+  }
+  return href ? (
+    <a className="resumeDocument__link" href={href} tabIndex={-1}>{text}</a>
+  ) : <span>{text}</span>;
 }
 
 export function ResumePreview({ value }: Props) {
@@ -79,7 +87,7 @@ export function ResumePreview({ value }: Props) {
   );
   const experienceRows = fillRows(
     toPreviewOrder(value.experience).filter((row) =>
-      hasAnyValue(row, ['company', 'role', 'start', 'end', 'description']),
+      hasAnyValue(row, ['company', 'role', 'start', 'end', 'description', 'isCurrent']),
     ),
     (index) => ({
       id: `empty-experience-${index}`,
@@ -118,11 +126,11 @@ export function ResumePreview({ value }: Props) {
           <tbody>
             <tr>
               <th scope="row">지원구분</th>
-              <td>{formatApplicationType(b.applicationType)}</td>
+              <td>{b.applicationType ? formatApplicationType(b.applicationType) : ''}</td>
             </tr>
             <tr>
               <th scope="row">지원부문</th>
-              <td>{b.title || '프론트엔드 개발자'}</td>
+              <td>{b.title}</td>
             </tr>
           </tbody>
         </table>
@@ -132,44 +140,42 @@ export function ResumePreview({ value }: Props) {
         <caption className="sr-only">인적사항</caption>
         <tbody>
           <tr>
-            <td colSpan={3} rowSpan={4} className="docTable__photo">
-              이력서 사진
-            </td>
+            <td colSpan={3} rowSpan={4} className="docTable__photo" />
             <th scope="row" colSpan={2}>
               성 명
             </th>
-            <td colSpan={3}>{b.name || '이름'}</td>
+            <td colSpan={3}>{b.name}</td>
             <th scope="row" colSpan={2}>
               영 문
             </th>
-            <td colSpan={3}>{b.nameEn || '영문 이름'}</td>
+            <td colSpan={3}>{b.nameEn}</td>
           </tr>
           <tr>
             <th scope="row" colSpan={2}>
               생년월일
             </th>
-            <td colSpan={3}>{b.birth || 'YYYY.MM.DD'}</td>
+            <td colSpan={3}>{b.birth}</td>
             <th scope="row" colSpan={2}>
               연락처
             </th>
-            <td colSpan={3}>{b.phone || '010-0000-0000'}</td>
+            <td colSpan={3}>{b.phone}</td>
           </tr>
           <tr>
             <th scope="row" colSpan={2}>
               주소
             </th>
-            <td colSpan={8}>{b.address || '주소'}</td>
+            <td colSpan={8}>{b.address}</td>
           </tr>
           <tr>
             <th scope="row" colSpan={2}>
               이메일
             </th>
-            <td colSpan={8}>{b.email || 'email@example.com'}</td>
+            <td colSpan={8}>{b.email}</td>
           </tr>
         </tbody>
       </table>
 
-      <table className="docTable">
+      <table className="docTable resumeDocument__shortRows">
         <caption className="sr-only">학력사항</caption>
         <tbody>
           <tr>
@@ -206,7 +212,7 @@ export function ResumePreview({ value }: Props) {
         </tbody>
       </table>
 
-      <table className="docTable"
+      <table className="docTable resumeDocument__shortRows"
         key={value.certifications.map((item) => item.id).join('|')}
       >
         <caption className="sr-only">자격증</caption>
@@ -274,19 +280,17 @@ export function ResumePreview({ value }: Props) {
               담당업무
             </th>
           </tr>
-          {experienceRows.map((career, index) => (
+          {experienceRows.map((career) => (
             <tr key={career.id}>
               <td colSpan={7}>
-                {career.company || career.start || career.end
-                  ? formatPeriod(career.start, career.end, career.isCurrent)
-                  : index === 0 && ''}
+                {formatPeriod(career.start, career.end, career.isCurrent)}
               </td>
-              <td colSpan={6}>{career.company || (index === 0 && '')}</td>
+              <td colSpan={6}>{career.company}</td>
               <td colSpan={3} className="docTable__center">
-                {career.role || (index === 0 && '')}
+                {career.role}
               </td>
               <td colSpan={9} className="docTable__multiline">
-                <div className="docTable__multilineText" style={{ whiteSpace: 'pre-line' }}>
+                <div className="docTable__multilineText">
                   {career.description || ''}
                 </div>
               </td>
@@ -340,6 +344,11 @@ export function ResumePreview({ value }: Props) {
                 <div className="docTable__multilineText">
                   {project.description || ''}
                 </div>
+                {project.link && (
+                  <div className="mt-1">
+                    <ResumeLink url={project.link} label={project.name ? `${project.name} 링크` : '프로젝트 링크'} />
+                  </div>
+                )}
               </td>
             </tr>
           ))}
@@ -355,7 +364,7 @@ export function ResumePreview({ value }: Props) {
             </th>
             <td colSpan={9} className="docTable__multiline">
               <div className="docTable__multilineText">
-                {[value.skills.primary, ...value.skills.tools].join(', ') || ''}
+                {[...value.skills.primary, ...value.skills.tools].join(', ') || ''}
               </div>
             </td>
             <th scope="row" colSpan={4}>
@@ -364,8 +373,9 @@ export function ResumePreview({ value }: Props) {
             <td colSpan={10}>
               {toPreviewOrder(value.links)
                 .filter((link) => link.url)
-                .map((link) => `${link.label || 'Link'}: ${link.url}`)
-                .join(' / ') || 'GitHub / Portfolio'}
+                .map((link) => (
+                  <div key={link.id}><ResumeLink url={link.url} label={link.label} /></div>
+                ))}
             </td>
           </tr>
         </tbody>

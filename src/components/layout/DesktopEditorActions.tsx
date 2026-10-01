@@ -29,7 +29,7 @@ type Props = {
 
 export function DesktopEditorActions({ actions, status }: Props) {
   const { onReset, onLoadSample, onExportPdf } = actions;
-  const { isDirty, isExporting } = status;
+  const { isSaving, isExporting } = status;
 
   if (!onReset && !onLoadSample && !onExportPdf) return null;
 
@@ -86,7 +86,7 @@ export function DesktopEditorActions({ actions, status }: Props) {
                   size="icon"
                   className="rounded-full"
                   aria-label="전체 초기화"
-                  disabled={!isDirty}
+                  disabled={isSaving || isExporting}
                 >
                   <RefreshCcw aria-hidden="true" />
                 </Button>
@@ -96,7 +96,7 @@ export function DesktopEditorActions({ actions, status }: Props) {
               <AlertDialogHeader>
                 <AlertDialogTitle>전체 초기화할까요?</AlertDialogTitle>
                 <AlertDialogDescription>
-                  현재 작성 중인 내용이 모두 초기화됩니다. 저장하지 않은 변경 사항은 삭제되며, 기존 저장본은 유지됩니다.
+                  현재 문서의 입력 내용이 초기화됩니다. 초기화한 내용은 이후 자동 저장될 수 있으며, 기존 저장 내용을 대체합니다.
                 </AlertDialogDescription>
               </AlertDialogHeader>
               <AlertDialogFooter>

@@ -66,14 +66,6 @@ export function CoverLetterEditorProvider({
     reset();
   }, [reset]);
 
-  const saveCoverLetterWithValidation = useCallback(
-    async (opts?: { silent?: boolean }) => {
-      if (!coverLetterValidation.validateCoverLetterBeforeExport()) return;
-      await save(opts);
-    },
-    [coverLetterValidation, save],
-  );
-
   const printCoverLetter = useCallback(
     () => printDocument(coverLetterValidation.validateCoverLetterBeforeExport),
     [coverLetterValidation, printDocument],
@@ -84,7 +76,7 @@ export function CoverLetterEditorProvider({
       coverLetterId,
       coverLetter,
       setCoverLetter,
-      save: saveCoverLetterWithValidation,
+      save,
       reset: resetCoverLetter,
       printCoverLetter,
       resetVersion,
@@ -97,7 +89,7 @@ export function CoverLetterEditorProvider({
       coverLetter,
       coverLetterId,
       setCoverLetter,
-      saveCoverLetterWithValidation,
+      save,
       resetCoverLetter,
       printCoverLetter,
       resetVersion,

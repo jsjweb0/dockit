@@ -1,5 +1,6 @@
 import type { ReactNode } from 'react';
 import {
+  act,
   cleanup,
   fireEvent,
   render,
@@ -14,10 +15,15 @@ import {
 } from 'react-router-dom';
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
 import { ProjectReportBuilderPage } from './ProjectReportBuilderPage';
+import { exportDocumentPdf } from '@/features/documents/model/document.export';
+
+vi.mock('@/features/documents/model/document.export', () => ({ exportDocumentPdf: vi.fn() }));
 
 afterEach(() => {
   cleanup();
   vi.restoreAllMocks();
+  vi.clearAllMocks();
+  vi.useRealTimers();
 });
 
 vi.mock('@/components/layout/EditorHeader', () => ({
@@ -148,35 +154,49 @@ describe('ProjectReportBuilderPage', () => {
     });
   });
 
-  it('빈 문서의 저장과 PDF 출력을 차단하고 첫 오류로 포커스를 이동한다', async () => {
-    const printSpy = vi.spyOn(window, 'print').mockImplementation(() => {});
+  it('미완성 초안을 저장하되 PDF 출력을 차단하고 첫 오류로 포커스를 이동한다', async () => {
     renderProjectReportPage('document-1');
+    fireEvent.change(screen.getByLabelText('프로젝트명'), { target: { value: '작성 중' } });
 
     fireEvent.click(screen.getByRole('button', { name: '저장' }));
 
-    expect(localStorage.getItem('project-report:document-1')).toBeNull();
-    expect(screen.getByText(/검증 결과/)).toHaveTextContent(
-      '검증 결과 6개의 오류가 있습니다.',
-    );
-    await waitFor(() => {
-      expect(screen.getByLabelText('프로젝트명')).toHaveFocus();
-    });
+    expect(localStorage.getItem('project-report:document-1')).toContain('작성 중');
+    expect(screen.queryByText(/검증 결과/)).not.toBeInTheDocument();
 
     fireEvent.click(screen.getByRole('button', { name: 'PDF' }));
-    expect(printSpy).not.toHaveBeenCalled();
+    expect(screen.getByText(/검증 결과/)).toHaveTextContent(
+      '검증 결과 5개의 오류가 있습니다.',
+    );
+    await waitFor(() => {
+      expect(screen.getByLabelText('프로젝트 목적')).toHaveFocus();
+    });
+
+    expect(exportDocumentPdf).not.toHaveBeenCalled();
+    fireEvent.click(screen.getByRole('button', { name: '예시' }));
+    fireEvent.click(screen.getByRole('button', { name: 'PDF' }));
+    expect(exportDocumentPdf).toHaveBeenCalledOnce();
+  });
+
+  it('미완성 초안도 60초 후 자동 저장한다', async () => {
+    vi.useFakeTimers();
+    renderProjectReportPage('document-1');
+    fireEvent.change(screen.getByLabelText('프로젝트명'), { target: { value: '작성 중' } });
+    await act(async () => { await vi.advanceTimersByTimeAsync(60_000); });
+    expect(localStorage.getItem('project-report:document-1')).toContain('작성 중');
+    expect(screen.queryByText(/검증 결과/)).not.toBeInTheDocument();
   });
 
   it('예시 불러오기와 초기화 시 기존 검증 오류를 제거한다', () => {
     renderProjectReportPage('document-1');
 
-    fireEvent.click(screen.getByRole('button', { name: '저장' }));
+    fireEvent.click(screen.getByRole('button', { name: 'PDF' }));
     expect(screen.getByText(/검증 결과/)).toBeInTheDocument();
 
     fireEvent.click(screen.getByRole('button', { name: '예시' }));
     expect(screen.queryByText(/검증 결과/)).not.toBeInTheDocument();
 
     fireEvent.click(screen.getByRole('button', { name: '초기화' }));
-    fireEvent.click(screen.getByRole('button', { name: '저장' }));
+    fireEvent.click(screen.getByRole('button', { name: 'PDF' }));
     expect(screen.getByText(/검증 결과/)).toBeInTheDocument();
 
     fireEvent.click(screen.getByRole('button', { name: '초기화' }));

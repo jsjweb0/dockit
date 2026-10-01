@@ -18,6 +18,21 @@ export function useDocumentValidation<TDocument, TErrors, TFieldKey>({
     setTouchedFields(adapter.createEmptyTouchedFields());
   }, [adapter]);
 
+  const clearFields = useCallback(
+    (fieldKeys: TFieldKey[]) => {
+      setTouchedFields((prev) => {
+        const next = new Set(prev);
+        fieldKeys.forEach((key) => next.delete(key));
+        return next;
+      });
+      setErrors((prev) => fieldKeys.reduce(
+        (next, key) => adapter.setFieldError(next, key, undefined),
+        prev,
+      ));
+    },
+    [adapter],
+  );
+
   const touchField = useCallback(
     (fieldKey: TFieldKey, nextDocument = document) => {
       setTouchedFields((prev) => new Set(prev).add(fieldKey));
@@ -56,6 +71,7 @@ export function useDocumentValidation<TDocument, TErrors, TFieldKey>({
     touchedFields,
     errorCount,
     resetValidation,
+    clearFields,
     touchField,
     revalidateField,
     validateBeforeSubmit,

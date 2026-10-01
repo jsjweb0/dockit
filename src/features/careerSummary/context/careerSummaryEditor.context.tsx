@@ -73,14 +73,6 @@ export function CareerSummaryEditorProvider({
     reset();
   }, [reset]);
 
-  const saveCareerSummaryWithValidation = useCallback(
-    async (opts?: { silent?: boolean }) => {
-      if (!careerSummaryValidation.validateCareerSummaryBeforeExport()) return;
-      await save(opts);
-    },
-    [careerSummaryValidation, save],
-  );
-
   const printCareerSummary = useCallback(
     () =>
       printDocument(careerSummaryValidation.validateCareerSummaryBeforeExport),
@@ -92,7 +84,7 @@ export function CareerSummaryEditorProvider({
       careerSummaryId,
       careerSummary,
       setCareerSummary,
-      save: saveCareerSummaryWithValidation,
+      save,
       reset: resetCareerSummary,
       printCareerSummary,
       resetVersion,
@@ -105,7 +97,7 @@ export function CareerSummaryEditorProvider({
       careerSummaryId,
       careerSummary,
       setCareerSummary,
-      saveCareerSummaryWithValidation,
+      save,
       resetCareerSummary,
       printCareerSummary,
       resetVersion,

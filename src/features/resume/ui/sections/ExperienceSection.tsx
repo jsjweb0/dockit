@@ -24,8 +24,12 @@ type Props = {
 };
 
 export function ExperienceSection({ value, onChange, validation }: Props) {
-  const { sectionErrors, touchSectionField, revalidateSectionField } =
-    validation;
+  const {
+    sectionErrors,
+    touchSectionField,
+    revalidateSectionItem,
+    clearSectionItem,
+  } = validation;
   const list = value.experience;
 
   const update = (id: string, patch: Partial<Experience>) => {
@@ -39,8 +43,8 @@ export function ExperienceSection({ value, onChange, validation }: Props) {
     return nextResume;
   };
 
-  const revalidate = (id: string, field: string, nextResume: Resume) => {
-    revalidateSectionField('experience', id, field, nextResume);
+  const revalidate = (id: string, nextResume: Resume) => {
+    revalidateSectionItem('experience', id, nextResume);
   };
 
   const touch = (id: string, field: string) => {
@@ -66,6 +70,7 @@ export function ExperienceSection({ value, onChange, validation }: Props) {
   };
 
   const remove = (id: string) => {
+    clearSectionItem('experience', id);
     onChange({ ...value, experience: list.filter((x) => x.id !== id) });
   };
 
@@ -134,7 +139,7 @@ export function ExperienceSection({ value, onChange, validation }: Props) {
                     const nextResume = update(e.id, {
                       company: ev.target.value,
                     });
-                    revalidate(e.id, 'company', nextResume);
+                    revalidate(e.id, nextResume);
                   }}
                   onBlur={() => touch(e.id, 'company')}
                   placeholder="예: 독킷 스튜디오"
@@ -166,7 +171,11 @@ export function ExperienceSection({ value, onChange, validation }: Props) {
                     const nextResume = { ...value, experience: nextExperience };
 
                     onChange(nextResume);
-                    revalidate(e.id, 'end', nextResume);
+                    list.forEach((item) => {
+                      if (item.id === e.id || (isCurrent && item.isCurrent)) {
+                        revalidate(item.id, nextResume);
+                      }
+                    });
                   }}
                   className="peer"
                 />
@@ -192,8 +201,7 @@ export function ExperienceSection({ value, onChange, validation }: Props) {
                   value={e.start}
                   onChange={(ev) => {
                     const nextResume = update(e.id, { start: ev.target.value });
-                    revalidate(e.id, 'start', nextResume);
-                    revalidate(e.id, 'end', nextResume);
+                    revalidate(e.id, nextResume);
                   }}
                   onBlur={() => touch(e.id, 'start')}
                   autoComplete="off"
@@ -217,7 +225,7 @@ export function ExperienceSection({ value, onChange, validation }: Props) {
                   value={e.end ?? ''}
                   onChange={(ev) => {
                     const nextResume = update(e.id, { end: ev.target.value });
-                    revalidate(e.id, 'end', nextResume);
+                    revalidate(e.id, nextResume);
                   }}
                   onBlur={() => touch(e.id, 'end')}
                   disabled={e.isCurrent}
@@ -247,7 +255,7 @@ export function ExperienceSection({ value, onChange, validation }: Props) {
                 value={e.role}
                 onChange={(ev) => {
                   const nextResume = update(e.id, { role: ev.target.value });
-                  revalidate(e.id, 'role', nextResume);
+                  revalidate(e.id, nextResume);
                 }}
                 onBlur={() => touch(e.id, 'role')}
                 placeholder="예: 웹 퍼블리셔 인턴"
@@ -274,7 +282,7 @@ export function ExperienceSection({ value, onChange, validation }: Props) {
                     const nextResume = update(e.id, {
                       description: ev.target.value,
                     });
-                    revalidate(e.id, 'description', nextResume);
+                    revalidate(e.id, nextResume);
                   }}
                   onBlur={() => touch(e.id, 'description')}
                   rows={5}

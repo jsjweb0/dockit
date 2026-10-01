@@ -57,13 +57,6 @@ export function ProjectReportEditorProvider({
         reset();
     }, [reset]);
 
-    const saveProjectReportWithValidation = useCallback(
-        async (opts?: { silent?: boolean }) => {
-            await save(opts);
-        },
-        [save],
-    );
-
     const printProjectReport = useCallback(
         () => printDocument(),
         [printDocument],
@@ -74,7 +67,7 @@ export function ProjectReportEditorProvider({
             projectReportId,
             projectReport,
             setProjectReport,
-            save: saveProjectReportWithValidation,
+            save,
             reset: resetProjectReport,
             printProjectReport,
             resetVersion,
@@ -87,7 +80,7 @@ export function ProjectReportEditorProvider({
             projectReport,
             projectReportId,
             setProjectReport,
-            saveProjectReportWithValidation,
+            save,
             resetProjectReport,
             printProjectReport,
             resetVersion,

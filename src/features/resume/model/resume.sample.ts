@@ -66,10 +66,10 @@ export function sampleResume(): Resume {
       {
         id: createId(),
         name: 'NEWTRONOME',
-        period: '2025-09 ~ 2026-04',
-        stack: 'React, Vite, Firebase Authentication',
+        period: '2025-08 ~ 진행중',
+        stack: 'React, TypeScript, Vite, Zustand, Firebase',
         description:
-          'SoundCloud API를 연동해 트랙 검색, 랜덤 재생, 플레이리스트 재생, 로그인 후 좋아요 기능을 제공하는 React 음악 플레이어입니다.',
+          '공식 SoundCloud Widget으로 개인 플레이리스트를 재생하고, 로그인 사용자에게 트랙 저장과 커뮤니티 기능을 제공하는 React 음악 서비스입니다.',
         link: 'https://newtronome.jsjweb0.workers.dev/',
       },
     ],
