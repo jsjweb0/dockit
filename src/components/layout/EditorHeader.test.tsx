@@ -1,5 +1,5 @@
-import { cleanup, render, screen } from '@testing-library/react';
-import { afterEach, describe, expect, it, vi } from 'vitest';
+import { act, cleanup, fireEvent, render, screen } from '@testing-library/react';
+import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
 import {
   EditorHeader,
   type EditorActions,
@@ -46,9 +46,17 @@ function renderHeader(
 }
 
 describe('EditorHeader', () => {
+  let mobileQuery: { matches: boolean; addEventListener: ReturnType<typeof vi.fn>; removeEventListener: ReturnType<typeof vi.fn> };
+
+  beforeEach(() => {
+    mobileQuery = { matches: false, addEventListener: vi.fn(), removeEventListener: vi.fn() };
+    vi.stubGlobal('matchMedia', vi.fn(() => mobileQuery));
+    vi.stubGlobal('scrollY', 0);
+  });
   afterEach(() => {
     cleanup();
     vi.clearAllMocks();
+    vi.unstubAllGlobals();
   });
 
   it('저장 기능 없이 문서명과 미리보기 action만 렌더링할 수 있다', () => {
@@ -131,4 +139,33 @@ describe('EditorHeader', () => {
       screen.queryByRole('button', { name: 'PDF 다운로드' }),
     ).not.toBeInTheDocument();
   });
+  it('데스크톱에서 아래로 스크롤해도 저장 버튼을 비활성화하지 않는다', () => {
+    const onSave = vi.fn();
+    renderHeader(dirtyStatus, { onSave, onExitHome: vi.fn() });
+    vi.stubGlobal('scrollY', 200);
+    fireEvent.scroll(window);
+    const button = screen.getByRole('button', { name: '문서저장' });
+    expect(button.closest('[inert]')).toBeNull();
+    expect(button.closest('[aria-hidden="true"]')).toBeNull();
+    fireEvent.click(button);
+    expect(onSave).toHaveBeenCalledOnce();
+  });
+
+  it('모바일에서 숨긴 도구 모음도 데스크톱으로 전환하면 다시 활성화한다', () => {
+    mobileQuery.matches = true;
+    renderHeader(dirtyStatus, { onSave: vi.fn(), onExitHome: vi.fn() });
+    const button = screen.getByRole('button', { name: '문서저장' });
+    vi.stubGlobal('scrollY', 200);
+    fireEvent.scroll(window);
+    expect(button.closest('[inert]')).not.toBeNull();
+
+    act(() => {
+      mobileQuery.matches = false;
+      mobileQuery.addEventListener.mock.calls[0][1]();
+    });
+    expect(button.closest('[inert]')).toBeNull();
+    expect(button.closest('[aria-hidden="true"]')).toBeNull();
+    expect(screen.getByRole('button', { name: '문서저장' })).toBeEnabled();
+  });
+
 });

@@ -226,10 +226,9 @@
   }
 
   .docTable td {
-    white-space: nowrap;
-    overflow: hidden;
-    text-overflow: ellipsis;
     height: 34px;
+    white-space: pre-wrap;
+    overflow-wrap: anywhere;
   }
 
   .docTable td.docTable__multiline {
@@ -239,11 +238,14 @@
   }
 
   .docTable__multilineText {
-    display: -webkit-box;
-    -webkit-line-clamp: 2;
-    -webkit-box-orient: vertical;
-    overflow: hidden;
-    text-overflow: ellipsis;
+    white-space: pre-wrap;
+    overflow-wrap: anywhere;
+  }
+
+  .resumeDocument__link {
+    color: inherit;
+    text-decoration: underline;
+    overflow-wrap: anywhere;
   }
 
   .docTable__center {
@@ -392,18 +394,69 @@
       line-height: 1.35;
     }
 
-    .docTable__clamp {
-      display: -webkit-box;
-      -webkit-line-clamp: 2;
-      -webkit-box-orient: vertical;
-      overflow: hidden;
-    }
-
     .resumeDocument__sign {
       gap: 24px !important;
       font-size: 12px !important;
       break-inside: avoid;
       page-break-inside: avoid;
     }
+  }
+}
+
+/* Tailwind 화면용 utility보다 인쇄용 Resume 배치를 우선합니다. */
+@media print {
+  /* Resume는 페이지 여백 안에서 일반 문서 흐름으로 여러 페이지에 출력합니다. */
+  html:has(.resumeDocument),
+  body:has(.resumeDocument) {
+    width: auto;
+  }
+
+  body:has(.resumeDocument) main,
+  body:has(.resumeDocument) main > div,
+  #preview-panel:has(.resumeDocument),
+  [data-slot='card']:has(.resumeDocument),
+  [data-slot='card-content']:has(.resumeDocument),
+  .documentPreviewViewport:has(.resumeDocument),
+  .documentPreviewFrame:has(.resumeDocument),
+  .documentPreviewScaler:has(.resumeDocument),
+  .documentPreview:has(.resumeDocument) {
+    display: block;
+    position: static;
+    width: 100%;
+    max-width: none;
+    height: auto;
+    overflow: visible;
+    padding: 0;
+    margin: 0;
+    border: 0;
+  }
+
+  body:has(.resumeDocument) main > [role='status'] {
+    display: none !important;
+  }
+
+  .resumeDocument .docTable,
+  .resumeDocument .docTable tbody {
+    break-inside: auto;
+  }
+
+  .resumeDocument .docTable tr:first-child {
+    break-after: avoid;
+  }
+
+  /* 짧은 행만 묶고 긴 경력·프로젝트 본문은 페이지 분할을 허용합니다. */
+  .resumeDocument__shortRows tr {
+    break-inside: avoid;
+  }
+
+  body:has(.resumeDocument) header,
+  body:has(.resumeDocument) .documentEditorPane,
+  body:has(.resumeDocument) .previewToggleButton,
+  body:has(.resumeDocument) .documentPreview__title {
+    display: none;
+  }
+
+  body:has(.resumeDocument) .min-h-dvh {
+    min-height: 0;
   }
 }

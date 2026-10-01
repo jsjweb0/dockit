@@ -6,6 +6,7 @@ import { formatRelativeTime } from '@/utils/time.ts';
 import { toast } from 'sonner';
 import { Button } from '@/components/ui/button';
 import { cn } from '@/lib/utils';
+import { MOBILE_PREVIEW_QUERY } from '@/constants/editor';
 
 export type EditorActions = {
   onSave?: () => void;
@@ -98,7 +99,16 @@ export function EditorHeader({
   }, [isDirty]);
 
   useEffect(() => {
+    const mobileQuery = window.matchMedia(MOBILE_PREVIEW_QUERY);
+    const handleViewportChange = () => {
+      setIsMobileActionVisible(true);
+      lastScrollY.current = window.scrollY;
+    };
     const handleScroll = () => {
+      if (!mobileQuery.matches) {
+        setIsMobileActionVisible(true);
+        return;
+      }
       const currentScrollY = window.scrollY;
       const isScrollingUp = currentScrollY < lastScrollY.current;
 
@@ -111,9 +121,14 @@ export function EditorHeader({
       lastScrollY.current = currentScrollY;
     };
 
+    handleViewportChange();
+    mobileQuery.addEventListener('change', handleViewportChange);
     window.addEventListener('scroll', handleScroll, { passive: true });
 
-    return () => window.removeEventListener('scroll', handleScroll);
+    return () => {
+      window.removeEventListener('scroll', handleScroll);
+      mobileQuery.removeEventListener('change', handleViewportChange);
+    };
   }, []);
 
   return (

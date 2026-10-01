@@ -1,0 +1,26 @@
+{
+  "meta": {
+    "version": 1
+  },
+  "basics": {
+    "applicationType": "",
+    "name": "출력 검증",
+    "nameEn": "",
+    "birth": "",
+    "phone": "010-1234-5678",
+    "email": "qa@example.com",
+    "address": "",
+    "title": "프론트엔드 개발자",
+    "summary": "",
+    "submittedAt": ""
+  },
+  "education": [],
+  "certifications": [],
+  "experience": [],
+  "projects": [],
+  "links": [],
+  "skills": {
+    "primary": [],
+    "tools": []
+  }
+}

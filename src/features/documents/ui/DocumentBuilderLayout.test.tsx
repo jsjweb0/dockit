@@ -1,6 +1,8 @@
 import type { ReactNode } from 'react';
-import { cleanup, render } from '@testing-library/react';
+import { act, cleanup, fireEvent, render, screen } from '@testing-library/react';
 import { afterEach, describe, expect, it, vi } from 'vitest';
+import { useDocumentPreviewControls } from '../hooks/useDocumentPreviewControls';
+import { MOBILE_PREVIEW_QUERY } from '@/constants/editor';
 import { DocumentBuilderLayout } from './DocumentBuilderLayout';
 
 vi.mock('./DocumentPreviewPanel', () => ({
@@ -12,6 +14,7 @@ vi.mock('./DocumentPreviewPanel', () => ({
 afterEach(() => {
   cleanup();
   vi.unstubAllGlobals();
+  vi.useRealTimers();
 });
 
 const mockViewport = (matches: boolean) => {
@@ -22,7 +25,7 @@ const mockViewport = (matches: boolean) => {
     'matchMedia',
     vi.fn().mockReturnValue({
       matches,
-      media: '(max-width: 1024px)',
+      media: MOBILE_PREVIEW_QUERY,
       onchange: null,
       addEventListener,
       removeEventListener,
@@ -78,4 +81,58 @@ describe('DocumentBuilderLayout', () => {
     expect(editorPane).not.toHaveAttribute('inert');
     expect(editorPane).not.toHaveAttribute('aria-hidden');
   });
+});
+
+function PreviewHarness() {
+  const controls = useDocumentPreviewControls();
+  return (
+    <>
+      <button onClick={controls.onTogglePreview}>
+        {controls.isPreviewOpen ? '닫기' : '열기'}
+      </button>
+      <DocumentBuilderLayout
+        form={<input aria-label="문서 입력" />}
+        preview={<div>미리보기 내용</div>}
+        previewControls={controls}
+      />
+    </>
+  );
+}
+
+describe('Preview 닫힘과 편집 영역 복구', () => {
+  it.each([true, false])(
+    'animationend 없이도 편집 영역을 복구한다 (reduced-motion=%s)',
+    (reducedMotion) => {
+      vi.useFakeTimers();
+      vi.stubGlobal('matchMedia', vi.fn((query: string) => ({
+        matches: query === MOBILE_PREVIEW_QUERY || reducedMotion,
+        addEventListener: vi.fn(),
+        removeEventListener: vi.fn(),
+      })));
+      const { container } = render(<PreviewHarness />);
+      const pane = container.querySelector('.documentEditorPane');
+
+      fireEvent.click(screen.getByRole('button', { name: '열기' }));
+      expect(pane).toHaveAttribute('inert');
+      fireEvent.click(screen.getByRole('button', { name: '닫기' }));
+
+      if (!reducedMotion) {
+        expect(pane).toHaveAttribute('inert');
+        act(() => { vi.advanceTimersByTime(300); });
+      }
+
+      expect(pane).not.toHaveAttribute('inert');
+      expect(pane).not.toHaveAttribute('aria-hidden');
+      const input = screen.getByRole('textbox', { name: '문서 입력' });
+      input.focus();
+      expect(input).toHaveFocus();
+      fireEvent.change(input, { target: { value: '계속 작성' } });
+      expect(input).toHaveValue('계속 작성');
+
+      // 이전 닫힘 타이머가 다시 연 패널을 닫지 않아야 합니다.
+      fireEvent.click(screen.getByRole('button', { name: '열기' }));
+      act(() => { vi.advanceTimersByTime(1_000); });
+      expect(pane).toHaveAttribute('inert');
+    },
+  );
 });

@@ -32,7 +32,7 @@ type Props = {
 
 export function MobileEditorActions({ actions, status }: Props) {
   const { onReset, onLoadSample, onExportPdf } = actions;
-  const { isDirty, isSaving, isExporting } = status;
+  const { isSaving, isExporting } = status;
   const menuButtonRef = useRef<HTMLButtonElement>(null);
   const [isResetDialogOpen, setIsResetDialogOpen] = useState(false);
   const [isLoadSampleDialogOpen, setIsLoadSampleDialogOpen] = useState(false);
@@ -99,7 +99,7 @@ export function MobileEditorActions({ actions, status }: Props) {
 
             {onReset && (
               <DropdownMenuItem
-                disabled={!isDirty || isSaving || isExporting}
+                disabled={isSaving || isExporting}
                 onSelect={() => setIsResetDialogOpen(true)}
               >
                 <RefreshCcw className="size-4" />
@@ -140,7 +140,7 @@ export function MobileEditorActions({ actions, status }: Props) {
             <AlertDialogHeader>
               <AlertDialogTitle>전체 초기화할까요?</AlertDialogTitle>
               <AlertDialogDescription>
-                입력한 내용이 모두 초기화됩니다. 이 작업은 되돌릴 수 없어요.
+                현재 문서의 입력 내용이 초기화됩니다. 초기화한 내용은 이후 자동 저장될 수 있으며, 기존 저장 내용을 대체합니다.
               </AlertDialogDescription>
             </AlertDialogHeader>
             <AlertDialogFooter>
