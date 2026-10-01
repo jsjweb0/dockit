@@ -1,5 +1,5 @@
 import type { ComponentType, ReactNode } from 'react';
-import { cleanup, fireEvent, render, screen, waitFor } from '@testing-library/react';
+import { act, cleanup, fireEvent, render, screen, waitFor } from '@testing-library/react';
 import { MemoryRouter, Route, Routes, useLocation } from 'react-router-dom';
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
 import type { CareerSummary } from '@/features/careerSummary/model/careerSummary.types';
@@ -8,9 +8,15 @@ import type { Resume } from '@/features/resume/model/resume.types';
 import { CareerSummaryBuilderPage } from './CareerSummaryBuilderPage';
 import { CoverLetterBuilderPage } from './CoverLetterBuilderPage';
 import { ResumeBuilderPage } from './ResumeBuilderPage';
+import { exportDocumentPdf } from '@/features/documents/model/document.export';
+
+vi.mock('@/features/documents/model/document.export', () => ({ exportDocumentPdf: vi.fn() }));
 
 afterEach(() => {
   cleanup();
+  vi.restoreAllMocks();
+  vi.clearAllMocks();
+  vi.useRealTimers();
 });
 
 type HeaderActions = {
@@ -85,8 +91,11 @@ vi.mock('@/features/documents/ui/DocumentValidationSummary', () => ({
 }));
 
 vi.mock('@/features/resume/ui/ResumeForm', () => ({
-  ResumeForm: ({ value }: { value: Resume }) => (
+  ResumeForm: ({ value, onChange }: { value: Resume; onChange: (next: Resume) => void }) => (
+    <>
+    <button onClick={() => onChange({ ...value, basics: { ...value.basics, name: '작성 중' } })}>부분 작성</button>
     <span data-testid="form-value">{value.basics.name}</span>
+    </>
   ),
 }));
 
@@ -97,8 +106,11 @@ vi.mock('@/features/resume/ui/ResumePreview', () => ({
 }));
 
 vi.mock('@/features/coverLetter/ui/CoverLetterForm', () => ({
-  CoverLetterForm: ({ value }: { value: CoverLetter }) => (
+  CoverLetterForm: ({ value, onChange }: { value: CoverLetter; onChange: (next: CoverLetter) => void }) => (
+    <>
+    <button onClick={() => onChange({ ...value, title: '작성 중' })}>부분 작성</button>
     <span data-testid="form-value">{value.title}</span>
+    </>
   ),
 }));
 
@@ -109,8 +121,11 @@ vi.mock('@/features/coverLetter/ui/CoverLetterPreview', () => ({
 }));
 
 vi.mock('@/features/careerSummary/ui/CareerSummaryForm', () => ({
-  CareerSummaryForm: ({ value }: { value: CareerSummary }) => (
+  CareerSummaryForm: ({ value, onChange }: { value: CareerSummary; onChange: (next: CareerSummary) => void }) => (
+    <>
+    <button onClick={() => onChange({ ...value, title: '작성 중' })}>부분 작성</button>
     <span data-testid="form-value">{value.title}</span>
+    </>
   ),
 }));
 
@@ -217,6 +232,15 @@ describe.each(documentPages)('$documentLabel BuilderPage', (documentPage) => {
       ).not.toBeNull();
     });
   });
+
+  it('미완성 초안도 60초 후 자동 저장한다', async () => {
+    vi.useFakeTimers();
+    renderDocumentPage({ ...documentPage, documentId: 'document-1' });
+    fireEvent.click(screen.getByRole('button', { name: '부분 작성' }));
+    await act(async () => { await vi.advanceTimersByTimeAsync(60_000); });
+    expect(localStorage.getItem(`${documentPage.storagePrefix}:document-1`)).toContain('작성 중');
+    expect(screen.getByTestId('validation-count')).toHaveTextContent('0');
+  });
 });
 
 describe('문서별 검증 연결', () => {
@@ -224,20 +248,25 @@ describe('문서별 검증 연결', () => {
     localStorage.clear();
   });
 
-  it.each(documentPages.slice(1))(
-    '$documentLabel는 유효하지 않은 기본 문서 저장 시 오류 요약을 갱신한다',
+  it.each(documentPages)(
+    '$documentLabel는 미완성 초안 저장을 허용하지만 PDF 출력은 차단한다',
     async (documentPage) => {
       renderDocumentPage({ ...documentPage, documentId: 'document-1' });
 
+      fireEvent.click(screen.getByRole('button', { name: '부분 작성' }));
       expect(screen.getByTestId('validation-count')).toHaveTextContent('0');
       fireEvent.click(screen.getByRole('button', { name: '저장' }));
 
       await waitFor(() => {
-        expect(Number(screen.getByTestId('validation-count').textContent)).toBeGreaterThan(0);
+        expect(localStorage.getItem(`${documentPage.storagePrefix}:document-1`)).toContain('작성 중');
       });
-      expect(
-        localStorage.getItem(`${documentPage.storagePrefix}:document-1`),
-      ).toBeNull();
+      expect(screen.getByTestId('validation-count')).toHaveTextContent('0');
+      fireEvent.click(screen.getByRole('button', { name: 'PDF' }));
+      expect(Number(screen.getByTestId('validation-count').textContent)).toBeGreaterThan(0);
+      expect(exportDocumentPdf).not.toHaveBeenCalled();
+      fireEvent.click(screen.getByRole('button', { name: '예시' }));
+      fireEvent.click(screen.getByRole('button', { name: 'PDF' }));
+      expect(exportDocumentPdf).toHaveBeenCalledOnce();
     },
   );
 

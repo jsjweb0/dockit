@@ -23,8 +23,12 @@ type Props = {
 };
 
 export function ProjectsSection({ value, onChange, validation }: Props) {
-  const { sectionErrors, touchSectionField, revalidateSectionField } =
-    validation;
+  const {
+    sectionErrors,
+    touchSectionField,
+    revalidateSectionItem,
+    clearSectionItem,
+  } = validation;
   const list = value.projects;
 
   const update = (id: string, patch: Partial<Project>) => {
@@ -36,8 +40,8 @@ export function ProjectsSection({ value, onChange, validation }: Props) {
     return nextResume;
   };
 
-  const revalidate = (id: string, field: string, nextResume: Resume) => {
-    revalidateSectionField('projects', id, field, nextResume);
+  const revalidate = (id: string, nextResume: Resume) => {
+    revalidateSectionItem('projects', id, nextResume);
   };
 
   const touch = (id: string, field: string) => {
@@ -62,6 +66,7 @@ export function ProjectsSection({ value, onChange, validation }: Props) {
   };
 
   const remove = (id: string) => {
+    clearSectionItem('projects', id);
     onChange({ ...value, projects: list.filter((x) => x.id !== id) });
   };
 
@@ -122,7 +127,7 @@ export function ProjectsSection({ value, onChange, validation }: Props) {
                   value={p.name}
                   onChange={(e) => {
                     const nextResume = update(p.id, { name: e.target.value });
-                    revalidate(p.id, 'name', nextResume);
+                    revalidate(p.id, nextResume);
                   }}
                   onBlur={() => touch(p.id, 'name')}
                   placeholder="예: DocKit 국문 이력서 작성 도구"
@@ -147,7 +152,7 @@ export function ProjectsSection({ value, onChange, validation }: Props) {
                   value={p.period}
                   onChange={(e) => {
                     const nextResume = update(p.id, { period: e.target.value });
-                    revalidate(p.id, 'period', nextResume);
+                    revalidate(p.id, nextResume);
                   }}
                   onBlur={() => touch(p.id, 'period')}
                   placeholder="예: 2026.04 - 2026.05"
@@ -173,7 +178,7 @@ export function ProjectsSection({ value, onChange, validation }: Props) {
                   value={p.stack}
                   onChange={(e) => {
                     const nextResume = update(p.id, { stack: e.target.value });
-                    revalidate(p.id, 'stack', nextResume);
+                    revalidate(p.id, nextResume);
                   }}
                   onBlur={() => touch(p.id, 'stack')}
                   placeholder="예: React, TypeScript, Vite, Tailwind CSS"
@@ -198,7 +203,7 @@ export function ProjectsSection({ value, onChange, validation }: Props) {
                   value={p.link ?? ''}
                   onChange={(e) => {
                     const nextResume = update(p.id, { link: e.target.value });
-                    revalidate(p.id, 'link', nextResume);
+                    revalidate(p.id, nextResume);
                   }}
                   onBlur={() => touch(p.id, 'link')}
                   placeholder="예: https://github.com/username/dockit"
@@ -226,7 +231,7 @@ export function ProjectsSection({ value, onChange, validation }: Props) {
                   const nextResume = update(p.id, {
                     description: e.target.value,
                   });
-                  revalidate(p.id, 'description', nextResume);
+                  revalidate(p.id, nextResume);
                 }}
                 onBlur={() => touch(p.id, 'description')}
                 rows={5}

@@ -22,8 +22,12 @@ type Props = {
 };
 
 export function EducationSection({ value, onChange, validation }: Props) {
-  const { sectionErrors, touchSectionField, revalidateSectionField } =
-    validation;
+  const {
+    sectionErrors,
+    touchSectionField,
+    revalidateSectionItem,
+    clearSectionItem,
+  } = validation;
   const list = value.education;
 
   const update = (id: string, patch: Partial<Education>) => {
@@ -35,8 +39,8 @@ export function EducationSection({ value, onChange, validation }: Props) {
     return nextResume;
   };
 
-  const revalidate = (id: string, field: string, nextResume: Resume) => {
-    revalidateSectionField('education', id, field, nextResume);
+  const revalidate = (id: string, nextResume: Resume) => {
+    revalidateSectionItem('education', id, nextResume);
   };
 
   const touch = (id: string, field: string) => {
@@ -44,6 +48,7 @@ export function EducationSection({ value, onChange, validation }: Props) {
   };
 
   const remove = (id: string) => {
+    clearSectionItem('education', id);
     onChange({
       ...value,
       education: list.filter((x) => x.id !== id),
@@ -115,7 +120,7 @@ export function EducationSection({ value, onChange, validation }: Props) {
                   const nextResume = update(e.id, {
                     institution: ev.target.value,
                   });
-                  revalidate(e.id, 'institution', nextResume);
+                  revalidate(e.id, nextResume);
                 }}
                 onBlur={() => touch(e.id, 'institution')}
                 placeholder="예: 한국대학교"
@@ -144,7 +149,7 @@ export function EducationSection({ value, onChange, validation }: Props) {
                 value={e.period}
                 onChange={(ev) => {
                   const nextResume = update(e.id, { period: ev.target.value });
-                  revalidate(e.id, 'period', nextResume);
+                  revalidate(e.id, nextResume);
                 }}
                 onBlur={() => touch(e.id, 'period')}
                 placeholder="예: 2021.03 - 2025.02"
@@ -170,7 +175,7 @@ export function EducationSection({ value, onChange, validation }: Props) {
                 value={e.major}
                 onChange={(ev) => {
                   const nextResume = update(e.id, { major: ev.target.value });
-                  revalidate(e.id, 'major', nextResume);
+                  revalidate(e.id, nextResume);
                 }}
                 onBlur={() => touch(e.id, 'major')}
                 placeholder="예: 컴퓨터공학과"

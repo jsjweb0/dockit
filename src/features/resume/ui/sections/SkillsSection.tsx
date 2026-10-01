@@ -33,7 +33,6 @@ export function SkillsSection({ value, onChange }: Props) {
             <FieldSeparator />
             <FieldGroup>
                 <SkillTagEditor
-                    key={`primary-${value.skills.primary.join("|")}`}
                     inputId="skills-primary"
                     label="핵심 스킬"
                     listLabel="등록된 핵심 스킬"
@@ -42,7 +41,6 @@ export function SkillsSection({ value, onChange }: Props) {
                     onChange={(nextSkills) => updateSkills("primary", nextSkills)}
                 />
                 <SkillTagEditor
-                    key={`tools-${value.skills.tools.join("|")}`}
                     inputId="skills-tools"
                     label="툴/협업"
                     listLabel="등록된 툴/협업 스킬"

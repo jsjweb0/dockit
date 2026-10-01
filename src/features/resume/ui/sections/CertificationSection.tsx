@@ -22,8 +22,12 @@ type Props = {
 };
 
 export function CertificationSection({ value, onChange, validation }: Props) {
-  const { sectionErrors, touchSectionField, revalidateSectionField } =
-    validation;
+  const {
+    sectionErrors,
+    touchSectionField,
+    revalidateSectionItem,
+    clearSectionItem,
+  } = validation;
   const list = value.certifications;
 
   const update = (id: string, patch: Partial<Certification>) => {
@@ -37,8 +41,8 @@ export function CertificationSection({ value, onChange, validation }: Props) {
     return nextResume;
   };
 
-  const revalidate = (id: string, field: string, nextResume: Resume) => {
-    revalidateSectionField('certifications', id, field, nextResume);
+  const revalidate = (id: string, nextResume: Resume) => {
+    revalidateSectionItem('certifications', id, nextResume);
   };
 
   const touch = (id: string, field: string) => {
@@ -56,6 +60,7 @@ export function CertificationSection({ value, onChange, validation }: Props) {
   };
 
   const remove = (id: string) => {
+    clearSectionItem('certifications', id);
     onChange({ ...value, certifications: list.filter((x) => x.id !== id) });
   };
 
@@ -114,7 +119,7 @@ export function CertificationSection({ value, onChange, validation }: Props) {
                   value={c.name}
                   onChange={(ev) => {
                     const nextResume = update(c.id, { name: ev.target.value });
-                    revalidate(c.id, 'name', nextResume);
+                    revalidate(c.id, nextResume);
                   }}
                   onBlur={() => touch(c.id, 'name')}
                   placeholder="예: 웹디자인기능사"
@@ -141,7 +146,7 @@ export function CertificationSection({ value, onChange, validation }: Props) {
                     const nextResume = update(c.id, {
                       acquiredAt: ev.target.value,
                     });
-                    revalidate(c.id, 'acquiredAt', nextResume);
+                    revalidate(c.id, nextResume);
                   }}
                   onBlur={() => touch(c.id, 'acquiredAt')}
                   placeholder="예: 2024.06"
@@ -172,7 +177,7 @@ export function CertificationSection({ value, onChange, validation }: Props) {
                 value={c.issuer}
                 onChange={(ev) => {
                   const nextResume = update(c.id, { issuer: ev.target.value });
-                  revalidate(c.id, 'issuer', nextResume);
+                  revalidate(c.id, nextResume);
                 }}
                 onBlur={() => touch(c.id, 'issuer')}
                 placeholder="예: 한국산업인력공단"

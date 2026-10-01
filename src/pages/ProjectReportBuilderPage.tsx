@@ -35,10 +35,6 @@ export function ProjectReportEditorContent() {
         fallbackTitle={`새 ${projectReportTemplate.title}`}
         actions={{
           onSave: async () => {
-            const isValid = projectReportValidation.validateAll();
-
-            if (!isValid) return;
-
             await editor.save({ silent: false });
           },
 

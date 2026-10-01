@@ -15,6 +15,7 @@ import {
   type BasicsValidatedField,
 } from '../model/resume.basics.validation';
 import {
+  SECTION_VALIDATED_FIELDS,
   type ResumeListSection,
   type ResumeSectionErrors,
 } from '../model/resume.optionalSections.validation';
@@ -53,10 +54,10 @@ export type ResumeValidationState = {
     field: string,
     nextResume?: Resume,
   ) => void;
-  revalidateSectionField: (
+  clearSectionItem: (section: ResumeListSection, id: string) => void;
+  revalidateSectionItem: (
     section: ResumeListSection,
     id: string,
-    field: string,
     nextResume?: Resume,
   ) => void;
   validateResumeBeforeExport: () => boolean;
@@ -79,6 +80,7 @@ export function useResumeValidationController({
   const {
     errors: validationErrors,
     resetValidation,
+    clearFields,
     touchField,
     revalidateField,
     validateBeforeSubmit,
@@ -125,14 +127,28 @@ export function useResumeValidationController({
     [resume, touchField],
   );
 
-  const revalidateSectionField = useCallback(
+  const clearSectionItem = useCallback(
+    (section: ResumeListSection, id: string) => {
+      clearFields(
+        SECTION_VALIDATED_FIELDS[section].map(
+          (field) => getSectionFieldKey(section, id, field),
+        ),
+      );
+    },
+    [clearFields],
+  );
+
+  const revalidateSectionItem = useCallback(
     (
       section: ResumeListSection,
       id: string,
-      field: string,
       nextResume = resume,
     ) => {
-      revalidateField(getSectionFieldKey(section, id, field), nextResume);
+      // 선택 항목의 필수 여부는 같은 항목의 다른 입력값에도 의존한다.
+      // 아직 건드리지 않은 필드는 기존처럼 오류를 표시하지 않는다.
+      SECTION_VALIDATED_FIELDS[section].forEach((field) => {
+        revalidateField(getSectionFieldKey(section, id, field), nextResume);
+      });
     },
     [resume, revalidateField],
   );
@@ -185,7 +201,8 @@ export function useResumeValidationController({
       touchBasicsField,
       revalidateBasicsField,
       touchSectionField,
-      revalidateSectionField,
+      revalidateSectionItem,
+      clearSectionItem,
       validateResumeBeforeExport,
     }),
     [
@@ -198,7 +215,8 @@ export function useResumeValidationController({
       touchBasicsField,
       revalidateBasicsField,
       touchSectionField,
-      revalidateSectionField,
+      revalidateSectionItem,
+      clearSectionItem,
       validateResumeBeforeExport,
     ],
   );

@@ -33,7 +33,8 @@ const createMockValidation = (
         touchBasicsField: vi.fn(),
         revalidateBasicsField: vi.fn(),
         touchSectionField: vi.fn(),
-        revalidateSectionField: vi.fn(),
+        revalidateSectionItem: vi.fn(),
+        clearSectionItem: vi.fn(),
         validateResumeBeforeExport: vi.fn(),
         ...overrides,
     }) as ResumeValidationState;

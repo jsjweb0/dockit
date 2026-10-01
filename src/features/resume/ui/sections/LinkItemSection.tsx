@@ -22,8 +22,12 @@ type Props = {
 };
 
 export function LinkItemSection({ value, onChange, validation }: Props) {
-  const { sectionErrors, touchSectionField, revalidateSectionField } =
-    validation;
+  const {
+    sectionErrors,
+    touchSectionField,
+    revalidateSectionItem,
+    clearSectionItem,
+  } = validation;
   const list = value.links;
 
   const update = (id: string, patch: Partial<LinkItem>) => {
@@ -36,8 +40,8 @@ export function LinkItemSection({ value, onChange, validation }: Props) {
     return nextResume;
   };
 
-  const revalidate = (id: string, field: string, nextResume: Resume) => {
-    revalidateSectionField('links', id, field, nextResume);
+  const revalidate = (id: string, nextResume: Resume) => {
+    revalidateSectionItem('links', id, nextResume);
   };
 
   const touch = (id: string, field: string) => {
@@ -52,6 +56,7 @@ export function LinkItemSection({ value, onChange, validation }: Props) {
   };
 
   const remove = (id: string) => {
+    clearSectionItem('links', id);
     onChange({ ...value, links: list.filter((x) => x.id !== id) });
   };
 
@@ -110,7 +115,7 @@ export function LinkItemSection({ value, onChange, validation }: Props) {
                   value={l.label}
                   onChange={(ev) => {
                     const nextResume = update(l.id, { label: ev.target.value });
-                    revalidate(l.id, 'label', nextResume);
+                    revalidate(l.id, nextResume);
                   }}
                   onBlur={() => touch(l.id, 'label')}
                   placeholder="예: GitHub"
@@ -136,7 +141,7 @@ export function LinkItemSection({ value, onChange, validation }: Props) {
                   value={l.url}
                   onChange={(ev) => {
                     const nextResume = update(l.id, { url: ev.target.value });
-                    revalidate(l.id, 'url', nextResume);
+                    revalidate(l.id, nextResume);
                   }}
                   onBlur={() => touch(l.id, 'url')}
                   placeholder="예: https://github.com/username"
